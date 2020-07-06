@@ -8,13 +8,13 @@ import json
 
 import pygame
 
-from funpyschool._engine import _coordsys
-from funpyschool._engine._tools import FrequencyMeter
-from funpyschool._engine._media import Color
-from funpyschool._engine._media import Image
-from funpyschool._engine._media import iter_images_set
-from funpyschool._engine._media import load_images_set
-from funpyschool._engine._media import scale_image_by
+from funpyschool._engine import coordsys
+from funpyschool._engine.tools import FrequencyMeter
+from funpyschool._engine.media import Color
+from funpyschool._engine.media import Image
+from funpyschool._engine.media import iter_images_set
+from funpyschool._engine.media import load_images_set
+from funpyschool._engine.media import scale_image_by
 
 
 
@@ -181,9 +181,9 @@ class Configurer:
         self._configure_sprites(self.engine.sprites, cfg.get("sprites"))
 
     def _configure_coordsys(self, engine, cfg):
-        coordsys_name = cfg.get("coordinate_system", _coordsys.DEFAULT)
+        coordsys_name = cfg.get("coordinate_system", coordsys.DEFAULT)
         try:
-            coordsys_class = getattr(_coordsys, coordsys_name)
+            coordsys_class = getattr(coordsys, coordsys_name)
         except AttributeError:
             raise ConfigError(f"invalid coordinate system: '{coordsys_name}'")
         else:
