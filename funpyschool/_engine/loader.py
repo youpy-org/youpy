@@ -8,10 +8,10 @@ from importlib import import_module
 import operator
 from collections.abc import Callable
 
-from .media import Image
+from .data import Image
+from .data import Sprite
 from .events import try_make_event
 from .events import EVENT_FUNC_PREFIX
-from .sprite import Sprite
 
 
 def _add_item_to_dict(d, obj):

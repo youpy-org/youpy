@@ -10,8 +10,8 @@ import pygame
 from funpyschool._project import Project
 from funpyschool._engine import coordsys
 from funpyschool._engine.tools import FrequencyMeter
-from funpyschool._engine.media import Color
-from funpyschool._engine.sprite import scale_sprite_by
+from funpyschool._engine.data import Color
+from funpyschool._engine.data import scale_sprite_by
 from funpyschool._engine.events import EventSet
 from funpyschool._engine.loader import Loader
 
