@@ -20,10 +20,10 @@ class Sprite:
     def __init__(self, path):
         self._path = Path(path)
         assert self._path.is_dir()
-        self.images = load_images_set(path)
-        self._index = 0
+        self.images = []
+        self._index = -1
         self.visible = True
-        self.rect = self.current_image.rect
+        self.rect = None
 
     @property
     def path(self):
@@ -42,6 +42,12 @@ class Sprite:
     @property
     def current_image(self):
         return self.images[self._index]
+
+def load_sprite_images(sprite):
+    sprite.images = load_images_set(sprite.path)
+    assert len(sprite.images) > 0
+    sprite._index = 0
+    sprite.rect = sprite.current_image.rect
 
 def scale_sprite_by(sprite, ratio=None):
     """

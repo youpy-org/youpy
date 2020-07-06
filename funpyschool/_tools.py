@@ -3,6 +3,11 @@
 """
 
 
+import sys
+import os
+from contextlib import contextmanager
+
+
 def as_ratio(obj):
     if isinstance(obj, int):
         return obj / 100
@@ -13,3 +18,13 @@ def as_ratio(obj):
 
 def scale_size_by(size, ratio):
     return (round(size[0] * ratio), round(size[1] * ratio))
+
+@contextmanager
+def extended_sys_path(path):
+    sys.path.append(os.path.abspath(path))
+    try:
+        yield
+    finally:
+        sys.path.pop()
+
+IDENT_PATTERN = r"[^\s\d]\w+"

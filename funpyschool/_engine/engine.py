@@ -3,50 +3,22 @@
 """
 
 
-from pathlib import Path
 import json
+from importlib import import_module
 
 import pygame
 
+from funpyschool._project import Project
 from funpyschool._engine import coordsys
 from funpyschool._engine.tools import FrequencyMeter
 from funpyschool._engine.media import Color
 from funpyschool._engine.media import Image
-from funpyschool._engine.media import iter_images_set
 from funpyschool._engine.sprite import Sprite
+from funpyschool._engine.sprite import load_sprite_images
 from funpyschool._engine.sprite import scale_sprite_by
+from funpyschool._engine.events import load_events_to
+from funpyschool._engine.events import EventSet
 
-
-class Project:
-
-    STAGE_DIR = "stage"
-
-    def __init__(self, path):
-        self._path = Path(path)
-
-    @property
-    def path(self):
-        return self._path
-
-    @property
-    def name(self):
-        return self._path.name
-
-    @property
-    def stage_dir(self):
-        return self._path / self.STAGE_DIR
-
-    def iter_backdrop_images(self):
-        yield from iter_images_set(self.stage_dir)
-
-    def iter_sprite_dirs(self):
-        for p in self._path.iterdir():
-            if p.name != self.STAGE_DIR and p.is_dir():
-                yield p
-
-    @property
-    def config_file(self):
-        return self._path / "config.json"
 
 class Scene:
 
@@ -89,11 +61,19 @@ class Loader:
         for i, path in enumerate(engine.project.iter_backdrop_images()):
             _add_item_to_dict(engine.scene.backdrops, Image(path))
             self.progress.in_section("backdrops", i, path)
+        load_events_to(engine.events,
+                       import_module(engine.project.stage_module_path))
         self.progress.end_section()
 
     def _load_sprites(self, engine):
         for i, path in enumerate(engine.project.iter_sprite_dirs()):
-            _add_item_to_dict(engine.sprites, Sprite(path))
+            sprite = Sprite(path)
+            load_sprite_images(sprite)
+            load_events_to(
+                engine.events,
+                import_module(engine.project.sprite_module_path(sprite.name)),
+                sprite=sprite)
+            _add_item_to_dict(engine.sprites, sprite)
             self.progress.in_section("sprites", i, path)
         self.progress.end_section()
 
@@ -213,6 +193,7 @@ class Engine:
         self.scene = Scene()
         self.sprites = {}
         self._is_running = False
+        self.events = EventSet()
 
     @property
     def is_running(self):

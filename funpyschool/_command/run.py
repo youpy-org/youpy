@@ -7,8 +7,7 @@ import argparse
 
 from funpyschool._cli.argparse import ArgparseFormatter
 from funpyschool._cli.argparse import parse_cli_args
-from funpyschool._engine import Engine
-from funpyschool._engine import Project
+from funpyschool._runner import run
 
 
 PROGNAME = "funpyschool-run"
@@ -28,8 +27,3 @@ def mkcli():
 def main(argv, opts):
     opts, _ = parse_cli_args(mkcli(), argv[1:], opts)
     run(opts.project_dir)
-
-def run(project_dir):
-    project = Project(project_dir)
-    engine = Engine(project)
-    engine.run()

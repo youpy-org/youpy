@@ -1,4 +1,4 @@
-from funpyschool.functions.all import *
+from funpyschool.code.english.everything import *
 
 def when_backdrop_switches_to_InGame():
     go_to(0, -160)
@@ -15,3 +15,5 @@ def when_backdrop_switches_to_GameOver():
     hide()
     stop_others()
     stop_it()
+
+run(locals())
