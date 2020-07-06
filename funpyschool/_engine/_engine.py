@@ -3,136 +3,20 @@
 """
 
 
-import os
-import re
 from pathlib import Path
-import operator
 import json
-import time
 
 import pygame
 
-from . import _coordsys
+from funpyschool._engine import _coordsys
+from funpyschool._engine._tools import FrequencyMeter
+from funpyschool._engine._media import Color
+from funpyschool._engine._media import Image
+from funpyschool._engine._media import iter_images_set
+from funpyschool._engine._media import load_images_set
+from funpyschool._engine._media import scale_image_by
 
 
-class FrequencyMeter:
-
-    def __init__(self):
-        self._count = 0
-        self._frequency = 0.0
-        self._last_updated_at = 0.0
-        self._updated = False
-
-    def update(self):
-        t = time.time()
-        duration = (t - self._last_updated_at)
-        if duration > 1.0: # sec
-            self._frequency = self._count / duration
-            self._count = 0
-            self._last_updated_at = t
-            self._updated = True
-        else:
-            self._count += 1
-            self._updated = False
-        return self._updated
-
-    @property
-    def frequency(self):
-        return self._frequency
-
-    @property
-    def updated(self):
-        return self._updated
-
-    def __str__(self):
-        return f"{self._frequency:.2f}"
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(count={self.count}, "\
-            f"frequency={self._frequency}, "\
-            f"last_updated_at={self._last_updated_at})"
-
-class Color:
-
-    # Internally use pygame.Color to save space and get access to cool function
-    # I don't want to recode myself.
-
-    __slots__ = ("_c",)
-
-    def __init__(self, red, green, blue, alpha=255):
-        self._c = pygame.Color(red, green, blue)
-
-    @property
-    def red(self):
-        return self._c.r
-
-    @property
-    def green(self):
-        return self._c.g
-
-    @property
-    def blue(self):
-        return self._c.b
-
-Color.black  = Color(  0,   0,   0)
-Color.white  = Color(255, 255, 255)
-Color.gray   = Color(127, 127, 127)
-Color.red    = Color(255,   0,   0)
-Color.green  = Color(  0, 255,   0)
-Color.blue   = Color(  0,   0, 255)
-Color.yellow = Color(  0, 255, 255)
-Color.purple = Color(255,   0, 255)
-
-class Image:
-
-    _NAME_RX = re.compile(r"(?P<index>\d+)?[- _]*(?P<name>\w+)\.\w+?")
-
-    def __init__(self, path):
-        self.path = Path(path)
-        assert self.path.is_file()
-        mo = self._NAME_RX.fullmatch(self.path.name)
-        assert mo, f"invalid image file name '{path}'"
-        self.name = mo.group("name")
-        self.index = mo.group("index")
-        self.index = 0 if self.index is None else int(self.index)
-        self.surface = pygame.image.load(os.fspath(self.path))
-
-    @property
-    def rect(self):
-        return self.surface.get_rect()
-
-def iter_images_set(path):
-    path = Path(path)
-    assert path.is_dir()
-    for p in path.iterdir():
-        if p.suffix in (".png", ".jpg"):
-            yield p
-
-def load_images_set(path):
-    l = [Image(p) for p in iter_images_set(path)]
-    l.sort(key=operator.attrgetter("index"))
-    return l
-
-def as_ratio(obj):
-    if isinstance(obj, int):
-        return obj / 100
-    elif isinstance(obj, float):
-        return obj
-    else:
-        raise TypeError(f"expected (int, float), got {type(obj).__name__}")
-
-def scale_size_by(size, ratio):
-    return (round(size[0] * ratio), round(size[1] * ratio))
-
-def scale_image_by(image, ratio=None):
-    """
-    Operate in place!
-    """
-    if ratio is None:
-        return
-    ratio = as_ratio(ratio)
-    size = scale_size_by(image.rect.size, ratio)
-    image.surface = pygame.transform.scale(image.surface, size)
 
 def scale_sprite_by(sprite, ratio=None):
     """
