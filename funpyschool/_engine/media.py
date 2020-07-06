@@ -5,7 +5,6 @@
 import os
 import re
 from pathlib import Path
-import operator
 
 import pygame
 
@@ -61,18 +60,6 @@ class Image:
     @property
     def rect(self):
         return self.surface.get_rect()
-
-def iter_images_set(path):
-    path = Path(path)
-    assert path.is_dir()
-    for p in path.iterdir():
-        if p.suffix in (".png", ".jpg"):
-            yield p
-
-def load_images_set(path):
-    l = [Image(p) for p in iter_images_set(path)]
-    l.sort(key=operator.attrgetter("index"))
-    return l
 
 def scale_image_by(image, ratio=None):
     """

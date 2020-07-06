@@ -5,8 +5,6 @@
 
 from pathlib import Path
 
-from funpyschool._engine.media import iter_images_set
-
 
 def is_project_dir(path):
     return (path / "__main__.py").exists()
@@ -38,9 +36,6 @@ class Project:
     @property
     def stage_dir(self):
         return self._path / self.STAGE_DIR
-
-    def iter_backdrop_images(self):
-        yield from iter_images_set(self.stage_dir)
 
     def iter_sprite_dirs(self):
         for p in self._path.iterdir():

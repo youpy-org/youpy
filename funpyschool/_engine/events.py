@@ -64,22 +64,10 @@ class KeyPressed(Event):
 class ProgramStart(Event):
     pattern = r"program_start"
 
-def try_make_event(sprite, mod, attr):
+def try_make_event(callback, sprite=None):
     for event_type in Event.types:
-        mo = event_type.regex.fullmatch(attr)
+        mo = event_type.regex.fullmatch(callback.__name__)
         if mo:
             return event_type(sprite=sprite,
-                              callback=getattr(mod, attr),
+                              callback=callback,
                               **mo.groupdict())
-
-def load_events_to(eventset, mod, sprite=None):
-    """
-    Arguments:
-      sprite: might be None for the stage.
-    """
-    for attr in dir(mod):
-        if attr.startswith(EVENT_FUNC_PREFIX):
-            event = try_make_event(sprite, mod, attr)
-            if event is None:
-                raise RuntimeError(f"invalid event name: '{attr}'")
-            eventset.add(event)

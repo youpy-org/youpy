@@ -5,7 +5,6 @@
 
 from pathlib import Path
 
-from .media import load_images_set
 from .media import scale_image_by
 
 
@@ -42,12 +41,6 @@ class Sprite:
     @property
     def current_image(self):
         return self.images[self._index]
-
-def load_sprite_images(sprite):
-    sprite.images = load_images_set(sprite.path)
-    assert len(sprite.images) > 0
-    sprite._index = 0
-    sprite.rect = sprite.current_image.rect
 
 def scale_sprite_by(sprite, ratio=None):
     """

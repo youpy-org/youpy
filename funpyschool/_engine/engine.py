@@ -4,7 +4,6 @@
 
 
 import json
-from importlib import import_module
 
 import pygame
 
@@ -12,12 +11,9 @@ from funpyschool._project import Project
 from funpyschool._engine import coordsys
 from funpyschool._engine.tools import FrequencyMeter
 from funpyschool._engine.media import Color
-from funpyschool._engine.media import Image
-from funpyschool._engine.sprite import Sprite
-from funpyschool._engine.sprite import load_sprite_images
 from funpyschool._engine.sprite import scale_sprite_by
-from funpyschool._engine.events import load_events_to
 from funpyschool._engine.events import EventSet
+from funpyschool._engine.loader import Loader
 
 
 class Scene:
@@ -43,47 +39,6 @@ class Scene:
     @property
     def center(self):
         return (self.width // 2, self.height // 2)
-
-def _add_item_to_dict(d, obj):
-    assert " " not in obj.name
-    d[obj.name] = obj
-
-class Loader:
-
-    def __init__(self, progress=None):
-        self.progress = progress or DummyProgress()
-
-    def load(self, engine):
-        self._load_backdrops(engine)
-        self._load_sprites(engine)
-
-    def _load_backdrops(self, engine):
-        for i, path in enumerate(engine.project.iter_backdrop_images()):
-            _add_item_to_dict(engine.scene.backdrops, Image(path))
-            self.progress.in_section("backdrops", i, path)
-        load_events_to(engine.events,
-                       import_module(engine.project.stage_module_path))
-        self.progress.end_section()
-
-    def _load_sprites(self, engine):
-        for i, path in enumerate(engine.project.iter_sprite_dirs()):
-            sprite = Sprite(path)
-            load_sprite_images(sprite)
-            load_events_to(
-                engine.events,
-                import_module(engine.project.sprite_module_path(sprite.name)),
-                sprite=sprite)
-            _add_item_to_dict(engine.sprites, sprite)
-            self.progress.in_section("sprites", i, path)
-        self.progress.end_section()
-
-class DummyProgress:
-
-    def in_section(self, name, index, path):
-        pass
-
-    def end_section(self):
-        pass
 
 class ConsoleProgress:
 
