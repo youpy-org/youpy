@@ -11,10 +11,10 @@ def is_project_dir(path):
 
 def get_project_dir(path):
     p = Path(path).resolve()
-    while p != p.root and not is_project_dir(p):
+    while str(p) != p.root and not is_project_dir(p):
         p = p.parent
-    if p == p.root:
-        raise ValueError("invalid project path: '{path}'")
+    if str(p) == p.root:
+        raise ValueError(f"invalid project path: '{path}'")
     return p
 
 class Project:
