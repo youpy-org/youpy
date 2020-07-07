@@ -4,6 +4,7 @@
 
 
 from collections.abc import MutableMapping
+from collections import OrderedDict
 
 import pygame
 
@@ -23,8 +24,8 @@ class Scene:
         self.width = 480
         self.height = 360
         self.surface = None
-        self.backdrops = {}
-        self.backdrop = None
+        self.backdrops = OrderedDict() # important to support "next backdrop"
+        self._backdrop = None
 
     @property
     def size(self):
@@ -40,6 +41,14 @@ class Scene:
     @property
     def center(self):
         return (self.width // 2, self.height // 2)
+
+    @property
+    def backdrop(self):
+        return self._backdrop
+
+    @backdrop.setter
+    def backdrop(self, backdrop):
+        self._backdrop = self.backdrops[backdrop]
 
 class ConsoleProgress:
 

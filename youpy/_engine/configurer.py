@@ -46,7 +46,7 @@ class Configurer:
         initial_backdrop = cfg.get("initial_backdrop")
         if initial_backdrop is not None:
             try:
-                scene.backdrop = scene.backdrops[initial_backdrop]
+                scene.backdrop = initial_backdrop
             except KeyError:
                 raise ConfigError(
                     f"invalid initial backdrop: '{initial_backdrop}'")
