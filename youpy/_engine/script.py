@@ -41,7 +41,7 @@ class ScriptSet:
 
     def _stop_all_scripts(self):
         for script in self._scripts.values():
-            script.pipe.reply_queue.put(message.StopScript)
+            script.pipe.reply_queue.put(message.StopScript())
 
     def __iter__(self):
         return iter(self._scripts.values())
@@ -83,8 +83,8 @@ class Script(_concurrency.Task):
     def send(self, request):
         self.pipe.request_queue.put(request)
         reply = self.pipe.reply_queue.get()
-        if reply is message.StopScript:
-            raise StopScript
+        if isinstance(reply, Exception):
+            raise reply
         return reply
 
 def send_request(request):

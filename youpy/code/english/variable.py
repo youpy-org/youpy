@@ -9,43 +9,53 @@ from youpy._engine import message
 
 class SharedVariable:
 
-    def __init__(self, name):
+    def __init__(self, name, value):
         self._name = name
+        self._value = value
 
     @property
     def value(self):
-        return send_request(message.SharedVariableGet(name=self._name))
+        return self._value
 
     def hide(self):
         return send_request(message.SharedVariableOp(name=self._name,
                                                      op="hide"))
 
-class SharedVariableSet:
+    def show(self):
+        return send_request(message.SharedVariableOp(name=self._name,
+                                                     op="show"))
 
-    def __init__(self):
-        self._d = {}
+class SharedVariableSet:
+    """Holds the set of the shared variables proxy.
+
+    WARNING: This class is a singleton and is accessed concurrently. Do not
+             store any unprotected (by a lock) attributes in there.
+    """
+
+    # Make sure we have no attribute otherwise a lock will be required.
+    __slots__ = ()
 
     def __getattr__(self, name):
         try:
-            return self._d[name]
+            value = send_request(message.SharedVariableOp(name=name, op="get"))
         except KeyError:
-            raise AttributeError(f"undefined shared variable: '{name}'")
+            raise AttributeError(f"undefined shared variable '{name}'")
+        else:
+            return SharedVariable(name, value)
 
     def __setattr__(self, name, value):
         if name.startswith("_"):
             return super().__setattr__(name, value)
         send_request(message.SharedVariableNew(name=name, value=value))
-        self._d[name] = SharedVariable(name)
 
     def __delattr__(self, name):
-        send_request(message.SharedVariableDel(name))
-
-def hide_variable(variable):
-    variable.hide()
+        try:
+            send_request(message.SharedVariableDel(name))
+        except KeyError:
+            raise AttributeError(f"undefined shared variable '{name}'")
 
 shared_variable = SharedVariableSet()
 
 __all__ = (
-    "hide_variable",
     "shared_variable",
 )

@@ -88,20 +88,21 @@ class Server:
             except queue.Empty:
                 pass
             else:
-                reply = self.process_request(request)
+                try:
+                    reply = self.process_request(request)
+                except Exception as e:
+                    reply = e
                 script.pipe.reply_queue.put(reply, block=False)
 
     def process_request(self, request):
-        reply = None
         if isinstance(request, message.SharedVariableNew):
             self.engine.shared_variables[request.name] = request.value
         elif isinstance(request, message.SharedVariableDel):
             del self.engine.shared_variables[request.name]
         elif isinstance(request, message.SharedVariableOp):
-            reply = getattr(self.engine.shared_variables[request.name], request.op)(*request.args, **request.kwargs)
+            return getattr(self.engine.shared_variables[request.name], request.op)(*request.args, **request.kwargs)
         else:
             raise RuntimeError(f"unknown request: {request!r}")
-        return reply
 
 class SharedVariable:
 
