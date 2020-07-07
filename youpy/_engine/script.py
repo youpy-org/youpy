@@ -49,8 +49,6 @@ class ScriptSet:
     def __len__(self):
         return len(self._scripts)
 
-
-
 class StopScript(Exception):
     pass
 
