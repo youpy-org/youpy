@@ -4,4 +4,4 @@
 
 
 from .engine import Engine
-from .engine import Project
+from .script import send_request

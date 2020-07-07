@@ -3,6 +3,8 @@
 """
 
 
+from collections.abc import MutableMapping
+
 import pygame
 
 from funpyschool._project import Project
@@ -11,6 +13,8 @@ from funpyschool._engine.data import Color
 from funpyschool._engine.events import EventSet
 from funpyschool._engine.loader import Loader
 from funpyschool._engine.configurer import Configurer
+from funpyschool._engine.script import ScriptSet
+from funpyschool._engine import message
 
 
 class Scene:
@@ -72,6 +76,68 @@ class Renderer:
             return
         scene.surface.blit(sprite.current_image.surface, sprite.rect)
 
+class Server:
+
+    def __init__(self, engine):
+        self.engine = engine
+
+    def process(self):
+        for script in self.engine.scripts:
+            try:
+                request = script.pipe.request_queue.get(block=False)
+            except queue.Empty:
+                pass
+            else:
+                reply = self.process_request(request)
+                script.pipe.reply_queue.put(reply, block=False)
+
+    def process_request(self, request):
+        reply = None
+        if isinstance(request, message.SharedVariableNew):
+            self.engine.shared_variables[request.name] = request.value
+        elif isinstance(request, message.SharedVariableDel):
+            del self.engine.shared_variables[request.name]
+        elif isinstance(request, message.SharedVariableOp):
+            reply = getattr(self.engine.shared_variables[request.name], request.op)(*request.args, **request.kwargs)
+        else:
+            raise RuntimeError(f"unknown request: {request!r}")
+        return reply
+
+class SharedVariable:
+
+    def __init__(self, value):
+        self._value = value
+        self._visible = True
+
+    def get(self):
+        return self._value
+
+    def hide(self):
+        self._visible = False
+
+    def __iadd__(self, other):
+        self._value += other
+
+class SharedVariableSet(MutableMapping):
+
+    def __init__(self):
+        self._d = {}
+
+    def __setitem__(self, name, value):
+        self._d[name] = SharedVariable(value)
+
+    def __getitem__(self, name):
+        return self._d[name]
+
+    def __delitem__(self, name):
+        del self._d[name]
+
+    def __iter__(self):
+        return iter(self._d)
+
+    def __len__(self):
+        return len(self._d)
+
 class Engine:
 
     def __init__(self, project):
@@ -80,6 +146,8 @@ class Engine:
         self.sprites = {}
         self._is_running = False
         self.events = EventSet()
+        self.scripts = ScriptSet()
+        self.shared_variables = SharedVariableSet()
 
     @property
     def is_running(self):
@@ -97,7 +165,8 @@ class Engine:
             self._load()
             self._configure()
             self._renderer = Renderer()
-            self._loop()
+            self._server = Server(self)
+            return self._loop()
         finally:
             self._is_running = False
 
@@ -117,6 +186,7 @@ class Engine:
         Configurer(self).configure()
 
     def _loop(self):
+        self.scripts.bulk_trigger(self.events.ProgramStartEvents)
         while self._is_running:
             for event in pygame.event.get():
                 # print(type(event), event)
@@ -126,7 +196,9 @@ class Engine:
                     self._is_running = False
                 # elif event.type == pygame.MOUSEMOTION:
                 #     MOUSE._set_pos(*event.pos)
+            self._server.process()
             self._render()
+        self.scripts.join()
 
     def _render(self):
         self._renderer.render(self)

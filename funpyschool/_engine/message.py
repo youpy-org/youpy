@@ -1,0 +1,30 @@
+# -*- encoding: utf-8 -*-
+"""
+"""
+
+
+from typing import Any
+from typing import Tuple
+from typing import Mapping
+from dataclasses import dataclass
+from dataclasses import field
+
+
+class StopScript:
+    pass
+
+@dataclass
+class SharedVariableNew:
+    name: str
+    value: Any
+
+@dataclass
+class SharedVariableDel:
+    name: str
+
+@dataclass
+class SharedVariableOp:
+    name: str
+    op: str
+    args: Tuple[Any] = ()
+    kwargs: Mapping[str, Any] = field(default_factory=dict)
