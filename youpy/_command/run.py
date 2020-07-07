@@ -8,6 +8,7 @@ import argparse
 from youpy._cli.argparse import ArgparseFormatter
 from youpy._cli.argparse import parse_cli_args
 from youpy._runner import run
+from youpy._project import InvalidProjectDir
 
 
 PROGNAME = "youpy-run"
@@ -26,4 +27,9 @@ def mkcli():
 
 def main(argv, opts):
     opts, _ = parse_cli_args(mkcli(), argv[1:], opts)
-    run(opts.project_dir)
+    try:
+        run(opts.project_dir)
+        return 0
+    except InvalidProjectDir as e:
+        print(e)
+        return 1

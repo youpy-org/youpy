@@ -5,16 +5,28 @@
 
 from pathlib import Path
 
+from youpy._engine.error import YoupyException
+
+
+class InvalidProjectDir(YoupyException):
+
+    def __init__(self, path):
+        self.path = path
+
+    def __str__(self):
+        return f"invalid project path: '{self.path}'"
+
+INTERNAL_DIR = ".youpy"
 
 def is_project_dir(path):
-    return (path / "__main__.py").exists()
+    return (path / INTERNAL_DIR).exists()
 
 def get_project_dir(path):
     p = Path(path).resolve()
     while str(p) != p.root and not is_project_dir(p):
         p = p.parent
     if str(p) == p.root:
-        raise ValueError(f"invalid project path: '{path}'")
+        raise InvalidProjectDir(path)
     return p
 
 class Project:
@@ -39,13 +51,13 @@ class Project:
 
     def iter_sprite_dirs(self):
         for p in self._path.iterdir():
-            if p.name != self.STAGE_DIR and p.name != "__pycache__" \
+            if p.name not in (self.STAGE_DIR, "__pycache__", INTERNAL_DIR) \
                and p.is_dir():
                 yield p
 
     @property
     def config_file(self):
-        return self._path / "config.json"
+        return self._path / INTERNAL_DIR / "config.json"
 
     @property
     def stage_module_path(self):
