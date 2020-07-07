@@ -6,14 +6,14 @@
 import sys
 import argparse
 
-from funpyschool._command import import_command
-from funpyschool._command import iter_command_names
-from funpyschool._command import CommandNotFoundError
-from funpyschool._cli.argparse import ArgparseFormatter
-from funpyschool._cli.argparse import chop_cmdsep
+from youpy._command import import_command
+from youpy._command import iter_command_names
+from youpy._command import CommandNotFoundError
+from youpy._cli.argparse import ArgparseFormatter
+from youpy._cli.argparse import chop_cmdsep
 
 
-PROGNAME = "funpyschool"
+PROGNAME = "youpy"
 
 def mkcli():
     parser = argparse.ArgumentParser(

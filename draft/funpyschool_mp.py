@@ -173,7 +173,7 @@ class UserScript(multiprocessing.Process):
 def render(sprites, pipes, mouse, start_event):
     import pygame
     pygame.init()
-    pygame.display.set_caption('FunPySchool')
+    pygame.display.set_caption('Youpy')
     screen = pygame.display.set_mode(SCREEN_SIZE)
     mouse._set_pos(*pygame.mouse.get_pos())
     print("mouse", mouse)

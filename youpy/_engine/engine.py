@@ -7,14 +7,14 @@ from collections.abc import MutableMapping
 
 import pygame
 
-from funpyschool._project import Project
-from funpyschool._engine.tools import FrequencyMeter
-from funpyschool._engine.data import Color
-from funpyschool._engine.events import EventSet
-from funpyschool._engine.loader import Loader
-from funpyschool._engine.configurer import Configurer
-from funpyschool._engine.script import ScriptSet
-from funpyschool._engine import message
+from youpy._project import Project
+from youpy._engine.tools import FrequencyMeter
+from youpy._engine.data import Color
+from youpy._engine.events import EventSet
+from youpy._engine.loader import Loader
+from youpy._engine.configurer import Configurer
+from youpy._engine.script import ScriptSet
+from youpy._engine import message
 
 
 class Scene:

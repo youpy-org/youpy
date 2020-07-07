@@ -3,7 +3,7 @@
 """
 
 
-from funpyschool import _concurrency
+from youpy import _concurrency
 from . import message
 
 

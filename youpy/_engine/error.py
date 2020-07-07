@@ -2,5 +2,5 @@
 """
 """
 
-class FunPySchoolException(Exception):
+class YoupyException(Exception):
     pass

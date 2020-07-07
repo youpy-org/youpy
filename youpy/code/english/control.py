@@ -12,8 +12,8 @@ def run(caller_locals=None):
     #     caller_scope = inspect.stack()[-1].frame.f_locals
     if caller_locals.get("__name__") != "__main__":
         return
-    import funpyschool
-    funpyschool.run(caller_locals["__file__"])
+    import youpy
+    youpy.run(caller_locals["__file__"])
 
 
 __all__ = (

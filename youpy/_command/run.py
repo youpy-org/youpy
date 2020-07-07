@@ -5,12 +5,12 @@
 
 import argparse
 
-from funpyschool._cli.argparse import ArgparseFormatter
-from funpyschool._cli.argparse import parse_cli_args
-from funpyschool._runner import run
+from youpy._cli.argparse import ArgparseFormatter
+from youpy._cli.argparse import parse_cli_args
+from youpy._runner import run
 
 
-PROGNAME = "funpyschool-run"
+PROGNAME = "youpy-run"
 
 def mkcli():
     parser = argparse.ArgumentParser(

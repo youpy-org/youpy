@@ -5,12 +5,12 @@
 
 import json
 
-from .error import FunPySchoolException
+from .error import YoupyException
 from . import coordsys
 from .data import scale_sprite_by
 
 
-class ConfigError(FunPySchoolException):
+class ConfigError(YoupyException):
     pass
 
 class Configurer:

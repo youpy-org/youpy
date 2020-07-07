@@ -3,8 +3,8 @@
 """
 
 
-from funpyschool._engine import send_request
-from funpyschool._engine import message
+from youpy._engine import send_request
+from youpy._engine import message
 
 
 class SharedVariable:

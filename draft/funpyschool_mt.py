@@ -179,7 +179,7 @@ class UserScript(threading.Thread):
 def render(sprites, pipes):
     import pygame
     pygame.init()
-    pygame.display.set_caption('FunPySchool')
+    pygame.display.set_caption('Youpy')
     screen = pygame.display.set_mode(SCREEN_SIZE)
     MOUSE._set_pos(*pygame.mouse.get_pos())
 

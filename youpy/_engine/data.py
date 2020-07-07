@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pygame
 
-from funpyschool._tools import as_ratio
-from funpyschool._tools import scale_size_by
+from youpy._tools import as_ratio
+from youpy._tools import scale_size_by
 
 
 class Color:
