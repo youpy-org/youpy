@@ -3,6 +3,8 @@
 """
 
 
+import time
+
 
 def run(caller_locals=None):
     # The call is to get rid of the call to locals() in the caller.
@@ -15,7 +17,10 @@ def run(caller_locals=None):
     import youpy
     youpy.run(caller_locals["__file__"])
 
+def wait(delay):
+    time.sleep(delay)
 
 __all__ = (
     "run",
+    "wait",
 )
