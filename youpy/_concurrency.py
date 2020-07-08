@@ -6,11 +6,15 @@ threads VS processes)
 """
 
 
+# TODO(Nicolas Despres): Completely wrap the Queue and Task classes for proper
+#  abstraction.
+
 import threading as _concurrency
 import queue as _queue
 
 Task = _concurrency.Thread
 Queue = _queue.Queue
+EmptyQueue = _queue.Empty
 
 def get_context():
     return _concurrency.local()

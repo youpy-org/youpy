@@ -16,6 +16,7 @@ from youpy._engine.loader import Loader
 from youpy._engine.configurer import Configurer
 from youpy._engine.script import ScriptSet
 from youpy._engine import message
+from youpy._concurrency import EmptyQueue
 
 
 class Scene:
@@ -94,7 +95,7 @@ class Server:
         for script in self.engine.scripts:
             try:
                 request = script.pipe.request_queue.get(block=False)
-            except queue.Empty:
+            except EmptyQueue:
                 pass
             else:
                 try:
