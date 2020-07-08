@@ -91,7 +91,7 @@ class Server:
     def __init__(self, engine):
         self.engine = engine
 
-    def process(self):
+    def process_requests(self):
         for script in self.engine.scripts:
             try:
                 request = script.pipe.request_queue.get(block=False)
@@ -207,7 +207,7 @@ class Engine:
                     self._is_running = False
                 # elif event.type == pygame.MOUSEMOTION:
                 #     MOUSE._set_pos(*event.pos)
-            self._server.process()
+            self._server.process_requests()
             self._render()
         self.scripts.join()
 
