@@ -11,7 +11,7 @@ import pygame
 from youpy._project import Project
 from youpy._engine.tools import FrequencyMeter
 from youpy._engine.data import Color
-from youpy._engine.events import EventSet
+from youpy._engine import events
 from youpy._engine.loader import Loader
 from youpy._engine.configurer import Configurer
 from youpy._engine.script import ScriptSet
@@ -111,6 +111,13 @@ class Server:
             del self.engine.shared_variables[request.name]
         elif isinstance(request, message.SharedVariableOp):
             return getattr(self.engine.shared_variables[request.name], request.op)(*request.args, **request.kwargs)
+        elif isinstance(request, message.BackdropSwitchTo):
+            if self.engine.scene.backdrop != request.name:
+                try:
+                    self.engine.scene.backdrop = request.name
+                except KeyError:
+                    raise ValueError(f"invalid backdrop: '{request.name}'")
+                self.engine.pending_events.extend(self.engine.events.get(events.BackdropSwitches(backdrop=request.name)))
         else:
             raise RuntimeError(f"unknown request: {request!r}")
 
@@ -156,7 +163,8 @@ class Engine:
         self.scene = Scene()
         self.sprites = {}
         self._is_running = False
-        self.events = EventSet()
+        self.events = events.EventSet()
+        self.pending_events = []
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
 
@@ -208,8 +216,15 @@ class Engine:
                 # elif event.type == pygame.MOUSEMOTION:
                 #     MOUSE._set_pos(*event.pos)
             self._server.process_requests()
+            self._trigger_pending_events()
             self._render()
         self.scripts.join()
 
     def _render(self):
         self._renderer.render(self)
+
+    def _trigger_pending_events(self):
+        if len(self.pending_events) > 0:
+            print(f"trigger {len(self.pending_events)} pending events")
+        self.scripts.bulk_trigger(self.pending_events)
+        self.pending_events.clear()
