@@ -197,7 +197,7 @@ class Engine:
         Configurer(self).configure()
 
     def _loop(self):
-        self.scripts.bulk_trigger(self.events.ProgramStartEvents)
+        self.scripts.bulk_trigger(self.events.iter_all(events.ProgramStart))
         while self._is_running:
             for event in pygame.event.get():
                 # print(type(event), event)

@@ -12,6 +12,7 @@ from .data import Image
 from .data import Sprite
 from .events import try_make_event
 from .events import EVENT_FUNC_PREFIX
+from .events import EventHandler
 
 
 def _add_item_to_dict(d, obj):
@@ -82,7 +83,7 @@ def load_events_to(eventset, mod, sprite=None):
         if attr.startswith(EVENT_FUNC_PREFIX):
             obj = getattr(mod, attr)
             if isinstance(obj, Callable) and hasattr(obj, "__name__"):
-                event = try_make_event(obj, sprite=sprite)
+                event = try_make_event(obj.__name__)
                 if event is None:
                     raise RuntimeError(f"invalid event name: '{attr}'")
-                eventset.add(event)
+                eventset.register(event, EventHandler(obj, sprite=sprite))

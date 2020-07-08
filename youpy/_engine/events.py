@@ -14,20 +14,25 @@ EVENT_FUNC_PREFIX = "when_"
 class EventSet:
 
     def __init__(self):
-        self._events = defaultdict(list)
+        self._events = defaultdict(lambda: defaultdict(list))
 
-    def add(self, event):
-        self._events[type(event).__name__].append(event)
+    def register(self, event, handler):
+        # print(f"add event handler {event!r}")
+        self._events[type(event).__name__][event].append(handler)
 
-    _ATTR_SUFFIX = "Events"
+    def iter_all(self, event_type):
+        if not issubclass(event_type, Event):
+            raise TypeError("event_type must be a subclass of Event, but got {}"
+                            .format(event_type))
+        for v in self._events[event_type.__name__].values():
+            yield from v
 
-    def __getattr__(self, attr):
-        if attr.endswith(self._ATTR_SUFFIX):
-            name = attr[:-len(self._ATTR_SUFFIX)]
-            if name in self._events:
-                return self._events[name]
-        raise AttributeError(attr)
-
+    def get(self, event):
+        if isinstance(event, Event):
+            return self._events[type(event).__name__][event]
+        else:
+            raise TypeError("obj must be Event, not {}"
+                            .format(type(event).__name__))
 class MetaEvent(type):
 
     types = []
@@ -39,20 +44,23 @@ class MetaEvent(type):
         metacls.types.append(cls)
         pattern = EVENT_FUNC_PREFIX + getattr(cls, "pattern")
         cls.regex = re.compile(pattern)
-        cls.__slots__ = tuple(cls.regex.groupindex.keys())
         return cls
 
 class Event(object, metaclass=MetaEvent):
 
-    def __init__(self, sprite=None, callback=None, **kwargs):
-        self.sprite = sprite
-        if callback is None:
-            raise ValueError("callback event must be passed")
-        self.callback = callback
-        for k, v in kwargs.items():
-            if v is None:
-                raise ValueError(f"None value for event attribute '{k}'")
-            setattr(self, k, v)
+    __slots__ = ("_hash_value", "_attrs")
+
+    def __init__(self, **attrs):
+        self._attrs = attrs
+        self._hash_value = tuple(attrs[k] for k in sorted(attrs.keys()))
+
+    def __hash__(self):
+        return hash(self._hash_value)
+
+    def __repr__(self):
+        return "{}({})".format(
+            type(self).__name__,
+            ", ".join(f"{k}={self._attrs[k]!r}" for k in sorted(self._attrs)))
 
 class BackdropSwitches(Event):
     pattern = r"backdrop_switches_to_(?P<backdrop>%(ident)s)" \
@@ -64,10 +72,15 @@ class KeyPressed(Event):
 class ProgramStart(Event):
     pattern = r"program_start"
 
-def try_make_event(callback, sprite=None):
+class EventHandler:
+
+    def __init__(self, callback, sprite=None):
+        assert callback is not None
+        self.callback = callback
+        self.sprite = sprite
+
+def try_make_event(handler_name):
     for event_type in Event.types:
-        mo = event_type.regex.fullmatch(callback.__name__)
+        mo = event_type.regex.fullmatch(handler_name)
         if mo:
-            return event_type(sprite=sprite,
-                              callback=callback,
-                              **mo.groupdict())
+            return event_type(**mo.groupdict())
