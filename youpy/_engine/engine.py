@@ -176,6 +176,7 @@ class Engine:
         if self._is_running:
             raise RuntimeError("engine already running")
         self._is_running = True
+        _set_running_engine(self)
         try:
             print(f"Initializing {self.project.name}...")
             pygame.init()
@@ -188,6 +189,7 @@ class Engine:
             return self._loop()
         finally:
             self._is_running = False
+            _set_running_engine(None)
 
     def _flip(self):
         pygame.display.flip()
@@ -228,3 +230,12 @@ class Engine:
             print(f"trigger {len(self.pending_events)} pending events")
         self.scripts.bulk_trigger(self.pending_events)
         self.pending_events.clear()
+
+_RUNNING_ENGINE = None
+
+def _set_running_engine(engine):
+    global _RUNNING_ENGINE
+    _RUNNING_ENGINE = engine
+
+def get_running_engine():
+    return _RUNNING_ENGINE
