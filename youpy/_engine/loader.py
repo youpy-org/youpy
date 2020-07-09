@@ -10,9 +10,9 @@ from collections.abc import Callable
 
 from .data import Image
 from .data import Sprite
-from .events import try_make_event
-from .events import EVENT_FUNC_PREFIX
-from .events import EventHandler
+from .event import try_make_event
+from .event import EVENT_FUNC_PREFIX
+from .event import EventHandler
 
 
 def _add_item_to_dict(d, obj):

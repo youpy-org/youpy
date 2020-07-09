@@ -13,7 +13,7 @@ import pygame
 from youpy._project import Project
 from youpy._engine.tools import FrequencyMeter
 from youpy._engine.data import Color
-from youpy._engine import events
+from youpy._engine import event
 from youpy._engine.loader import Loader
 from youpy._engine.configurer import Configurer
 from youpy._engine.script import ScriptSet
@@ -196,8 +196,8 @@ class RequestProcessors:
                     self.engine.scene.backdrop = self.request.name
                 except KeyError:
                     raise ValueError(f"invalid backdrop: '{self.request.name}'")
-                event = events.BackdropSwitches(backdrop=self.request.name)
-                self.engine.trigger(event)
+                self.engine.trigger(
+                    event.BackdropSwitches(backdrop=self.request.name))
 
 class SharedVariable:
 
@@ -241,7 +241,7 @@ class Engine:
         self.scene = Scene()
         self.sprites = {}
         self._is_running = False
-        self.events = events.EventSet()
+        self.events = event.EventSet()
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
 
@@ -284,7 +284,7 @@ class Engine:
         Configurer(self).configure()
 
     def _loop(self):
-        self.scripts.bulk_trigger(self.events.iter_all(events.ProgramStart))
+        self.scripts.bulk_trigger(self.events.iter_all(event.ProgramStart))
         while self._is_running:
             self._process_user_input()
             self._server.process_requests()
