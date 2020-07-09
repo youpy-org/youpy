@@ -5,6 +5,8 @@
 
 from collections.abc import MutableMapping
 from collections import OrderedDict
+from abc import ABC
+from abc import abstractmethod
 
 import pygame
 
@@ -90,31 +92,37 @@ class Server:
 
     def __init__(self, engine):
         self.engine = engine
+        self._running = [] # currently running processors
 
     def process_requests(self):
+        self._collect()
+        self._run()
+
+    def _collect(self):
         for script in self.engine.scripts:
             try:
                 request = script.pipe.request_queue.get(block=False)
             except EmptyQueue:
                 pass
             else:
-                try:
-                    reply = self.process_request(request)
-                except Exception as e:
-                    reply = e
-                script.pipe.reply_queue.put(reply, block=False)
+                processor = RequestProcessors.new(self.engine, script, request)
+                self._running.append(processor)
 
-    def process_request(self, request):
-        processor = RequestProcessors.new(self.engine, request)
-        return processor()
+    def _run(self):
+        next_running = []
+        for proc in self._running:
+            proc()
+            if proc.is_finished:
+                proc.script.pipe.reply_queue.put(proc.reply, block=False)
+            else:
+                next_running.append(proc)
+        self._running = next_running
 
 class RequestProcessors:
 
     @classmethod
     def get(cls, request):
         request_type_name = type(request).__name__
-        if request_type_name == "RequestProcessor":
-            raise ValueError("cannot instantiate base request processor")
         try:
             return getattr(cls, f"{request_type_name}Processor")
         except AttributeError:
@@ -122,39 +130,74 @@ class RequestProcessors:
                 f"no processor available for request: '{request_type_name}'")
 
     @classmethod
-    def new(cls, engine, request):
+    def new(cls, engine, script, request):
         proc_type = cls.get(request)
-        return proc_type(engine, request)
+        return proc_type(engine, script, request)
 
-    class RequestProcessor:
+    class RequestProcessor(ABC):
         """Base class of request processor"""
 
-        def __init__(self, engine, request):
+        def __init__(self, engine, script, request):
             self.engine = engine
+            self.script = script
             self.request = request
+            self._finished = False
+            self._reply = None
 
-    class SharedVariableNewProcessor(RequestProcessor):
         def __call__(self):
+            try:
+                self._run()
+            except Exception as e:
+                self._finished = True
+                self._reply = e
+
+        @property
+        def is_finished(self):
+            return self._finished
+
+        @property
+        def reply(self):
+            return self._reply
+
+        @abstractmethod
+        def _run(self):
+            pass
+
+    class OneShotProcessor(RequestProcessor):
+        """Base class of all processor that does not live across multiple frame.
+        """
+
+        def _run(self):
+            self._run_once()
+            self._finished = True
+
+        @abstractmethod
+        def _run_once(self):
+            pass
+
+    class SharedVariableNewProcessor(OneShotProcessor):
+        def _run_once(self):
             self.engine.shared_variables[self.request.name] = self.request.value
 
-    class SharedVariableDelProcessor(RequestProcessor):
-        def __call__(self):
+    class SharedVariableDelProcessor(OneShotProcessor):
+        def _run_once(self):
             del self.engine.shared_variables[self.request.name]
 
-    class SharedVariableOpProcessor(RequestProcessor):
-        def __call__(self):
+    class SharedVariableOpProcessor(OneShotProcessor):
+        def _run_once(self):
             f = getattr(self.engine.shared_variables[self.request.name],
                         self.request.op)
             return f(*self.request.args, **self.request.kwargs)
 
-    class BackdropSwitchToProcessor(RequestProcessor):
-        def __call__(self):
+    class BackdropSwitchToProcessor(OneShotProcessor):
+        def _run_once(self):
             if self.engine.scene.backdrop != self.request.name:
                 try:
                     self.engine.scene.backdrop = self.request.name
                 except KeyError:
                     raise ValueError(f"invalid backdrop: '{self.request.name}'")
-                self.engine.pending_events.extend(self.engine.events.get(events.BackdropSwitches(backdrop=self.request.name)))
+                event = events.BackdropSwitches(backdrop=self.request.name)
+                self.engine.trigger(event)
 
 class SharedVariable:
 
@@ -199,7 +242,6 @@ class Engine:
         self.sprites = {}
         self._is_running = False
         self.events = events.EventSet()
-        self.pending_events = []
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
 
@@ -253,18 +295,14 @@ class Engine:
                 # elif event.type == pygame.MOUSEMOTION:
                 #     MOUSE._set_pos(*event.pos)
             self._server.process_requests()
-            self._trigger_pending_events()
             self._render()
         self.scripts.join()
 
     def _render(self):
         self._renderer.render(self)
 
-    def _trigger_pending_events(self):
-        if len(self.pending_events) > 0:
-            print(f"trigger {len(self.pending_events)} pending events")
-        self.scripts.bulk_trigger(self.pending_events)
-        self.pending_events.clear()
+    def trigger(self, event):
+        self.scripts.bulk_trigger(self.events.get(event))
 
 _RUNNING_ENGINE = None
 
