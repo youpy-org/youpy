@@ -19,6 +19,7 @@ from youpy._engine.configurer import Configurer
 from youpy._engine.script import ScriptSet
 from youpy._engine import message
 from youpy._concurrency import EmptyQueue
+from youpy.keys import iter_keys
 
 
 class Scene:
@@ -196,7 +197,7 @@ class RequestProcessors:
                     self.engine.scene.backdrop = self.request.name
                 except KeyError:
                     raise ValueError(f"invalid backdrop: '{self.request.name}'")
-                self.engine.trigger(
+                self.engine.event_manager.schedule(
                     event.BackdropSwitches(backdrop=self.request.name))
 
 class SharedVariable:
@@ -234,6 +235,24 @@ class SharedVariableSet(MutableMapping):
     def __len__(self):
         return len(self._d)
 
+class EventManager:
+
+    def __init__(self, engine):
+        self.engine = engine
+        self.event_handlers = event.EventHandlers()
+        self._pending = []
+
+    def schedule(self, event):
+        handlers = self.event_handlers.get(event)
+        # print(f"schedule {len(handlers)} handlers for event: {event} - hash_value={event._hash_value!r} - hash={hash(event)}")
+        self._pending.extend(handlers)
+
+    def trigger(self):
+        # if self._pending:
+        #     print(f"trigger")
+        self.engine.scripts.bulk_trigger(self._pending)
+        self._pending.clear()
+
 class Engine:
 
     def __init__(self, project):
@@ -241,7 +260,7 @@ class Engine:
         self.scene = Scene()
         self.sprites = {}
         self._is_running = False
-        self.event_handlers = event.EventHandlers()
+        self.event_manager = EventManager(self)
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
 
@@ -284,8 +303,9 @@ class Engine:
         Configurer(self).configure()
 
     def _loop(self):
-        self.trigger_all(event.ProgramStart)
+        self.event_manager.schedule(event.ProgramStart())
         while self._is_running:
+            self.event_manager.trigger()
             self._process_user_input()
             self._server.process_requests()
             self._render()
@@ -294,21 +314,22 @@ class Engine:
     def _process_user_input(self):
         for e in pygame.event.get():
             # print(type(event), event)
-            if e.type == pygame.QUIT \
-               or (e.type == pygame.KEYUP
-                   and e.key == pygame.K_ESCAPE):
+            if e.type == pygame.QUIT:
                 self._is_running = False
+            elif e.type == pygame.KEYUP:
+                if e.key == pygame.K_ESCAPE:
+                    self._is_running = False
+                else:
+                    for k in iter_keys():
+                        if e.key in k.code:
+                            self.event_manager.schedule(
+                                event.KeyPressed(key=k.name))
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
 
     def _render(self):
         self._renderer.render(self)
 
-    def trigger(self, event):
-        self.scripts.bulk_trigger(self.event_handlers.get(event))
-
-    def trigger_all(self, event):
-        self.scripts.bulk_trigger(self.event_handlers.iter_all(event))
 
 _RUNNING_ENGINE = None
 

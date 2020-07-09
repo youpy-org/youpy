@@ -33,7 +33,7 @@ class Loader:
             _add_item_to_dict(engine.scene.backdrops, Image(path))
             self.progress.in_section("backdrops", i, path)
         load_event_handlers_to(
-            engine.event_handlers,
+            engine.event_manager.event_handlers,
             import_module(engine.project.stage_module_path))
         self.progress.end_section()
 
@@ -42,7 +42,7 @@ class Loader:
             sprite = Sprite(path)
             load_sprite_images(sprite)
             load_event_handlers_to(
-                engine.event_handlers,
+                engine.event_manager.event_handlers,
                 import_module(engine.project.sprite_module_path(sprite.name)),
                 sprite=sprite)
             _add_item_to_dict(engine.sprites, sprite)

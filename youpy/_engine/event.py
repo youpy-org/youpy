@@ -15,25 +15,23 @@ EVENT_FUNC_PREFIX = "when_"
 class EventHandlers:
 
     def __init__(self):
-        self._handlers = defaultdict(lambda: defaultdict(list))
+        self._handlers = defaultdict(list)
 
     def register(self, event, handler):
-        # print(f"add event handler {event!r}")
-        self._handlers[type(event).__name__][event].append(handler)
-
-    def iter_all(self, event_type):
-        if not issubclass(event_type, Event):
-            raise TypeError("event_type must be a subclass of Event, but got {}"
-                            .format(event_type))
-        for v in self._handlers[event_type.__name__].values():
-            yield from v
+        # print(f"register event handler for {event!r} - hash_value={event._hash_value!r} - hash={hash(event)}")
+        self._handlers[event].append(handler)
 
     def get(self, event):
-        if isinstance(event, Event):
-            return self._handlers[type(event).__name__][event]
-        else:
-            raise TypeError("obj must be Event, not {}"
+        if not isinstance(event, Event):
+            raise TypeError("event must be Event, not {}"
                             .format(type(event).__name__))
+        return self._handlers[event]
+
+    def print_(self):
+        for event, handlers in self._handlers.items():
+            print(event)
+            for handler in handlers:
+                print("- ", handler)
 
 class MetaEvent(type):
 
@@ -55,13 +53,19 @@ class Event(object, metaclass=MetaEvent):
 
     def __init__(self, **attrs):
         self._attrs = attrs
-        self._hash_value = tuple(attrs[k] for k in sorted(attrs.keys()))
         for attr_name in self._decl_attrs:
             if attr_name not in self._attrs:
                 raise TypeError(f"unexpected keyword argument '{attr_name}'")
+        self._hash_value = (
+            type(self).__name__,
+            *(attrs[k] for k in sorted(attrs.keys()))
+        )
 
     def __hash__(self):
         return hash(self._hash_value)
+
+    def __eq__(self, other):
+        return self._hash_value == other._hash_value
 
     def __repr__(self):
         return "{}({})".format(
