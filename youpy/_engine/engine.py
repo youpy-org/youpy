@@ -63,17 +63,45 @@ class ConsoleProgress:
     def end_section(self):
         print() # flush
 
+class FPSRenderer:
+
+    def __init__(self, fps, engine):
+        self.fps = fps
+        self.engine = engine
+
+    def update(self):
+        self._surf = self.engine.default_font.render(
+            f'{self.fps.frequency: 3.0f}', True, Color.white._c)
+        self._rect = self._surf.get_rect().copy()
+        self._rect.topleft = (self.engine.scene.width - self._rect.width, 0)
+        print("FPS:", self.fps)
+
+    def render(self):
+        self.engine.scene.surface.fill(Color.black._c, self._rect)
+        self.engine.scene.surface.blit(self._surf, self._rect)
+
+class DummyFPSRenderer:
+
+    def update(self):
+        pass
+
+    def render(self):
+        pass
+
 class Renderer:
 
-    def __init__(self):
+    def __init__(self, engine, show_fps=False):
+        self.engine = engine
         self.fps = FrequencyMeter()
+        self._fps_renderer = FPSRenderer(self.fps, engine) if show_fps else DummyFPSRenderer()
 
-    def render(self, engine):
-        self._render_scene(engine.scene)
-        self._render_sprites(engine.scene, engine.sprites)
+    def render(self):
+        self._render_scene(self.engine.scene)
+        self._render_sprites(self.engine.scene, self.engine.sprites)
         if self.fps.update():
-            print("FPS:", self.fps)
-        engine._flip()
+            self._fps_renderer.update()
+        self._fps_renderer.render()
+        self.engine._flip()
 
     def _render_scene(self, scene):
         if scene.backdrop is None:
@@ -273,7 +301,7 @@ class EventManager:
 
 class Engine:
 
-    def __init__(self, project):
+    def __init__(self, project, show_fps=False):
         self.project = project
         self.scene = Scene()
         self.sprites = {}
@@ -281,6 +309,7 @@ class Engine:
         self.event_manager = EventManager(self)
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
+        self._renderer = Renderer(self, show_fps=show_fps)
 
     @property
     def is_running(self):
@@ -299,7 +328,6 @@ class Engine:
             self._load()
             self.event_manager.check()
             self._configure()
-            self._renderer = Renderer()
             self._server = Server(self)
             return self._loop()
         finally:
@@ -312,6 +340,10 @@ class Engine:
     LOAD_BACK_COLOR = Color(62, 254, 165)
 
     def _load(self):
+        # print("Loading font")
+        default_font_name = pygame.font.get_default_font()
+        # print(f"default font: {default_font_name}")
+        self.default_font = pygame.font.Font(default_font_name, 16)
         print("Loading...")
         self.scene.surface.fill(self.LOAD_BACK_COLOR._c)
         self._flip()
@@ -327,7 +359,7 @@ class Engine:
             self.event_manager.trigger()
             self._process_user_input()
             self._server.process_requests()
-            self._render()
+            self._renderer.render()
         self.scripts.join()
 
     def _process_user_input(self):
@@ -345,10 +377,6 @@ class Engine:
                                 event.KeyPressed(key=k.name))
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
-
-    def _render(self):
-        self._renderer.render(self)
-
 
 _RUNNING_ENGINE = None
 

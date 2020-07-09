@@ -6,7 +6,7 @@
 import time
 
 
-def run(caller_locals=None):
+def run(caller_locals=None, **kwargs):
     # The call is to get rid of the call to locals() in the caller.
     #FIXME: weirdly make the engine run twice...
     # if caller_scope is None:
@@ -15,7 +15,7 @@ def run(caller_locals=None):
     if caller_locals.get("__name__") != "__main__":
         return
     import youpy
-    youpy.run(caller_locals["__file__"])
+    youpy.run(caller_locals["__file__"], **kwargs)
 
 def wait(delay):
     time.sleep(delay)

@@ -23,12 +23,16 @@ def mkcli():
         action="store",
         type=str,
         help="Path to the project directory to run")
+    parser.add_argument(
+        "--show-fps",
+        action="store_true",
+        help="Show FPS in the top-right corner of the screen.")
     return parser
 
 def main(argv, opts):
     opts, _ = parse_cli_args(mkcli(), argv[1:], opts)
     try:
-        run(opts.project_dir)
+        run(opts.project_dir, show_fps=opts.show_fps)
         return 0
     except InvalidProjectDir as e:
         print(e)
