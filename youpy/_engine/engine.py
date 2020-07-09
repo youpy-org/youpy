@@ -256,6 +256,12 @@ class EventManager:
         self.engine.scripts.bulk_trigger(self._pending)
         self._pending.clear()
 
+    def check(self):
+        for e in self.event_handlers:
+            if isinstance(e, event.BackdropSwitches):
+                if e.backdrop not in self.engine.scene.backdrops:
+                    raise ValueError(f"unknown backdrop '{e.backdrop}' in event handlers: {', '.join(h.name for h in self.event_handlers.get(e))}")
+
 class Engine:
 
     def __init__(self, project):
@@ -282,6 +288,7 @@ class Engine:
             pygame.display.set_caption(self.project.name)
             self.scene.init()
             self._load()
+            self.event_manager.check()
             self._configure()
             self._renderer = Renderer()
             self._server = Server(self)
