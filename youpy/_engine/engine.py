@@ -241,7 +241,7 @@ class Engine:
         self.scene = Scene()
         self.sprites = {}
         self._is_running = False
-        self.events = event.EventSet()
+        self.event_handlers = event.EventHandlers()
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
 
@@ -284,7 +284,7 @@ class Engine:
         Configurer(self).configure()
 
     def _loop(self):
-        self.scripts.bulk_trigger(self.events.iter_all(event.ProgramStart))
+        self.trigger_all(event.ProgramStart)
         while self._is_running:
             self._process_user_input()
             self._server.process_requests()
@@ -305,7 +305,10 @@ class Engine:
         self._renderer.render(self)
 
     def trigger(self, event):
-        self.scripts.bulk_trigger(self.events.get(event))
+        self.scripts.bulk_trigger(self.event_handlers.get(event))
+
+    def trigger_all(self, event):
+        self.scripts.bulk_trigger(self.event_handlers.iter_all(event))
 
 _RUNNING_ENGINE = None
 

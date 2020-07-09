@@ -11,28 +11,29 @@ from youpy._tools import IDENT_PATTERN
 
 EVENT_FUNC_PREFIX = "when_"
 
-class EventSet:
+class EventHandlers:
 
     def __init__(self):
-        self._events = defaultdict(lambda: defaultdict(list))
+        self._handlers = defaultdict(lambda: defaultdict(list))
 
     def register(self, event, handler):
         # print(f"add event handler {event!r}")
-        self._events[type(event).__name__][event].append(handler)
+        self._handlers[type(event).__name__][event].append(handler)
 
     def iter_all(self, event_type):
         if not issubclass(event_type, Event):
             raise TypeError("event_type must be a subclass of Event, but got {}"
                             .format(event_type))
-        for v in self._events[event_type.__name__].values():
+        for v in self._handlers[event_type.__name__].values():
             yield from v
 
     def get(self, event):
         if isinstance(event, Event):
-            return self._events[type(event).__name__][event]
+            return self._handlers[type(event).__name__][event]
         else:
             raise TypeError("obj must be Event, not {}"
                             .format(type(event).__name__))
+
 class MetaEvent(type):
 
     types = []

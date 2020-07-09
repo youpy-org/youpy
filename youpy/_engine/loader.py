@@ -32,16 +32,17 @@ class Loader:
         for i, path in enumerate(iter_images_set(engine.project.stage_dir)):
             _add_item_to_dict(engine.scene.backdrops, Image(path))
             self.progress.in_section("backdrops", i, path)
-        load_events_to(engine.events,
-                       import_module(engine.project.stage_module_path))
+        load_event_handlers_to(
+            engine.event_handlers,
+            import_module(engine.project.stage_module_path))
         self.progress.end_section()
 
     def _load_sprites(self, engine):
         for i, path in enumerate(engine.project.iter_sprite_dirs()):
             sprite = Sprite(path)
             load_sprite_images(sprite)
-            load_events_to(
-                engine.events,
+            load_event_handlers_to(
+                engine.event_handlers,
                 import_module(engine.project.sprite_module_path(sprite.name)),
                 sprite=sprite)
             _add_item_to_dict(engine.sprites, sprite)
@@ -74,7 +75,7 @@ def load_sprite_images(sprite):
     sprite._index = 0
     sprite.rect = sprite.current_image.rect
 
-def load_events_to(eventset, mod, sprite=None):
+def load_event_handlers_to(event_handlers, mod, sprite=None):
     """
     Arguments:
       sprite: might be None for the stage.
@@ -86,4 +87,6 @@ def load_events_to(eventset, mod, sprite=None):
                 event = try_make_event(obj.__name__)
                 if event is None:
                     raise RuntimeError(f"invalid event name: '{attr}'")
-                eventset.register(event, EventHandler(obj, sprite=sprite))
+                event_handlers.register(
+                    event,
+                    EventHandler(obj, sprite=sprite))
