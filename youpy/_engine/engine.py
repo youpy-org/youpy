@@ -7,6 +7,8 @@ from collections.abc import MutableMapping
 from collections import OrderedDict
 from abc import ABC
 from abc import abstractmethod
+from dataclasses import dataclass
+from typing import Any
 
 import pygame
 
@@ -88,16 +90,73 @@ class DummyFPSRenderer:
     def render(self):
         pass
 
+class SharedVariablesRenderer:
+
+    @dataclass
+    class State:
+        name: str
+        value: Any
+        surface: pygame.Surface
+        rect: pygame.Rect
+
+    def __init__(self, engine):
+        self.engine = engine
+        self._states = OrderedDict()
+
+    def render(self, shared_variables):
+        if shared_variables.has_changed:
+            self._update(shared_variables)
+            shared_variables.clear_change_flag()
+        for state in self._states.values():
+            self.engine.scene.surface.fill(Color.black._c, state.rect)
+            self.engine.scene.surface.blit(state.surface, state.rect)
+
+    def _update(self, shared_variables):
+        update_rect = False
+        for name in shared_variables:
+            var = shared_variables[name]
+            state = self._states.get(name, None)
+            if var._visible:
+                if state is None:
+                    state = self.State(name=name, value=None,
+                                       surface=None, rect=None)
+                    self._states[name] = state
+                    update_rect = True
+                else:
+                    pass
+                if state.value != var.get():
+                    state.value = var.get()
+                    state.surface = self.engine.default_font.render(
+                        f"{state.name} = {state.value}", True, Color.white._c)
+                    if state.rect is not None:
+                        state.rect = state.surface.get_rect().copy()
+                        state.rect.width = state.surface.get_rect().width
+                        assert state.rect.height == state.surface.get_rect().height
+            else:
+                if state is None:
+                    pass
+                else:
+                    del self._states[name]
+                    update_rect = True
+        if update_rect:
+            top = 0
+            for state in self._states.values():
+                state.rect = state.surface.get_rect().copy()
+                state.rect.top = top
+                top += state.rect.height
+
 class Renderer:
 
     def __init__(self, engine, show_fps=False):
         self.engine = engine
         self.fps = FrequencyMeter()
         self._fps_renderer = FPSRenderer(self.fps, engine) if show_fps else DummyFPSRenderer()
+        self._shared_variables_renderer = SharedVariablesRenderer(self.engine)
 
     def render(self):
         self._render_scene(self.engine.scene)
         self._render_sprites(self.engine.scene, self.engine.sprites)
+        self._shared_variables_renderer.render(self.engine.shared_variables)
         if self.fps.update():
             self._fps_renderer.update()
         self._fps_renderer.render()
@@ -231,7 +290,8 @@ class RequestProcessors:
 
 class SharedVariable:
 
-    def __init__(self, value):
+    def __init__(self, shared_variable_set, value):
+        self._set = shared_variable_set
         self._value = value
         self._visible = True
 
@@ -239,33 +299,55 @@ class SharedVariable:
         return self._value
 
     def hide(self):
+        if not self._visible:
+            return
         self._visible = False
+        self._set_changed()
 
     def show(self):
+        if self._visible:
+            return
         self._visible = True
+        self._set_changed()
 
     def __iadd__(self, other):
+        old_value = self._value
         self._value += other
+        if old_value != self._value:
+            self._set_changed()
+
+    def _set_changed(self):
+        self._set._changed = True
 
 class SharedVariableSet(MutableMapping):
 
     def __init__(self):
-        self._d = {}
+        self._d = OrderedDict()
+        self._changed = False
 
     def __setitem__(self, name, value):
-        self._d[name] = SharedVariable(value)
+        self._d[name] = SharedVariable(self, value)
+        self._changed = True
 
     def __getitem__(self, name):
         return self._d[name]
 
     def __delitem__(self, name):
         del self._d[name]
+        self._changed = True
 
     def __iter__(self):
         return iter(self._d)
 
     def __len__(self):
         return len(self._d)
+
+    @property
+    def has_changed(self):
+        return self._changed
+
+    def clear_change_flag(self):
+        self._changed = False
 
 class EventManager:
 
