@@ -68,6 +68,12 @@ class Event(object, metaclass=MetaEvent):
             type(self).__name__,
             ", ".join(f"{k}={self._attrs[k]!r}" for k in sorted(self._attrs)))
 
+    def __getattr__(self, name):
+        try:
+            return self._attrs[name]
+        except KeyError:
+            raise AttributeError(name)
+
 class BackdropSwitches(Event):
     pattern = r"backdrop_switches_to_(?P<backdrop>%(ident)s)" \
         % dict(ident=IDENT_PATTERN)
