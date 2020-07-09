@@ -46,6 +46,7 @@ class MetaEvent(type):
         metacls.types.append(cls)
         pattern = EVENT_FUNC_PREFIX + getattr(cls, "pattern")
         cls.regex = re.compile(pattern)
+        cls._decl_attrs = cls.regex.groupindex.keys()
         return cls
 
 class Event(object, metaclass=MetaEvent):
@@ -55,6 +56,9 @@ class Event(object, metaclass=MetaEvent):
     def __init__(self, **attrs):
         self._attrs = attrs
         self._hash_value = tuple(attrs[k] for k in sorted(attrs.keys()))
+        for attr_name in self._decl_attrs:
+            if attr_name not in self._attrs:
+                raise TypeError(f"unexpected keyword argument '{attr_name}'")
 
     def __hash__(self):
         return hash(self._hash_value)
