@@ -212,6 +212,9 @@ class SharedVariable:
     def hide(self):
         self._visible = False
 
+    def show(self):
+        self._visible = True
+
     def __iadd__(self, other):
         self._value += other
 
