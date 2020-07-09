@@ -286,17 +286,20 @@ class Engine:
     def _loop(self):
         self.scripts.bulk_trigger(self.events.iter_all(events.ProgramStart))
         while self._is_running:
-            for event in pygame.event.get():
-                # print(type(event), event)
-                if event.type == pygame.QUIT \
-                   or (event.type == pygame.KEYUP
-                       and event.key == pygame.K_ESCAPE):
-                    self._is_running = False
-                # elif event.type == pygame.MOUSEMOTION:
-                #     MOUSE._set_pos(*event.pos)
+            self._process_user_input()
             self._server.process_requests()
             self._render()
         self.scripts.join()
+
+    def _process_user_input(self):
+        for e in pygame.event.get():
+            # print(type(event), event)
+            if e.type == pygame.QUIT \
+               or (e.type == pygame.KEYUP
+                   and e.key == pygame.K_ESCAPE):
+                self._is_running = False
+            # elif event.type == pygame.MOUSEMOTION:
+            #     MOUSE._set_pos(*event.pos)
 
     def _render(self):
         self._renderer.render(self)
