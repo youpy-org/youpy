@@ -33,6 +33,9 @@ class EventHandlers:
             for handler in handlers:
                 print("- ", handler)
 
+    def __iter__(self):
+        return iter(self._handlers)
+
 class MetaEvent(type):
 
     types = []
