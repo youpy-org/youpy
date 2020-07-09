@@ -106,6 +106,10 @@ class EventHandler:
     def __repr__(self):
         return f"{type(self).__name__}(callback={self.callback.__name__!r}, sprite={None if self.sprite is None else self.sprite.name!r})"
 
+    @property
+    def name(self):
+        return f"{'stage' if self.sprite is None else self.sprite.name}.{self.callback.__name__}"
+
 def try_make_event(handler_name):
     for event_type in Event.types:
         mo = event_type.regex.fullmatch(handler_name)
