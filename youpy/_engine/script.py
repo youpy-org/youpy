@@ -3,6 +3,9 @@
 """
 
 
+import sys
+import traceback
+
 from youpy import _concurrency
 from . import message
 
@@ -11,18 +14,28 @@ class ScriptSet:
 
     def __init__(self):
         self._scripts = {}
+        self._done_scripts = _concurrency.Queue()
 
     def bulk_trigger(self, events):
         for event in events:
             self.trigger(event)
 
     def trigger(self, event):
-        script = Script(event, done_callback=self._on_script_done)
+        script = Script(event, done_queue=self._done_scripts)
         self._scripts[script.name] = script
         script.start()
 
-    def _on_script_done(self, script):
-        del self._scripts[script.name]
+    def rip_done_scripts(self):
+        while True:
+            try:
+                script = self._done_scripts.get(block=False)
+            except _concurrency.EmptyQueue:
+                break
+            else:
+                del self._scripts[script.name]
+                if script.exc_info is not None:
+                    print(f"*** Exception in thread {script.name}")
+                    traceback.print_exception(*script.exc_info)
 
     def join(self, timeout=1.0):
         self._stop_all_scripts()
@@ -53,18 +66,19 @@ class StopScript(Exception):
     pass
 
 def get_script_name(event):
-    return "_".join((('stage' if event.sprite is None else event.sprite.name),
+    return ".".join((('stage' if event.sprite is None else event.sprite.name),
                      event.callback.__name__))
 
 class Script(_concurrency.Task):
 
     context = _concurrency.get_context()
 
-    def __init__(self, event, done_callback=None):
+    def __init__(self, event, done_queue=None):
         super().__init__(name=get_script_name(event), daemon=True)
         self.event = event
         self.pipe = _concurrency.Pipe()
-        self.done_callback = done_callback
+        self._done_queue = done_queue
+        self.exc_info = None
 
     def run(self):
         self.context.script = self
@@ -72,8 +86,11 @@ class Script(_concurrency.Task):
             self._run()
         except StopScript:
             pass
+        except Exception as exc:
+            self.exc_info = sys.exc_info()
         finally:
-            self.done_callback(self)
+            if self._done_queue is not None:
+                self._done_queue.put(self, block=False)
 
     def _run(self):
         self.event.callback()

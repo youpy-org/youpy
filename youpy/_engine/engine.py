@@ -359,6 +359,7 @@ class Engine:
             self.event_manager.trigger()
             self._process_user_input()
             self._server.process_requests()
+            self.scripts.rip_done_scripts()
             self._renderer.render()
         self.scripts.join()
 
