@@ -105,21 +105,56 @@ class Server:
                 script.pipe.reply_queue.put(reply, block=False)
 
     def process_request(self, request):
-        if isinstance(request, message.SharedVariableNew):
-            self.engine.shared_variables[request.name] = request.value
-        elif isinstance(request, message.SharedVariableDel):
-            del self.engine.shared_variables[request.name]
-        elif isinstance(request, message.SharedVariableOp):
-            return getattr(self.engine.shared_variables[request.name], request.op)(*request.args, **request.kwargs)
-        elif isinstance(request, message.BackdropSwitchTo):
-            if self.engine.scene.backdrop != request.name:
+        processor = RequestProcessors.new(self.engine, request)
+        return processor()
+
+class RequestProcessors:
+
+    @classmethod
+    def get(cls, request):
+        request_type_name = type(request).__name__
+        if request_type_name == "RequestProcessor":
+            raise ValueError("cannot instantiate base request processor")
+        try:
+            return getattr(cls, f"{request_type_name}Processor")
+        except AttributeError:
+            raise ValueError(
+                f"no processor available for request: '{request_type_name}'")
+
+    @classmethod
+    def new(cls, engine, request):
+        proc_type = cls.get(request)
+        return proc_type(engine, request)
+
+    class RequestProcessor:
+        """Base class of request processor"""
+
+        def __init__(self, engine, request):
+            self.engine = engine
+            self.request = request
+
+    class SharedVariableNewProcessor(RequestProcessor):
+        def __call__(self):
+            self.engine.shared_variables[self.request.name] = self.request.value
+
+    class SharedVariableDelProcessor(RequestProcessor):
+        def __call__(self):
+            del self.engine.shared_variables[self.request.name]
+
+    class SharedVariableOpProcessor(RequestProcessor):
+        def __call__(self):
+            f = getattr(self.engine.shared_variables[self.request.name],
+                        self.request.op)
+            return f(*self.request.args, **self.request.kwargs)
+
+    class BackdropSwitchToProcessor(RequestProcessor):
+        def __call__(self):
+            if self.engine.scene.backdrop != self.request.name:
                 try:
-                    self.engine.scene.backdrop = request.name
+                    self.engine.scene.backdrop = self.request.name
                 except KeyError:
-                    raise ValueError(f"invalid backdrop: '{request.name}'")
-                self.engine.pending_events.extend(self.engine.events.get(events.BackdropSwitches(backdrop=request.name)))
-        else:
-            raise RuntimeError(f"unknown request: {request!r}")
+                    raise ValueError(f"invalid backdrop: '{self.request.name}'")
+                self.engine.pending_events.extend(self.engine.events.get(events.BackdropSwitches(backdrop=self.request.name)))
 
 class SharedVariable:
 
