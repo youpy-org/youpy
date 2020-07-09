@@ -20,6 +20,7 @@ from youpy._engine.script import ScriptSet
 from youpy._engine import message
 from youpy._concurrency import EmptyQueue
 from youpy.keys import iter_keys
+from youpy.keys import check_key
 
 
 class Scene:
@@ -258,9 +259,17 @@ class EventManager:
 
     def check(self):
         for e in self.event_handlers:
-            if isinstance(e, event.BackdropSwitches):
-                if e.backdrop not in self.engine.scene.backdrops:
-                    raise ValueError(f"unknown backdrop '{e.backdrop}' in event handlers: {', '.join(h.name for h in self.event_handlers.get(e))}")
+            try:
+                self._check_event(e)
+            except Exception as exc:
+                raise ValueError(f"{exc} in event handlers: {', '.join(h.name for h in self.event_handlers.get(e))}")
+
+    def _check_event(self, e):
+        if isinstance(e, event.BackdropSwitches):
+            if e.backdrop not in self.engine.scene.backdrops:
+                raise ValueError(f"unknown backdrop '{e.backdrop}'")
+        elif isinstance(e, event.KeyPressed):
+            check_key(e.key)
 
 class Engine:
 
