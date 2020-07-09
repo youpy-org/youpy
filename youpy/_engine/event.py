@@ -7,6 +7,7 @@ import re
 from collections import defaultdict
 
 from youpy._tools import IDENT_PATTERN
+from youpy.keys import check_key
 
 
 EVENT_FUNC_PREFIX = "when_"
@@ -70,6 +71,11 @@ class BackdropSwitches(Event):
 class KeyPressed(Event):
     pattern = r"(?P<key>\w*)_key_pressed"
 
+    def __init__(self, key=None):
+        key = key.lower()
+        check_key(key)
+        super().__init__(key=key)
+
 class ProgramStart(Event):
     pattern = r"program_start"
 
@@ -84,4 +90,8 @@ def try_make_event(handler_name):
     for event_type in Event.types:
         mo = event_type.regex.fullmatch(handler_name)
         if mo:
-            return event_type(**mo.groupdict())
+            try:
+                return event_type(**mo.groupdict())
+            except Exception as e:
+                raise ValueError(
+                    f"invalid event handler: '{handler_name}' - {e}")
