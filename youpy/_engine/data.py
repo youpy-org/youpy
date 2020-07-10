@@ -81,15 +81,38 @@ class Sprite:
     it is modified).
     """
 
+    class _State:
+
+        __slots__ = ("visible", "rect", "coordsys_name", "_direction")
+
+        def __init__(self, coordsys_name="center"):
+            self.visible = True
+            self.rect = None
+            self.coordsys_name = coordsys_name
+            self._direction = 0 # direction angle in degree
+
+        def go_to(self, x, y):
+            setattr(self.rect, self.coordsys_name, (x, y))
+
+        def position(self):
+            return getattr(self.rect, self.coordsys_name)
+
+        def direction(self):
+            return self._direction
+
+        def copy(self):
+            n = type(self)(coordsys_name=self.coordsys_name)
+            n.visible = self.visible
+            n.rect = self.rect.copy()
+            n._direction = self._direction
+            return n
+
     def __init__(self, path, coordsys_name="center"):
         self._path = Path(path)
         assert self._path.is_dir()
         self.images = []
         self._index = -1
-        self.visible = True
-        self.rect = None
-        self.coordsys_name = coordsys_name
-        self._direction = 0 # direction angle in degree
+        self._st = self._State(coordsys_name=coordsys_name)
 
     @property
     def path(self):
@@ -102,6 +125,14 @@ class Sprite:
     def __repr__(self):
         return f"_engine.Sprite(name={self.name!r})"
 
+    @property
+    def rect(self):
+        return self._st.rect
+
+    @rect.setter
+    def rect(self, new_rect):
+        self._st.rect = new_rect
+
     def go_to(self, x, y):
         if not isinstance(x, int):
             raise TypeError("x must be int, not {}"
@@ -112,20 +143,28 @@ class Sprite:
         self._go_to(x, y)
 
     def _go_to(self, x, y):
-        setattr(self.rect, self.coordsys_name, (x, y))
+        self._st.go_to(x, y)
 
     def position(self):
-        return getattr(self.rect, self.coordsys_name)
+        return self._st.position()
 
     @property
     def current_image(self):
         return self.images[self._index]
 
     def show(self):
-        self.visible = True
+        self._st.visible = True
 
     def hide(self):
-        self.visible = False
+        self._st.visible = False
+
+    @property
+    def visible(self):
+        return self._st.visible
+
+    @visible.setter
+    def visible(self, visible):
+        self._st.visible = visible
 
     def point_in_direction(self, angle):
         if not isinstance(angle, int):
@@ -135,20 +174,23 @@ class Sprite:
             raise ValueError(
                 "angle must be between 0 and 360 degree excluded, "\
                 f"but is equal to {angle}")
-        self._direction = angle
+        self._st._direction = angle
 
     def direction(self):
-        return self._direction
+        return self._st.direction()
 
     def move(self, step):
         if not isinstance(step, int):
             raise TypeError("step must be int, not {}"
                             .format(type(step).__name__))
         x, y = self.position()
-        dx = step * fast_cos(self._direction)
-        dy = step * fast_sin(self._direction)
+        dx = step * fast_cos(self._st._direction)
+        dy = step * fast_sin(self._st._direction)
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
         self._go_to(x + dx, y - dy)
+
+    def get_state(self):
+        return self._st.copy()
 
 def scale_sprite_by(sprite, ratio=None):
     """

@@ -31,8 +31,28 @@ def move(step):
         op="move",
         args=(step,)))
 
+def _get_state():
+    sprite_name = get_context_sprite_name()
+    return send_request(message.SpriteOp(name=sprite_name, op="get_state"))
+
+def position():
+    return get_scene()._coordsys.point_to(*_get_state().position())
+
+def x_position():
+    return position()[0]
+
+def y_position():
+    return position()[1]
+
+def direction():
+    return get_scene()._anglesys.from_degree(_get_state().direction())
+
 __all__ = (
+    "direction",
     "go_to",
     "move",
     "point_in_direction",
+    "position",
+    "x_position",
+    "y_position",
 )
