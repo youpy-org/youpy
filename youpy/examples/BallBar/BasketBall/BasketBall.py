@@ -6,16 +6,18 @@ def when_backdrop_switches_to_InGame():
     point_in_direction(45)
     while True:
         move(10)
-        if y_position() < -150 and touching(screen.edge):
-            switch_to(backdrop.GameOver)
-            variable.score += 1
-            if touching(sprite.Hand):
-                if direction() > 0:
-                    turn_counter_clockwise(90)
-                else:
-                    turn_clockwise(90)
-        if on_edge():
+        if touching(scene.edge):
+            y = y_position()
+            if y < -150:
+                switch_to("GameOver")
+            elif y > 150:
+                variable.score += 1
             bounce()
+        elif touching("Hand"):
+            if direction() > 0:
+                turn_counter_clockwise(90)
+            else:
+                turn_clockwise(90)
 
 def when_backdrop_switches_to_GameOver():
     hide()
