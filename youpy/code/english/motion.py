@@ -22,9 +22,17 @@ def point_in_direction(angle):
     send_request(message.SpriteOp(
         name=sprite_name,
         op="point_in_direction",
-        args=(angle,)))
+        args=(get_scene()._anglesys.to_degree(angle),)))
+
+def move(step):
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="move",
+        args=(step,)))
 
 __all__ = (
     "go_to",
+    "move",
     "point_in_direction",
 )

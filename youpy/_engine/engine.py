@@ -73,12 +73,14 @@ class Scene:
     def from_scene(cls, scene):
         return cls(width=scene.width,
                    height=scene.height,
-                   coordsys=scene.coordsys)
+                   coordsys=scene.coordsys,
+                   anglesys=scene.anglesys)
 
-    def __init__(self, width=None, height=None, coordsys=None):
+    def __init__(self, width=None, height=None, coordsys=None, anglesys=None):
         self._width = width
         self._height = height
         self._coordsys = coordsys
+        self._anglesys = anglesys
 
     @property
     def width(self):

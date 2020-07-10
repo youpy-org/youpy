@@ -10,6 +10,8 @@ import pygame
 
 from youpy._tools import as_ratio
 from youpy._tools import scale_size_by
+from youpy._engine.coordsys import fast_sin
+from youpy._engine.coordsys import fast_cos
 
 
 class Color:
@@ -87,7 +89,7 @@ class Sprite:
         self.visible = True
         self.rect = None
         self.coordsys_name = coordsys_name
-        self._direction = 0
+        self._direction = 0 # direction angle in degree
 
     @property
     def path(self):
@@ -107,7 +109,13 @@ class Sprite:
         if not isinstance(y, int):
             raise TypeError("y must be int, not {}"
                             .format(type(y).__name__))
+        self._go_to(x, y)
+
+    def _go_to(self, x, y):
         setattr(self.rect, self.coordsys_name, (x, y))
+
+    def position(self):
+        return getattr(self.rect, self.coordsys_name)
 
     @property
     def current_image(self):
@@ -123,12 +131,24 @@ class Sprite:
         if not isinstance(angle, int):
             raise TypeError("angle must be int, not {}"
                             .format(type(angle).__name__))
-        if not -180 <= angle <= 180:
-            raise ValueError("angle must be between -180 and 180 degree")
+        if not 0 <= angle < 360:
+            raise ValueError(
+                "angle must be between 0 and 360 degree excluded, "\
+                f"but is equal to {angle}")
         self._direction = angle
 
     def direction(self):
         return self._direction
+
+    def move(self, step):
+        if not isinstance(step, int):
+            raise TypeError("step must be int, not {}"
+                            .format(type(step).__name__))
+        x, y = self.position()
+        dx = step * fast_cos(self._direction)
+        dy = step * fast_sin(self._direction)
+        # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
+        self._go_to(x + dx, y - dy)
 
 def scale_sprite_by(sprite, ratio=None):
     """

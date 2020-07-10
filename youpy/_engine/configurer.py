@@ -32,7 +32,7 @@ class Configurer:
                                 self.engine.scene.coordsys)
 
     def _configure_coordsys(self, scene, cfg):
-        coordsys_name = cfg.get("coordinate_system", coordsys.DEFAULT)
+        coordsys_name = cfg.get("coordinate_system", coordsys.coordsys.DEFAULT)
         try:
             coordsys_class = getattr(coordsys, coordsys_name)
         except AttributeError:
@@ -40,10 +40,20 @@ class Configurer:
         else:
             scene.coordsys = coordsys_class(getattr(scene, coordsys_name))
 
+    def _configure_anglesys(self, scene, cfg):
+        anglesys_name = cfg.get("angle_system", coordsys.anglesys.DEFAULT)
+        try:
+            anglesys_class = getattr(coordsys, anglesys_name)
+        except AttributeError:
+            raise ConfigError(f"invalid angle system: '{anglesys_name}'")
+        else:
+            scene.anglesys = anglesys_class()
+
     def _configure_scene(self, scene, cfg):
         if cfg is None:
             return
         self._configure_coordsys(scene, cfg)
+        self._configure_anglesys(scene, cfg)
         initial_backdrop = cfg.get("initial_backdrop")
         if initial_backdrop is not None:
             try:
