@@ -100,6 +100,12 @@ class Sprite:
         return f"_engine.Sprite(name={self.name!r})"
 
     def go_to(self, x, y):
+        if not isinstance(x, int):
+            raise TypeError("x must be int, not {}"
+                            .format(type(x).__name__))
+        if not isinstance(y, int):
+            raise TypeError("y must be int, not {}"
+                            .format(type(y).__name__))
         setattr(self.rect, self.coordsys_name, (x, y))
 
     @property
