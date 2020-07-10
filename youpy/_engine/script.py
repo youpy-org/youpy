@@ -21,7 +21,7 @@ class ScriptSet:
             self.trigger(event)
 
     def trigger(self, event):
-        script = Script(event, done_queue=self._done_scripts)
+        script = Script(event, self.scene, done_queue=self._done_scripts)
         self._scripts[script.name] = script
         script.start()
 
@@ -73,9 +73,10 @@ class Script(_concurrency.Task):
 
     context = _concurrency.get_context()
 
-    def __init__(self, event, done_queue=None):
+    def __init__(self, event, scene, done_queue=None):
         super().__init__(name=get_script_name(event), daemon=True)
         self.event = event
+        self.scene = scene
         self.pipe = _concurrency.Pipe()
         self._done_queue = done_queue
         self.exc_info = None
@@ -118,3 +119,7 @@ def get_context_sprite_name():
     if sprite is None:
         raise RuntimeError("no sprite associated to this script")
     return sprite.name
+
+def get_scene():
+    script = get_context_script()
+    return script.scene

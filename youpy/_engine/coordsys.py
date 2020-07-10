@@ -25,7 +25,7 @@ class center(coordsys):
 
 class topleft(coordsys):
 
-    def __init__(self):
+    def __init__(self, origin):
         pass
 
     def point_to(self, *args):

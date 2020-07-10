@@ -25,7 +25,8 @@ from youpy.keys import iter_keys
 from youpy.keys import check_key
 
 
-class Scene:
+class _Scene:
+    """Internal scene representation."""
 
     def __init__(self):
         self.width = 480
@@ -50,12 +51,42 @@ class Scene:
         return (self.width // 2, self.height // 2)
 
     @property
+    def topleft(self):
+        return (0, 0)
+
+    @property
     def backdrop(self):
         return self._backdrop
 
     @backdrop.setter
     def backdrop(self, backdrop):
         self._backdrop = self.backdrops[backdrop]
+
+class Scene:
+    """Scene front-end.
+
+    Concurrently accessed from user script. Passed to every running script.
+    Should be pickable.
+    """
+
+    @classmethod
+    def from_scene(cls, scene):
+        return cls(width=scene.width,
+                   height=scene.height,
+                   coordsys=scene.coordsys)
+
+    def __init__(self, width=None, height=None, coordsys=None):
+        self._width = width
+        self._height = height
+        self._coordsys = coordsys
+
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
 
 class ConsoleProgress:
 
@@ -391,7 +422,7 @@ class Engine:
 
     def __init__(self, project, show_fps=False):
         self.project = project
-        self.scene = Scene()
+        self.scene = _Scene()
         self.sprites = {}
         self._is_running = False
         self.event_manager = EventManager(self)
@@ -407,7 +438,6 @@ class Engine:
         if self._is_running:
             raise RuntimeError("engine already running")
         self._is_running = True
-        _set_running_engine(self)
         try:
             print(f"Initializing {self.project.name}...")
             pygame.init()
@@ -416,11 +446,11 @@ class Engine:
             self._load()
             self.event_manager.check()
             self._configure()
+            self.scripts.scene = Scene.from_scene(self.scene)
             self._server = Server(self)
             return self._loop()
         finally:
             self._is_running = False
-            _set_running_engine(None)
 
     def _flip(self):
         pygame.display.flip()
@@ -466,12 +496,3 @@ class Engine:
                                 event.KeyPressed(key=k.name))
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
-
-_RUNNING_ENGINE = None
-
-def _set_running_engine(engine):
-    global _RUNNING_ENGINE
-    _RUNNING_ENGINE = engine
-
-def get_running_engine():
-    return _RUNNING_ENGINE

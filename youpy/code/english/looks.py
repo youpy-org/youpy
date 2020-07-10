@@ -3,7 +3,7 @@
 """
 
 
-from youpy._engine import get_running_engine
+from youpy._engine import get_scene
 from youpy._engine import send_request
 from youpy._engine import get_context_sprite_name
 from youpy._engine import message
@@ -21,11 +21,11 @@ class Scene:
 
     @property
     def width(self):
-        return get_running_engine().scene.width
+        return get_scene().scene.width
 
     @property
     def height(self):
-        return get_running_engine().scene.height
+        return get_scene().scene.height
 
 scene = Scene()
 
