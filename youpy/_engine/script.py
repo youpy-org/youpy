@@ -39,16 +39,18 @@ class ScriptSet:
 
     def join(self, timeout=1.0):
         self._stop_all_scripts()
-        unterminated = []
+        terminated = []
         for s in self._scripts.values():
             s.join(timeout=timeout)
-            if s.is_alive():
-                unterminated.append(s)
+            if not s.is_alive():
+                terminated.append(s.name)
         # TODO(Nicolas Despres): Move the printing to engine?
-        if unterminated:
-            print(f"There were {len(unterminated)} unterminated scripts:")
-            for s in unterminated:
-                print(f"  {s.name}")
+        for name in terminated:
+            del self._scripts[name]
+        if self._scripts:
+            print(f"There were {len(self._scripts)} unterminated scripts:")
+            for name in self._scripts:
+                print(f"  {name}")
             return False
         return True
 
