@@ -1,11 +1,13 @@
 {
   "sprites": {
     "BasketBall": {
-      "position": { "x": 0, "y": 0 }
+      "position": { "x": 0, "y": 0 },
+      "visible": false
     },
     "Hand": {
       "position": { "x": 0, "y": -160 },
-      "ratio": 50
+      "ratio": 50,
+      "visible": false
     }
   },
   "scene": {
