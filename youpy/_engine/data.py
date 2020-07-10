@@ -262,3 +262,6 @@ class Scene:
     @property
     def height(self):
         return self._height
+
+# Sentinel object to mark scene edge in collision list.
+SCENE_EDGE = object()

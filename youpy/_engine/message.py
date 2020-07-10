@@ -39,3 +39,7 @@ class SpriteOp:
     op: str
     args: Tuple[Any] = ()
     kwargs: Mapping[str, Any] = field(default_factory=dict)
+
+@dataclass
+class SpriteGetCollision:
+    name: str

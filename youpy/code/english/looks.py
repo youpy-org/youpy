@@ -7,6 +7,7 @@ from youpy._engine import get_scene
 from youpy._engine import send_request
 from youpy._engine import get_context_sprite_name
 from youpy._engine import message
+from youpy._engine.data import SCENE_EDGE
 
 
 class Scene:
@@ -26,6 +27,10 @@ class Scene:
     @property
     def height(self):
         return get_scene().scene.height
+
+    @property
+    def edge(self):
+        return SCENE_EDGE
 
 scene = Scene()
 
@@ -49,6 +54,7 @@ def hide():
 
 __all__ = (
     "hide",
+    "scene",
     "show",
     "switch_to",
 )

@@ -265,6 +265,18 @@ class RequestProcessors:
             f = getattr(sprite, self.request.op)
             return f(*self.request.args, **self.request.kwargs)
 
+    class SpriteGetCollisionProcessor(OneShotProcessor):
+        # TODO(Nicolas Despres): Handle mask
+        def _run_once(self):
+            sprite = self.engine.sprites[self.request.name]
+            collisions = []
+            if not self.engine.scene.rect.contains(sprite.rect):
+                collisions.append(SCENE_EDGE)
+            for name, other_sprite in self.engine.sprites.items():
+                if sprite.rect.colliderect(other_sprite.rect):
+                    collisions.append(name)
+            return collisions
+
 class SharedVariable:
 
     def __init__(self, shared_variable_set, value):
