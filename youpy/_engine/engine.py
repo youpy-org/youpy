@@ -288,6 +288,12 @@ class RequestProcessors:
                 self.engine.event_manager.schedule(
                     event.BackdropSwitches(backdrop=self.request.name))
 
+    class SpriteOpProcessor(OneShotProcessor):
+        def _run_once(self):
+            sprite = self.engine.sprites[self.request.name]
+            f = getattr(sprite, self.request.op)
+            return f(*self.request.args, **self.request.kwargs)
+
 class SharedVariable:
 
     def __init__(self, shared_variable_set, value):

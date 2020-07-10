@@ -102,5 +102,19 @@ class Script(_concurrency.Task):
             raise reply
         return reply
 
+    @property
+    def sprite(self):
+        return self.event.sprite
+
+def get_context_script():
+    return Script.context.script
+
 def send_request(request):
-    Script.context.script.send(request)
+    get_context_script().send(request)
+
+def get_context_sprite_name():
+    script = get_context_script()
+    sprite = script.sprite
+    if sprite is None:
+        raise RuntimeError("no sprite associated to this script")
+    return sprite.name

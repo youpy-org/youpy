@@ -5,6 +5,7 @@
 
 from youpy._engine import get_running_engine
 from youpy._engine import send_request
+from youpy._engine import get_context_sprite_name
 from youpy._engine import message
 
 
@@ -36,6 +37,18 @@ def switch_to(backdrop):
                         .format(type(backdrop).__name__))
     send_request(message.BackdropSwitchTo(name=backdrop))
 
+def show():
+    """Show the current sprite."""
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(name=sprite_name, op="show"))
+
+def hide():
+    """Hide the current sprite."""
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(name=sprite_name, op="hide"))
+
 __all__ = (
+    "hide",
+    "show",
     "switch_to",
 )

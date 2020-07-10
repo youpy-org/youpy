@@ -105,6 +105,12 @@ class Sprite:
     def current_image(self):
         return self.images[self._index]
 
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
+
 def scale_sprite_by(sprite, ratio=None):
     """
     Operate in place!

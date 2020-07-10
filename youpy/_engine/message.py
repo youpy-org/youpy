@@ -32,3 +32,10 @@ class SharedVariableOp:
 @dataclass
 class BackdropSwitchTo:
     name: str
+
+@dataclass
+class SpriteOp:
+    name: str
+    op: str
+    args: Tuple[Any] = ()
+    kwargs: Mapping[str, Any] = field(default_factory=dict)
