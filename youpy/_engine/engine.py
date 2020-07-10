@@ -15,6 +15,9 @@ import pygame
 from youpy._project import Project
 from youpy._engine.tools import FrequencyMeter
 from youpy._engine.data import Color
+from youpy._engine.data import _Scene
+from youpy._engine.data import Scene
+from youpy._engine.data import SCENE_EDGE
 from youpy._engine import event
 from youpy._engine.loader import Loader
 from youpy._engine.configurer import Configurer
@@ -24,71 +27,6 @@ from youpy._concurrency import EmptyQueue
 from youpy.keys import iter_keys
 from youpy.keys import check_key
 
-
-class _Scene:
-    """Internal scene representation."""
-
-    def __init__(self):
-        self.width = 480
-        self.height = 360
-        self.surface = None
-        self.backdrops = OrderedDict() # important to support "next backdrop"
-        self._backdrop = None
-
-    @property
-    def size(self):
-        return (self.width, self.height)
-
-    @property
-    def rect(self):
-        return pygame.Rect(0, 0, self.width, self.height)
-
-    def init(self):
-        self.surface = pygame.display.set_mode(self.size)
-
-    @property
-    def center(self):
-        return (self.width // 2, self.height // 2)
-
-    @property
-    def topleft(self):
-        return (0, 0)
-
-    @property
-    def backdrop(self):
-        return self._backdrop
-
-    @backdrop.setter
-    def backdrop(self, backdrop):
-        self._backdrop = self.backdrops[backdrop]
-
-class Scene:
-    """Scene front-end.
-
-    Concurrently accessed from user script. Passed to every running script.
-    Should be pickable.
-    """
-
-    @classmethod
-    def from_scene(cls, scene):
-        return cls(width=scene.width,
-                   height=scene.height,
-                   coordsys=scene.coordsys,
-                   anglesys=scene.anglesys)
-
-    def __init__(self, width=None, height=None, coordsys=None, anglesys=None):
-        self._width = width
-        self._height = height
-        self._coordsys = coordsys
-        self._anglesys = anglesys
-
-    @property
-    def width(self):
-        return self._width
-
-    @property
-    def height(self):
-        return self._height
 
 class ConsoleProgress:
 
@@ -444,7 +382,7 @@ class Engine:
             print(f"Initializing {self.project.name}...")
             pygame.init()
             pygame.display.set_caption(self.project.name)
-            self.scene.init()
+            self.scene.surface = pygame.display.set_mode(self.scene.size)
             self._load()
             self.event_manager.check()
             self._configure()

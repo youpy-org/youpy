@@ -5,6 +5,7 @@
 import os
 import re
 from pathlib import Path
+from collections import OrderedDict
 
 import pygame
 
@@ -199,3 +200,65 @@ def scale_sprite_by(sprite, ratio=None):
     for image in sprite.images:
         scale_image_by(image, ratio=ratio)
     sprite.rect.size = sprite.current_image.rect.size
+
+class _Scene:
+    """Internal scene representation."""
+
+    def __init__(self):
+        self.width = 480
+        self.height = 360
+        self.surface = None
+        self.backdrops = OrderedDict() # important to support "next backdrop"
+        self._backdrop = None
+
+    @property
+    def size(self):
+        return (self.width, self.height)
+
+    @property
+    def rect(self):
+        return pygame.Rect(0, 0, self.width, self.height)
+
+    @property
+    def center(self):
+        return (self.width // 2, self.height // 2)
+
+    @property
+    def topleft(self):
+        return (0, 0)
+
+    @property
+    def backdrop(self):
+        return self._backdrop
+
+    @backdrop.setter
+    def backdrop(self, backdrop):
+        self._backdrop = self.backdrops[backdrop]
+
+class Scene:
+    """Scene front-end.
+
+    Concurrently accessed from user script. Passed to every running script.
+    Should be pickable.
+    """
+
+    @classmethod
+    def from_scene(cls, scene):
+        return cls(width=scene.width,
+                   height=scene.height,
+                   coordsys=scene.coordsys,
+                   anglesys=scene.anglesys)
+
+    def __init__(self, width=None, height=None, coordsys=None, anglesys=None):
+        self._width = width
+        self._height = height
+        self._coordsys = coordsys
+        self._anglesys = anglesys
+
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
