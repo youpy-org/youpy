@@ -17,6 +17,14 @@ def go_to(x, y):
         op="go_to",
         args=get_scene()._coordsys.point_from(x, y)))
 
+def point_in_direction(angle):
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="point_in_direction",
+        args=(angle,)))
+
 __all__ = (
     "go_to",
+    "point_in_direction",
 )

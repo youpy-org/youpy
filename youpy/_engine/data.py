@@ -87,6 +87,7 @@ class Sprite:
         self.visible = True
         self.rect = None
         self.coordsys_name = coordsys_name
+        self._direction = 0
 
     @property
     def path(self):
@@ -117,6 +118,17 @@ class Sprite:
 
     def hide(self):
         self.visible = False
+
+    def point_in_direction(self, angle):
+        if not isinstance(angle, int):
+            raise TypeError("angle must be int, not {}"
+                            .format(type(angle).__name__))
+        if not -180 <= angle <= 180:
+            raise ValueError("angle must be between -180 and 180 degree")
+        self._direction = angle
+
+    def direction(self):
+        return self._direction
 
 def scale_sprite_by(sprite, ratio=None):
     """
