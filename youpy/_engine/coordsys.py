@@ -22,21 +22,45 @@ class center(coordsys):
     def __init__(self, origin):
         self.origin = origin
 
+    def abscissa_to(self, x):
+        return x - self.origin[0]
+
+    def ordinate_to(self, y):
+        return y - self.origin[1]
+
     def point_to(self, x, y):
         """topleft -> center"""
-        return (x - self.origin[0], y - self.origin[1])
+        return (self.abscissa_to(x), self.ordinate_to(y))
+
+    def abscissa_from(self, x):
+        return self.origin[0] + x
+
+    def ordinate_from(self, y):
+        return self.origin[1] - y
 
     def point_from(self, x, y):
         """center -> topleft"""
-        return (self.origin[0] + x, self.origin[1] - y)
+        return (self.abscissa_from(x), self.ordinate_from(y))
 
 class topleft(coordsys):
 
     def __init__(self, origin):
         pass
 
+    def abscissa_to(self, x):
+        return x
+
+    def ordinate_to(self, y):
+        return y
+
     def point_to(self, *args):
         return args
+
+    def abscissa_from(self, x):
+        return x
+
+    def ordinate_from(self, y):
+        return y
 
     def point_from(self, *args):
         return args
