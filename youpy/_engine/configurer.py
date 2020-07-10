@@ -69,6 +69,6 @@ class Configurer:
         if position is not None:
             self.engine.coordsys.rect_go_to(sprite.rect,
                                             position["x"], position["y"])
-        visible = cfg.get("visible", True)
-        if visible:
+        visible = cfg.get("visible", None)
+        if visible is not None:
             sprite.visible = visible
