@@ -180,11 +180,13 @@ class Sprite:
         if not isinstance(step, int):
             raise TypeError("step must be int, not {}"
                             .format(type(step).__name__))
-        x, y = self.position()
-        dx = step * fast_cos(self._st._direction)
-        dy = step * fast_sin(self._st._direction)
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
-        self.go_to(x + dx, y - dy)
+        self.move_by(step * fast_cos(self._st._direction),
+                     step * fast_sin(self._st._direction))
+
+    def move_by(self, step_x, step_y):
+        x, y = self.position()
+        self.go_to(x + step_x, y - step_y)
 
     def get_state(self):
         return self._st.copy()

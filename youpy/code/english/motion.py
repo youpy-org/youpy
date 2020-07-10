@@ -43,6 +43,40 @@ def set_y_to(y):
         op="go_to",
         args=(None, get_scene()._coordsys.ordinate_from(y))))
 
+def move_by(step_x, step_y):
+    """Change sprite position by _step_x_ and _step_y_."""
+    if not isinstance(step_x, int):
+        raise TypeError("step_x must be int, not {}"
+                        .format(type(step_x).__name__))
+    if not isinstance(step_y, int):
+        raise TypeError("step_y must be int, not {}"
+                        .format(type(step_y).__name__))
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="move_by",
+        args=(step_x, step_y)))
+
+def change_x_by(step_x):
+    if not isinstance(step_x, int):
+        raise TypeError("step_x must be int, not {}"
+                        .format(type(step_x).__name__))
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="move_by",
+        args=(step_x, 0)))
+
+def change_y_by(step_y):
+    if not isinstance(step_y, int):
+        raise TypeError("step_y must be int, not {}"
+                        .format(type(step_y).__name__))
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="move_by",
+        args=(0, step_y)))
+
 def point_in_direction(angle):
     sprite_name = get_context_sprite_name()
     send_request(message.SpriteOp(
@@ -74,9 +108,12 @@ def direction():
     return get_scene()._anglesys.from_degree(_get_state().direction())
 
 __all__ = (
+    "change_x_by",
+    "change_y_by",
     "direction",
     "go_to",
     "move",
+    "move_by",
     "point_in_direction",
     "position",
     "set_x_to",
