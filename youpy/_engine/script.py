@@ -16,12 +16,13 @@ class ScriptSet:
         self._scripts = {}
         self._done_scripts = _concurrency.Queue()
 
-    def bulk_trigger(self, events):
-        for event in events:
-            self.trigger(event)
+    def bulk_trigger(self, event_handlers):
+        for event_handler in event_handlers:
+            self.trigger(event_handler)
 
-    def trigger(self, event):
-        script = Script(event, self.scene, done_queue=self._done_scripts)
+    def trigger(self, event_handler):
+        script = Script(event_handler, self.scene,
+                        done_queue=self._done_scripts)
         self._scripts[script.name] = script
         script.start()
 
@@ -67,17 +68,17 @@ class ScriptSet:
 class StopScript(Exception):
     pass
 
-def get_script_name(event):
-    return ".".join((('stage' if event.sprite is None else event.sprite.name),
-                     event.callback.__name__))
+def get_script_name(event_handler):
+    return ".".join((('stage' if event_handler.sprite is None else event_handler.sprite.name),
+                     event_handler.callback.__name__))
 
 class Script(_concurrency.Task):
 
     context = _concurrency.get_context()
 
-    def __init__(self, event, scene, done_queue=None):
-        super().__init__(name=get_script_name(event), daemon=True)
-        self.event = event
+    def __init__(self, event_handler, scene, done_queue=None):
+        super().__init__(name=get_script_name(event_handler), daemon=True)
+        self.event_handler = event_handler
         self.scene = scene
         self.pipe = _concurrency.Pipe()
         self._done_queue = done_queue
@@ -96,7 +97,7 @@ class Script(_concurrency.Task):
                 self._done_queue.put(self, block=False)
 
     def _run(self):
-        self.event.callback()
+        self.event_handler.callback()
 
     def send(self, request):
         self.pipe.request_queue.put(request)
@@ -107,7 +108,7 @@ class Script(_concurrency.Task):
 
     @property
     def sprite(self):
-        return self.event.sprite
+        return self.event_handler.sprite
 
 def get_context_script():
     return Script.context.script
