@@ -12,12 +12,12 @@ def when_backdrop_switches_to_InGame():
                 switch_to("GameOver")
             elif y > 150:
                 shared_variable.score += 1
-            bounce()
         elif touching("Hand"):
             if direction() > 0:
                 turn_counter_clockwise(90)
             else:
                 turn_clockwise(90)
+        bounce_if_on_edge()
 
 def when_backdrop_switches_to_GameOver():
     hide()

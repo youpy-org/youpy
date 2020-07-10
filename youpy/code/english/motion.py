@@ -7,6 +7,7 @@ from youpy._engine import get_scene
 from youpy._engine import send_request
 from youpy._engine import get_context_sprite_name
 from youpy._engine import message
+from youpy._engine import coordsys
 
 
 def go_to(x, y):
@@ -107,7 +108,32 @@ def y_position():
 def direction():
     return get_scene()._anglesys.from_degree(_get_state().direction())
 
+def _get_bounce_angle(r, a, w, h):
+    if r.left < 0: # left edge
+        return -a
+    elif r.right > w: # right edge
+        return -a
+    if r.top < 0: # top edge
+        if a < 0:
+            return -180 - a
+        else:
+            return 180 - a
+    elif r.bottom > h: # bottom edge
+        return 180 - a
+    return a
+
+def bounce_if_on_edge():
+    st = _get_state()
+    angle = coordsys.scratch_degree().from_degree(st.direction())
+    r = st.rect
+    scene = get_scene()
+    new_angle = _get_bounce_angle(r, angle, scene.width, scene.height)
+    if angle == new_angle:
+        return # not on edge
+    point_in_direction(new_angle)
+
 __all__ = (
+    "bounce_if_on_edge",
     "change_x_by",
     "change_y_by",
     "direction",
