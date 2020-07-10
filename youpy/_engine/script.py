@@ -114,7 +114,7 @@ def get_context_script():
     return Script.context.script
 
 def send_request(request):
-    get_context_script().send(request)
+    return get_context_script().send(request)
 
 def get_context_sprite_name():
     script = get_context_script()

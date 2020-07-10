@@ -290,7 +290,7 @@ class RequestProcessors:
         """
 
         def _run(self):
-            self._run_once()
+            self._reply = self._run_once()
             self._finished = True
 
         @abstractmethod
