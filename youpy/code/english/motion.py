@@ -11,11 +11,37 @@ from youpy._engine import message
 
 def go_to(x, y):
     """Change sprite position to _x_ and _y_."""
+    if not isinstance(x, int):
+        raise TypeError("x must be int, not {}"
+                        .format(type(x).__name__))
+    if not isinstance(y, int):
+        raise TypeError("y must be int, not {}"
+                        .format(type(y).__name__))
     sprite_name = get_context_sprite_name()
     send_request(message.SpriteOp(
         name=sprite_name,
         op="go_to",
         args=get_scene()._coordsys.point_from(x, y)))
+
+def set_x_to(x):
+    if not isinstance(x, int):
+        raise TypeError("x must be int, not {}"
+                        .format(type(x).__name__))
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="go_to",
+        args=(get_scene()._coordsys.abscissa_from(x), None)))
+
+def set_y_to(y):
+    if not isinstance(y, int):
+        raise TypeError("y must be int, not {}"
+                        .format(type(y).__name__))
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="go_to",
+        args=(None, get_scene()._coordsys.ordinate_from(y))))
 
 def point_in_direction(angle):
     sprite_name = get_context_sprite_name()
@@ -53,6 +79,8 @@ __all__ = (
     "move",
     "point_in_direction",
     "position",
+    "set_x_to",
+    "set_y_to",
     "x_position",
     "y_position",
 )

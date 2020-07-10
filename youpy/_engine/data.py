@@ -93,6 +93,11 @@ class Sprite:
             self._direction = 0 # direction angle in degree
 
         def go_to(self, x, y):
+            p = self.position()
+            if x is None:
+                x = p[0]
+            if y is None:
+                y = p[1]
             setattr(self.rect, self.coordsys_name, (x, y))
 
         def position(self):
@@ -135,15 +140,6 @@ class Sprite:
         self._st.rect = new_rect
 
     def go_to(self, x, y):
-        if not isinstance(x, int):
-            raise TypeError("x must be int, not {}"
-                            .format(type(x).__name__))
-        if not isinstance(y, int):
-            raise TypeError("y must be int, not {}"
-                            .format(type(y).__name__))
-        self._go_to(x, y)
-
-    def _go_to(self, x, y):
         self._st.go_to(x, y)
 
     def position(self):
@@ -188,7 +184,7 @@ class Sprite:
         dx = step * fast_cos(self._st._direction)
         dy = step * fast_sin(self._st._direction)
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
-        self._go_to(x + dx, y - dy)
+        self.go_to(x + dx, y - dy)
 
     def get_state(self):
         return self._st.copy()
