@@ -79,13 +79,14 @@ class Sprite:
     it is modified).
     """
 
-    def __init__(self, path):
+    def __init__(self, path, coordsys_name="center"):
         self._path = Path(path)
         assert self._path.is_dir()
         self.images = []
         self._index = -1
         self.visible = True
         self.rect = None
+        self.coordsys_name = coordsys_name
 
     @property
     def path(self):
@@ -99,7 +100,7 @@ class Sprite:
         return f"_engine.Sprite(name={self.name!r})"
 
     def go_to(self, x, y):
-        self.rect.topleft = (x, y)
+        setattr(self.rect, self.coordsys_name, (x, y))
 
     @property
     def current_image(self):

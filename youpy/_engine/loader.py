@@ -73,7 +73,9 @@ def load_sprite_images(sprite):
     sprite.images = load_images_set(sprite.path)
     assert len(sprite.images) > 0
     sprite._index = 0
-    sprite.rect = sprite.current_image.rect
+    # Copy the image's rect so that later change in sprite's rect does not
+    # affect it.
+    sprite.rect = sprite.current_image.rect.copy()
 
 def load_event_handlers_to(event_handlers, mod, sprite=None):
     """

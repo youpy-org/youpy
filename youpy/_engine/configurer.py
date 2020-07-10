@@ -63,12 +63,12 @@ class Configurer:
                 self._configure_sprite(sprite, sprite_cfg)
 
     def _configure_sprite(self, sprite, cfg):
+        sprite.coordsys_name = self.engine.coordsys.get_name()
         ratio = cfg.get("ratio")
         scale_sprite_by(sprite, ratio=ratio)
         position = cfg.get("position")
         if position is not None:
-            self.engine.coordsys.rect_go_to(sprite.rect,
-                                            position["x"], position["y"])
+            sprite.go_to(*self.engine.coordsys.point_from(*position))
         visible = cfg.get("visible", None)
         if visible is not None:
             sprite.visible = visible
