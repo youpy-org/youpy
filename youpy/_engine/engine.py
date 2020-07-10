@@ -229,14 +229,14 @@ class Server:
                 self._running.append(processor)
 
     def _run(self):
-        next_running = []
+        still_running = []
         for proc in self._running:
             proc()
             if proc.is_finished:
                 proc.script.pipe.reply_queue.put(proc.reply, block=False)
             else:
-                next_running.append(proc)
-        self._running = next_running
+                still_running.append(proc)
+        self._running = still_running
 
 class RequestProcessors:
 
