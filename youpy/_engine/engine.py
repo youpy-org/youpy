@@ -293,7 +293,7 @@ class SharedVariable:
     def __init__(self, shared_variable_set, value):
         self._set = shared_variable_set
         self._value = value
-        self._visible = True
+        self._visible = False
 
     def get(self):
         return self._value
