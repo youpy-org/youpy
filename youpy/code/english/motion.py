@@ -114,13 +114,15 @@ def direction():
 def bounce_if_on_edge():
     sprite_name = get_context_sprite_name()
     st = _get_state_for(sprite_name)
-    angle = math.degree_to_radian(st.direction())
+    angle_degree = st.direction()
     r = st.rect
     scene = get_scene()
     if r.left < 0 or r.right > scene.width: # vertical edges
-        new_angle = math.atan2(math.sin(angle), -math.cos(angle))
+        new_angle = math.atan2(math.fast_sin(angle_degree),
+                               -math.fast_cos(angle_degree))
     elif r.top < 0 or r.bottom > scene.height: # horizontal edges
-        new_angle = math.atan2(-math.sin(angle), math.cos(angle))
+        new_angle = math.atan2(-math.fast_sin(angle_degree),
+                               math.fast_cos(angle_degree))
     else: # no collision
         return
     send_request(message.SpriteBatchOp(
