@@ -100,7 +100,6 @@ class SharedVariablesRenderer:
                     state.surface = self.engine.default_font.render(
                         f"{state.name} = {state.value}", True, Color.white._c)
                     if state.rect is not None:
-                        state.rect = state.surface.get_rect().copy()
                         state.rect.width = state.surface.get_rect().width
                         assert state.rect.height == state.surface.get_rect().height
             else:
