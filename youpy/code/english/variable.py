@@ -25,6 +25,18 @@ class SharedVariable:
         return send_request(message.SharedVariableOp(name=self._name,
                                                      op="show"))
 
+    def __iadd__(self, other):
+        send_request(message.SharedVariableOp(name=self._name,
+                                              op="__iadd__",
+                                              args=(other,)))
+        return self
+
+    def __str__(self):
+        return str(self._value)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name={self._name!r}, value={self._value!r})"
+
 class SharedVariableSet:
     """Holds the set of the shared variables proxy.
 
@@ -46,6 +58,12 @@ class SharedVariableSet:
     def __setattr__(self, name, value):
         if name.startswith("_"):
             return super().__setattr__(name, value)
+        # When executing code like "shared_variable.score += 1",
+        # __setattr__ is called with name="score" and value="value returned by
+        # __iadd__". In such case, the in-place operation have already been
+        # committed, thus it is useless to create a new variable.
+        if isinstance(value, SharedVariable):
+            return
         send_request(message.SharedVariableNew(name=name, value=value))
 
     def __delattr__(self, name):

@@ -314,6 +314,7 @@ class SharedVariable:
         self._value += other
         if old_value != self._value:
             self._set_changed()
+        return self
 
     def _set_changed(self):
         self._set._changed = True
