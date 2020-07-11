@@ -265,6 +265,16 @@ class RequestProcessors:
             f = getattr(sprite, self.request.op)
             return f(*self.request.args, **self.request.kwargs)
 
+    class SpriteBatchOpProcessor(OneShotProcessor):
+        def _run_once(self):
+            sprite = self.engine.sprites[self.request.name]
+            rets = []
+            for op in self.request.ops:
+                f = getattr(sprite, op["op"])
+                ret = f(*op.get("args", ()), **op.get("kwargs", {}))
+                rets.append(ret)
+            return rets
+
     class SpriteGetCollisionProcessor(OneShotProcessor):
         # TODO(Nicolas Despres): Handle mask
         def _run_once(self):

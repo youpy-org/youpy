@@ -43,3 +43,8 @@ class SpriteOp:
 @dataclass
 class SpriteGetCollision:
     name: str
+
+@dataclass
+class SpriteBatchOp:
+    name: str
+    ops: Tuple[Mapping]

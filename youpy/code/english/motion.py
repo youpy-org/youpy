@@ -3,11 +3,14 @@
 """
 
 
+import math
+
 from youpy._engine import get_scene
 from youpy._engine import send_request
 from youpy._engine import get_context_sprite_name
 from youpy._engine import message
-from youpy._engine import coordsys
+from youpy._tools import degree_to_radian
+from youpy._tools import radian_to_degree
 
 
 def go_to(x, y):
@@ -92,9 +95,12 @@ def move(step):
         op="move",
         args=(step,)))
 
+def _get_state_for(sprite_name):
+    return send_request(message.SpriteOp(name=sprite_name, op="get_state"))
+
 def _get_state():
     sprite_name = get_context_sprite_name()
-    return send_request(message.SpriteOp(name=sprite_name, op="get_state"))
+    return _get_state_for(sprite_name)
 
 def position():
     return get_scene()._coordsys.point_to(*_get_state().position())
@@ -108,29 +114,24 @@ def y_position():
 def direction():
     return get_scene()._anglesys.from_degree(_get_state().direction())
 
-def _get_bounce_angle(r, a, w, h):
-    if r.left < 0: # left edge
-        return -a
-    elif r.right > w: # right edge
-        return -a
-    if r.top < 0: # top edge
-        if a < 0:
-            return -180 - a
-        else:
-            return 180 - a
-    elif r.bottom > h: # bottom edge
-        return 180 - a
-    return a
-
 def bounce_if_on_edge():
-    st = _get_state()
-    angle = coordsys.scratch_degree().from_degree(st.direction())
+    sprite_name = get_context_sprite_name()
+    st = _get_state_for(sprite_name)
+    angle = degree_to_radian(st.direction())
     r = st.rect
     scene = get_scene()
-    new_angle = _get_bounce_angle(r, angle, scene.width, scene.height)
-    if angle == new_angle:
-        return # not on edge
-    point_in_direction(new_angle)
+    if r.left < 0 or r.right > scene.width: # vertical edges
+        new_angle = math.atan2(math.sin(angle), -math.cos(angle))
+    elif r.top < 0 or r.bottom > scene.height: # horizontal edges
+        new_angle = math.atan2(-math.sin(angle), math.cos(angle))
+    else: # no collision
+        return
+    send_request(message.SpriteBatchOp(
+        name=sprite_name,
+        ops=(
+            dict(op="point_in_direction",
+                 args=(int(round(radian_to_degree(new_angle))) % 360,)),
+        )))
 
 __all__ = (
     "bounce_if_on_edge",
