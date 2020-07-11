@@ -5,6 +5,8 @@
 
 import time
 
+from youpy._engine.script import StopScript
+
 
 def run(caller_locals=None, **kwargs):
     # The call is to get rid of the call to locals() in the caller.
@@ -20,7 +22,11 @@ def run(caller_locals=None, **kwargs):
 def wait(delay):
     time.sleep(delay)
 
+def stop():
+    raise StopScript()
+
 __all__ = (
     "run",
+    "stop",
     "wait",
 )

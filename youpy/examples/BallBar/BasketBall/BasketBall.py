@@ -10,6 +10,7 @@ def when_backdrop_switches_to_InGame():
             y = y_position()
             if y < -150:
                 switch_to("GameOver")
+                stop()
             elif y > 150:
                 shared_variable.score += 1
         elif touching("Hand"):
