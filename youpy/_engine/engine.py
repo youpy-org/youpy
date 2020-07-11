@@ -405,6 +405,8 @@ class Engine:
             pygame.init()
             pygame.display.set_caption(self.project.name)
             self.scene.surface = pygame.display.set_mode(self.scene.size)
+            pygame.key.set_repeat(500, # ms
+                                  60) # ms
             self._load()
             self.event_manager.check()
             self._configure()
@@ -448,7 +450,7 @@ class Engine:
             # print(type(event), event)
             if e.type == pygame.QUIT:
                 self._is_running = False
-            elif e.type == pygame.KEYUP:
+            elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     self._is_running = False
                 else:
