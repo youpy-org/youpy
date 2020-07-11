@@ -147,6 +147,16 @@ def bounce_if_on_edge():
                                      scene._coordsys.dir_y * dy)),
         )))
 
+def turn_counter_clockwise(angle):
+    sprite_name = get_context_sprite_name()
+    send_request(message.SpriteOp(
+        name=sprite_name,
+        op="turn_counter_clockwise",
+        args=(angle,)))
+
+def turn_clockwise(angle):
+    return turn_counter_clockwise(-angle % 360)
+
 __all__ = (
     "bounce_if_on_edge",
     "change_x_by",
@@ -159,6 +169,8 @@ __all__ = (
     "position",
     "set_x_to",
     "set_y_to",
+    "turn_clockwise",
+    "turn_counter_clockwise",
     "x_position",
     "y_position",
 )
