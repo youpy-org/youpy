@@ -121,16 +121,30 @@ def bounce_if_on_edge():
     if r.left < 0 or r.right > scene.width: # vertical edges
         new_angle = math.atan2(math.fast_sin(angle_degree),
                                -math.fast_cos(angle_degree))
+        if r.left < 0:
+            dx = -r.left
+        else:
+            dx = scene.width - r.right
+        dy = int(round(dx * math.tan(new_angle)))
     elif r.top < 0 or r.bottom > scene.height: # horizontal edges
         new_angle = math.atan2(-math.fast_sin(angle_degree),
                                math.fast_cos(angle_degree))
+        if r.top < 0:
+            dy = r.top
+        else:
+            dy = r.bottom - scene.height
+        dx = int(round(dy * math.tan(new_angle)))
     else: # no collision
         return
+    new_angle_degree = int(round(math.radian_to_degree(new_angle))) % 360
+    # print(f"{angle_degree=};{new_angle=};{new_angle_degree=};{r=};{dx=};{dy=}")
     send_request(message.SpriteBatchOp(
         name=sprite_name,
         ops=(
             dict(op="point_in_direction",
-                 args=(int(round(math.radian_to_degree(new_angle))) % 360,)),
+                 args=(new_angle_degree,)),
+            dict(op="move_by", args=(scene._coordsys.dir_x * dx,
+                                     scene._coordsys.dir_y * dy)),
         )))
 
 __all__ = (
