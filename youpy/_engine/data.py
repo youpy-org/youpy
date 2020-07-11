@@ -11,8 +11,8 @@ import pygame
 
 from youpy._tools import as_ratio
 from youpy._tools import scale_size_by
-from youpy._engine.coordsys import fast_sin
-from youpy._engine.coordsys import fast_cos
+from youpy import math
+from youpy import math
 
 
 class Color:
@@ -181,8 +181,8 @@ class Sprite:
             raise TypeError("step must be int, not {}"
                             .format(type(step).__name__))
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
-        self.move_by(step * fast_cos(self._st._direction),
-                     step * fast_sin(self._st._direction))
+        self.move_by(step * math.fast_cos(self._st._direction),
+                     step * math.fast_sin(self._st._direction))
 
     def move_by(self, step_x, step_y):
         x, y = self.position()

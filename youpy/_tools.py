@@ -6,7 +6,6 @@
 import sys
 import os
 from contextlib import contextmanager
-import math
 
 
 def as_ratio(obj):
@@ -29,9 +28,3 @@ def extended_sys_path(path):
         sys.path.pop()
 
 IDENT_PATTERN = r"[^\s\d]\w+"
-
-def degree_to_radian(degree):
-    return degree * math.pi / 180
-
-def radian_to_degree(radian):
-    return radian * 180 / math.pi

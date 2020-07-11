@@ -3,14 +3,11 @@
 """
 
 
-import math
-
 from youpy._engine import get_scene
 from youpy._engine import send_request
 from youpy._engine import get_context_sprite_name
 from youpy._engine import message
-from youpy._tools import degree_to_radian
-from youpy._tools import radian_to_degree
+from youpy import math
 
 
 def go_to(x, y):
@@ -117,7 +114,7 @@ def direction():
 def bounce_if_on_edge():
     sprite_name = get_context_sprite_name()
     st = _get_state_for(sprite_name)
-    angle = degree_to_radian(st.direction())
+    angle = math.degree_to_radian(st.direction())
     r = st.rect
     scene = get_scene()
     if r.left < 0 or r.right > scene.width: # vertical edges
@@ -130,7 +127,7 @@ def bounce_if_on_edge():
         name=sprite_name,
         ops=(
             dict(op="point_in_direction",
-                 args=(int(round(radian_to_degree(new_angle))) % 360,)),
+                 args=(int(round(math.radian_to_degree(new_angle))) % 360,)),
         )))
 
 __all__ = (

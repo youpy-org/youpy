@@ -3,10 +3,8 @@
 """
 
 
-import math
-
-from youpy._tools import degree_to_radian
-from youpy._tools import radian_to_degree
+from youpy.math import degree_to_radian
+from youpy.math import radian_to_degree
 
 
 
@@ -64,20 +62,6 @@ class topleft(coordsys):
 
     def point_from(self, *args):
         return args
-
-# compute trigo table
-_COSINUS = []
-_SINUS = []
-for a in range(360):
-    _COSINUS.append(math.cos(degree_to_radian(a)))
-    _SINUS.append(math.sin(degree_to_radian(a)))
-del a
-
-def fast_sin(degree):
-    return _SINUS[degree]
-
-def fast_cos(degree):
-    return _COSINUS[degree]
 
 class anglesys:
     @classmethod
