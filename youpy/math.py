@@ -6,6 +6,7 @@
 from math import pi
 from math import sin
 from math import cos
+from math import tan
 from math import atan2
 
 
@@ -18,13 +19,19 @@ def radian_to_degree(radian):
 # compute trigo table
 _COSINUS = []
 _SINUS = []
+_TANS = []
 for a in range(360):
-    _COSINUS.append(cos(degree_to_radian(a)))
-    _SINUS.append(sin(degree_to_radian(a)))
-del a
+    r = degree_to_radian(a)
+    _COSINUS.append(cos(r))
+    _SINUS.append(sin(r))
+    _TANS.append(tan(r))
+del a, r
 
 def fast_sin(degree):
     return _SINUS[degree]
 
 def fast_cos(degree):
     return _COSINUS[degree]
+
+def fast_tan(degree):
+    return _TANS[degree]
