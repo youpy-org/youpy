@@ -22,7 +22,7 @@ def when_backdrop_switches_to_InGame():
 
 def when_backdrop_switches_to_GameOver():
     hide()
-    stop_others()
-    stop_it()
+    # stop_others()
+    stop()
 
 run(locals())
