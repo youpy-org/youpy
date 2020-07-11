@@ -182,11 +182,11 @@ class Sprite:
                             .format(type(step).__name__))
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
         self.move_by(step * math.fast_cos(self._st._direction),
-                     step * math.fast_sin(self._st._direction))
+                     -step * math.fast_sin(self._st._direction))
 
     def move_by(self, step_x, step_y):
         x, y = self.position()
-        self.go_to(x + step_x, y - step_y)
+        self.go_to(x + step_x, y + step_y)
 
     def get_state(self):
         return self._st.copy()

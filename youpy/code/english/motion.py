@@ -56,7 +56,8 @@ def move_by(step_x, step_y):
     send_request(message.SpriteOp(
         name=sprite_name,
         op="move_by",
-        args=(step_x, step_y)))
+        args=(get_scene()._coordsys.dir_x * step_x,
+              get_scene()._coordsys.dir_y * step_y)))
 
 def change_x_by(step_x):
     if not isinstance(step_x, int):
@@ -66,7 +67,7 @@ def change_x_by(step_x):
     send_request(message.SpriteOp(
         name=sprite_name,
         op="move_by",
-        args=(step_x, 0)))
+        args=(get_scene()._coordsys.dir_x * step_x, 0)))
 
 def change_y_by(step_y):
     if not isinstance(step_y, int):
@@ -76,7 +77,7 @@ def change_y_by(step_y):
     send_request(message.SpriteOp(
         name=sprite_name,
         op="move_by",
-        args=(0, step_y)))
+        args=(0, get_scene()._coordsys.dir_y * step_y)))
 
 def point_in_direction(angle):
     sprite_name = get_context_sprite_name()
