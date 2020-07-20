@@ -21,6 +21,12 @@ class ScriptSet:
             self.trigger(event_handler)
 
     def trigger(self, event_handler):
+        script_name = get_script_name(event_handler)
+        if script_name in self._scripts:
+            # Script already running. This may happens for example when the
+            # event handler run slower than the pace of repeated key stroke.
+            # In such a case, we just drop some event.
+            return
         script = Script(event_handler, self.scene,
                         done_queue=self._done_scripts)
         self._scripts[script.name] = script
