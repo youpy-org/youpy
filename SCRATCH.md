@@ -4,7 +4,8 @@ Comparison with Scratch
 # Development status
 
 This section describe the status of Scratch block implementation in
-Youpy.
+Youpy. It can also serves as a handbook for quickly finding the
+Youpy's way to do things.
 
 ## Motion
 
