@@ -10,7 +10,7 @@ from youpy._engine import message
 from youpy._engine.data import SCENE_EDGE
 
 
-def switch_to(backdrop):
+def switch_backdrop_to(backdrop):
     # TODO(Nicolas Despres): Add wait keyword argument to mimic the
     #   "switch to <backdrop> and wait" block?
     if not isinstance(backdrop, str):
@@ -31,5 +31,5 @@ def hide():
 __all__ = (
     "hide",
     "show",
-    "switch_to",
+    "switch_backdrop_to",
 )

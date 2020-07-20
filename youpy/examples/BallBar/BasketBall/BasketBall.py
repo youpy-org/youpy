@@ -9,7 +9,7 @@ def when_backdrop_switches_to_InGame():
         if touching(scene.edge):
             y = y_position()
             if y < -150:
-                switch_to("GameOver")
+                switch_backdrop_to("GameOver")
                 stop()
             elif y > 150:
                 shared_variable.score += 1
