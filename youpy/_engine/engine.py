@@ -407,7 +407,7 @@ class Engine:
             pygame.display.set_caption(self.project.name)
             self.scene.surface = pygame.display.set_mode(self.scene.size)
             pygame.key.set_repeat(500, # ms
-                                  60) # ms
+                                  30) # ms
             self._load()
             self.event_manager.check()
             self._configure()
@@ -438,7 +438,7 @@ class Engine:
 
     def _loop(self):
         self.event_manager.schedule(event.ProgramStart())
-        loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 60)
+        loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 100)
         clock = pygame.time.Clock()
         while self._is_running:
             loop.step()
