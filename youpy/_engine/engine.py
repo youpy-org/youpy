@@ -26,6 +26,7 @@ from youpy._engine import message
 from youpy._concurrency import EmptyQueue
 from youpy.keys import iter_keys
 from youpy.keys import check_key
+from youpy._engine.loop import FixedDeltaTimeEngineLoop
 
 
 class ConsoleProgress:
@@ -437,13 +438,20 @@ class Engine:
 
     def _loop(self):
         self.event_manager.schedule(event.ProgramStart())
+        loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 60)
+        clock = pygame.time.Clock()
         while self._is_running:
-            self.event_manager.trigger()
-            self._process_user_input()
-            self._server.process_requests()
-            self.scripts.rip_done_scripts()
-            self._renderer.render()
+            loop.step()
         self.scripts.join()
+
+    def _simulate(self):
+        self.event_manager.trigger()
+        self._process_user_input()
+        self._server.process_requests()
+        self.scripts.rip_done_scripts()
+
+    def _render(self):
+        self._renderer.render()
 
     def _process_user_input(self):
         for e in pygame.event.get():
