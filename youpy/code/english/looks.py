@@ -10,30 +10,6 @@ from youpy._engine import message
 from youpy._engine.data import SCENE_EDGE
 
 
-class Scene:
-    """User interface to the scene read-only attributes.
-
-    WARNING: Make sure everything is read-only since they are accessed
-             concurrently.
-    """
-
-    # Make sure we have no attribute otherwise a lock will be required.
-    __slots__ = ()
-
-    @property
-    def width(self):
-        return get_scene().scene.width
-
-    @property
-    def height(self):
-        return get_scene().scene.height
-
-    @property
-    def edge(self):
-        return SCENE_EDGE
-
-scene = Scene()
-
 def switch_to(backdrop):
     # TODO(Nicolas Despres): Add wait keyword argument to mimic the
     #   "switch to <backdrop> and wait" block?
@@ -54,7 +30,6 @@ def hide():
 
 __all__ = (
     "hide",
-    "scene",
     "show",
     "switch_to",
 )
