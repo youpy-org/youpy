@@ -3,9 +3,9 @@
 """
 
 
-from youpy._engine import get_scene
-from youpy._engine import send_request
-from youpy._engine import get_context_sprite_name
+from youpy._engine.api import get_scene
+from youpy._engine.api import send_request
+from youpy._engine.api import get_context_sprite_name
 from youpy._engine import message
 
 
