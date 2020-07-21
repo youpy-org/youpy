@@ -406,7 +406,7 @@ class Engine:
             pygame.init()
             pygame.display.set_caption(self.project.name)
             self.scene.surface = pygame.display.set_mode(self.scene.size)
-            pygame.key.set_repeat(500, # ms
+            pygame.key.set_repeat(300, # ms
                                   30) # ms
             self._load()
             self.event_manager.check()
