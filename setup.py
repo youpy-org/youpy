@@ -15,6 +15,7 @@ import errno
 from contextlib import contextmanager
 
 from setuptools import setup
+from setuptools import find_packages
 from setuptools.command.sdist import sdist
 
 from wheel.bdist_wheel import bdist_wheel
@@ -160,7 +161,7 @@ setup(
     # =====================
 
     # We only have a single package to distribute and no individual modules
-    packages=["youpy"],
+    packages=find_packages(),
     py_modules=[],
     platforms=["Windows", "macOS", "Linux"],
     # Read dependencies from requirements.txt
