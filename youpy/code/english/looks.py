@@ -7,7 +7,6 @@ from youpy._engine import get_scene
 from youpy._engine import send_request
 from youpy._engine import get_context_sprite_name
 from youpy._engine import message
-from youpy._engine.data import SCENE_EDGE
 
 
 def switch_backdrop_to(backdrop):
