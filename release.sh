@@ -77,6 +77,11 @@ fatal()
   exit 1
 }
 
+info()
+{
+  echo "$(basename "$0"): info: $@"
+}
+
 # Clean up before to finish.
 cleanup()
 {
@@ -286,14 +291,20 @@ fi
 ### Push
 if $PUSH
 then
+  log "Pushing commits and tags"
   git push --no-follow-tags origin master
   git push origin $TAG
+else
+  info "Commits and tags are not pushed (--push flag not set)"
 fi
 
 ### Upload
 if [ -n "$UPLOAD" ]
 then
+  log "Uploading to $UPLOAD"
   # We use twine to upload because it uses an encrypted connection
   # protecting the username/password whereas setuptools do not.
   twine upload -r $UPLOAD $SDIST_PKGS $WHEEL2_PKGS $WHEEL3_PKGS
+else
+  info "Uploading is disabled (--upload flag not set)"
 fi
