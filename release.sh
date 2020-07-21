@@ -262,7 +262,6 @@ WHEEL3_ENVS=$(tox --listenvs | grep '^py3' | tr '\n' ',')
 ### Test distribution
 if ! $NO_DISTCHECK
 then
-  pip install --upgrade tox
   for pkg_list in SDIST WHEEL2 WHEEL3
   do
     for pkg in $(indirect "${pkg_list}_PKGS")
@@ -298,7 +297,6 @@ fi
 ### Upload
 if [ -n "$UPLOAD" ]
 then
-  pip install --upgrade twine
   # We use twine to upload because it uses an encrypted connection
   # protecting the username/password whereas setuptools do not.
   twine upload -r $UPLOAD $SDIST_PKGS $WHEEL2_PKGS $WHEEL3_PKGS
