@@ -82,6 +82,12 @@ info()
   echo "$(basename "$0"): info: $@"
 }
 
+run()
+{
+  echo "$(basename "$0"): run: $@"
+  $@
+}
+
 # Clean up before to finish.
 cleanup()
 {
@@ -246,9 +252,9 @@ EOF
 
 ### Build distribution
 log "Creating source distribution"
-python setup.py sdist --formats zip,gztar
+run python setup.py sdist --formats zip,gztar
 log "Creating python3 binary distribution"
-python3 setup.py bdist_wheel
+run python3 setup.py bdist_wheel
 
 ### List distribution files
 SDIST_PKGS=$(find "$DIST_DIR" -type f \
@@ -284,7 +290,7 @@ test -z "$(git status --porcelain 2>/dev/null)" \
 ### Check that this version is not already used.
 if [ -n "$VERSION" ]
 then
-  git ls-remote --exit-code --tags origin refs/tags/$TAG >/dev/null \
+  run git ls-remote --exit-code --tags origin refs/tags/$TAG >/dev/null \
     && fatal "version $VERSION already released"
 fi
 
@@ -292,8 +298,8 @@ fi
 if $PUSH
 then
   log "Pushing commits and tags"
-  git push --no-follow-tags origin master
-  git push origin $TAG
+  run git push --no-follow-tags origin master
+  run git push origin $TAG
 else
   info "Commits and tags are not pushed (--push flag not set)"
 fi
@@ -304,7 +310,7 @@ then
   log "Uploading to $UPLOAD"
   # We use twine to upload because it uses an encrypted connection
   # protecting the username/password whereas setuptools do not.
-  twine upload -r $UPLOAD $SDIST_PKGS $WHEEL3_PKGS
+  run twine upload -r $UPLOAD $SDIST_PKGS $WHEEL3_PKGS
 else
   info "Uploading is disabled (--upload flag not set)"
 fi
