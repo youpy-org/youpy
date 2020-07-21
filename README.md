@@ -3,14 +3,15 @@ Youpy
 
 # Introduction
 Youpy aims at smoothing Python learning curve for beginners with or without
-knowledge of Scratch. We do this by providing an execution framework
-and a front-end API as close to Scratch as possible.
+knowledge of [Scratch](https://scratch.mit.edu/). It does this by
+providing a simple game engine framework
+and a front-end API as close as possible to Scratch.
 
 Many beginners guide for Python only offers command line activities
 based on the austere interfaces supported by the `input` and `print`
-function. On the contrary Youpy brings a modern graphical API allowing
-teachers to create rich recreational activities accessible to student
-with no programming skills.
+function. On the contrary, Youpy brings a modern graphical API allowing
+teachers to create rich recreational activities for education purpose
+accessible to student with no programming skills.
 
 # Philosophy
 ## Goals
