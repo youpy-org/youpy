@@ -242,8 +242,6 @@ EOF
 ### Build distribution
 log "Creating source distribution"
 python setup.py sdist --formats zip,gztar
-log "Creating python2 binary distribution"
-python setup.py bdist_wheel
 log "Creating python3 binary distribution"
 python3 setup.py bdist_wheel
 
@@ -251,18 +249,16 @@ python3 setup.py bdist_wheel
 SDIST_PKGS=$(find "$DIST_DIR" -type f \
                   -name "pyloc-${GIT_VERSION}.tar.gz" \
                   -o -name "pyloc-${GIT_VERSION}.zip")
-WHEEL2_PKGS=$(find "$DIST_DIR" -type f -name "pyloc-${GIT_VERSION}-py2-*.whl")
 WHEEL3_PKGS=$(find "$DIST_DIR" -type f -name "pyloc-${GIT_VERSION}-py3-*.whl")
 
 ### List relevant tox environments for each package.
 SDIST_ENVS='ALL'
-WHEEL2_ENVS=$(tox --listenvs | grep '^py2' | tr '\n' ',')
 WHEEL3_ENVS=$(tox --listenvs | grep '^py3' | tr '\n' ',')
 
 ### Test distribution
 if ! $NO_DISTCHECK
 then
-  for pkg_list in SDIST WHEEL2 WHEEL3
+  for pkg_list in SDIST WHEEL3
   do
     for pkg in $(indirect "${pkg_list}_PKGS")
     do
