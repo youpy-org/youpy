@@ -254,14 +254,12 @@ EOF
 
 ### Build distribution
 log "Creating source distribution"
-run python setup.py sdist --formats zip,gztar
+run python setup.py sdist --formats zip
 log "Creating python3 binary distribution"
 run python3 setup.py bdist_wheel
 
 ### List distribution files
-SDIST_PKGS=$(find "$DIST_DIR" -type f \
-                  -name "$PROJECT-${GIT_VERSION}.tar.gz" \
-                  -o -name "$PROJECT-${GIT_VERSION}.zip")
+SDIST_PKGS=$(find "$DIST_DIR" -type f -name "$PROJECT-${GIT_VERSION}.zip")
 WHEEL3_PKGS=$(find "$DIST_DIR" -type f -name "$PROJECT-${GIT_VERSION}-py3-*.whl")
 
 ### List relevant tox environments for each package.
