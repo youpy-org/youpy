@@ -2,17 +2,21 @@ Youpy
 ------
 
 # Introduction
-Youpy aims at smoothing Python learning curve for beginners with
+Youpy aims at smoothing Python learning curve for beginners with or without
 knowledge of Scratch. We do this by providing an execution framework
 and a front-end API as close to Scratch as possible.
+
+Many beginners guide for Python only offers command line activities
+based on the austere interfaces supported by the `input` and `print`
+function. On the contrary Youpy brings a modern graphical API allowing
+teachers to create rich recreational activities accessible to student
+with no programming skills.
 
 # Philosophy
 ## Goals
 
 - Make beginners enjoy programming in Python as much as in Scratch
-- Enable graphical interface and not only input/print.
-- Easy and straight forward with the less implicit magic possible
-- Write plain Python code
+- Stick to plain Python code with less implicit magic possible.
 
 ## Non-goals
 
@@ -23,10 +27,10 @@ and a front-end API as close to Scratch as possible.
 # Implementation status
 
 This project is still under development. You can have a look and the
-implementation status of [Scratch function](SCRATCH.md).
+implementation status of [Scratch functions](SCRATCH.md).
 
 # License
 
-Youpy is release under the term of the [BSD 3-Clause license](LICENSE.txt)
-Copyright (c) 2020, Nicolas Desprès
+Youpy is release under the term of the [BSD 3-Clause license](LICENSE.txt)  
+Copyright (c) 2020, Nicolas Desprès  
 All rights reserved.
