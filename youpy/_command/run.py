@@ -7,7 +7,7 @@ import argparse
 
 from youpy._cli.argparse import ArgparseFormatter
 from youpy._cli.argparse import parse_cli_args
-from youpy._runner import run
+from youpy.runner import run
 from youpy._project import InvalidProjectDir
 
 

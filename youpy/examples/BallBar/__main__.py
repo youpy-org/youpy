@@ -2,5 +2,5 @@
 """
 """
 
-import youpy
-youpy.run(__file__)
+from youpy.runner import run
+run(__file__)
