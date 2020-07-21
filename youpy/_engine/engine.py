@@ -416,6 +416,7 @@ class Engine:
             return self._loop()
         finally:
             self._is_running = False
+            pygame.quit()
 
     def _flip(self):
         pygame.display.flip()
