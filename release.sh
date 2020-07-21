@@ -57,6 +57,8 @@ unset CDPATH
 
 : ${RELEASE_DEBUG:=false}
 
+PROJECT="youpy"
+
 # ========= #
 # Functions #
 # ========= #
@@ -221,7 +223,7 @@ trap -- on_interrupt INT
 cleanup
 if $CLEAN
 then
-  rm -rf dist build youpy.egg-info .tox
+  rm -rf dist build "$PROJECT.egg-info" .tox
 fi
 
 ### Tag repository
@@ -258,9 +260,9 @@ run python3 setup.py bdist_wheel
 
 ### List distribution files
 SDIST_PKGS=$(find "$DIST_DIR" -type f \
-                  -name "pyloc-${GIT_VERSION}.tar.gz" \
-                  -o -name "pyloc-${GIT_VERSION}.zip")
-WHEEL3_PKGS=$(find "$DIST_DIR" -type f -name "pyloc-${GIT_VERSION}-py3-*.whl")
+                  -name "$PROJECT-${GIT_VERSION}.tar.gz" \
+                  -o -name "$PROJECT-${GIT_VERSION}.zip")
+WHEEL3_PKGS=$(find "$DIST_DIR" -type f -name "$PROJECT-${GIT_VERSION}-py3-*.whl")
 
 ### List relevant tox environments for each package.
 SDIST_ENVS='ALL'
