@@ -162,7 +162,10 @@ setup(
 
     # We only have a single package to distribute and no individual modules
     packages=find_packages(),
+    # No individual modules.
     py_modules=[],
+    # Include files mentioned MANIFEST.in in the wheel distribution.
+    include_package_data=True,
     platforms=["Windows", "macOS", "Linux"],
     # Read dependencies from requirements.txt
     install_requires=read_requirements(),
