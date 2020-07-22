@@ -27,7 +27,7 @@ Youpy's explicit non-goals:
 
 ## Table of contents
 
-1. [Installation procedure](INSTALL.md)
+1. [Install/upgrade procedure](INSTALL.md)
 1. [Youpy's project examples](EXAMPLES.md)
 1. [Scratch functions implementation status](SCRATCH.md)
 1. [Developers guide](HACKING.md)

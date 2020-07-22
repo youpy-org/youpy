@@ -49,3 +49,12 @@ with an embedded Python interpreter.
    preference dialog box and selecting the interpreter pane.
 1. Install youpy by using the package manager available in the `Tools`
    menu.
+
+## Upgrade Youpy
+
+1. From the terminal:
+   ```bash
+   python -m pip install --upgrade youpy
+   ```
+1. From Thonny, use the package manager from the `Tools` menu and
+   click the upgrade button.
