@@ -6,6 +6,7 @@
 import time
 
 from youpy._engine.script import StopScript
+from youpy.runner import run as _run
 
 
 def run(caller_locals=None, **kwargs):
@@ -16,8 +17,7 @@ def run(caller_locals=None, **kwargs):
     #     caller_scope = inspect.stack()[-1].frame.f_locals
     if caller_locals.get("__name__") != "__main__":
         return
-    from youpy.runner import run
-    run(caller_locals["__file__"], **kwargs)
+    _run(caller_locals["__file__"], **kwargs)
 
 def wait(delay):
     time.sleep(delay)
