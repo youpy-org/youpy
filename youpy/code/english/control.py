@@ -16,8 +16,8 @@ def run(caller_locals=None, **kwargs):
     #     caller_scope = inspect.stack()[-1].frame.f_locals
     if caller_locals.get("__name__") != "__main__":
         return
-    import youpy
-    youpy.run(caller_locals["__file__"], **kwargs)
+    from youpy.runner import run
+    run(caller_locals["__file__"], **kwargs)
 
 def wait(delay):
     time.sleep(delay)
