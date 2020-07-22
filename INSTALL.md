@@ -1,8 +1,10 @@
-How to install Youpy
---------------------
+# How to install Youpy
 
-# Install from command-line interface
-## Windows
+This document presents the various methods available to install youpy
+on your machine.
+
+## Install from command-line interface
+### Windows
 1. Install a compatible version of the Python
    interpreter
    [![Supported python versions](https://img.shields.io/pypi/pyversions/youpy.svg)](https://pypi.org/project/youpy/)
@@ -18,7 +20,7 @@ How to install Youpy
    python -m pip install youpy
    ```
 
-## macOS
+### macOS
 1. Install a compatible version of the Python interpreter [![Supported python versions](https://img.shields.io/pypi/pyversions/youpy.svg)](https://pypi.org/project/youpy/)
     ```bash
     brew install python
@@ -36,7 +38,7 @@ How to install Youpy
     python3 -m pip install youpy
     ```
 
-# Install in Thonny
+## Install in Thonny
 
 [Thonny](https://thonny.org) is Python IDE for beginners which comes
 with an embedded Python interpreter.

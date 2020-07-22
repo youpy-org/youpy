@@ -1,7 +1,4 @@
-Comparison with Scratch
--------------------------
-
-# Development status
+# Scratch's functions development status
 
 This section describe the status of Scratch block implementation in
 Youpy. It can also serves as a handbook for quickly finding the

@@ -1,5 +1,4 @@
-How to run Youpy's examples
-------------------------------
+# How to run Youpy's examples
 
 Youpy's comes with multiple examples available in the `youpy.examples`
 package. It exists various way to run an example. Before to run one

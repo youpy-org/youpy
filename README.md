@@ -1,5 +1,4 @@
-Youpy
-------
+# Youpy
 
 [![Last released version](https://img.shields.io/pypi/v/youpy.svg)](https://pypi.org/project/youpy)
 [![Supported python versions](https://img.shields.io/pypi/pyversions/youpy.svg)](https://pypi.org/project/youpy/)
@@ -26,14 +25,14 @@ Youpy's explicit non-goals:
 - Fast rendering: we only need to handle a handful of a hundred
   sprites at most
 
-# Table of contents
+## Table of contents
 
 1. [Installation procedure](INSTALL.md)
 1. [Youpy's project examples](EXAMPLES.md)
 1. [Scratch functions implementation status](SCRATCH.md)
 1. [Developers guide](HACKING.md)
 
-# License
+## License
 
 Youpy is release under the term of the [BSD 3-Clause license](LICENSE.txt)
 Copyright (c) 2020, Nicolas Desprès
