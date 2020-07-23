@@ -11,12 +11,13 @@ providing a simple game engine framework
 and a front-end API as close as possible to Scratch.
 
 Many beginners guide for Python only offers command line activities
-based on the austere interfaces supported by the `input` and `print`
+based on the austere interface supported by the `input` and `print`
 function. On the contrary, Youpy brings a modern graphical API allowing
-teachers to create rich recreational activities for education purpose
+teachers to create rich recreational activities for educational purpose
 accessible to student with no programming skills.
 
-Imagine a simple game represented by the following screenshot, where
+For instance, imagine a simple game represented by the following
+screenshot, where
 the player control the "Hand" sprite at the bottom of the stage to
 catch the bouncing ball sprite. The player scores one point each time the
 ball touches the top edge and loses when the ball touches the bottom
@@ -24,16 +25,16 @@ edge.
 
 ![BallBar screenshot](doc/ballbar-screenshot.png)
 
-Part of the code of Basketball sprite can be translated from Scratch
+Part of the code of "BasketBall" sprite can be translated from Scratch
 to Python using Youpy, like this:
 
 ![Scratch VS Youpy's code](doc/code-example.png)
 
-Youpy's goals:
-- Make beginners enjoy programming in Python as much as in Scratch
-- Stick to plain Python code with less implicit magic possible.
-
-Youpy's explicit non-goals:
+To summarize:
+* Youpy's goals:
+  - Make beginners enjoy programming in Python as much as in Scratch
+  - Stick to plain Python code with less implicit magic possible.
+* Youpy's explicit non-goals:
 - No 3D: 2D is enough for beginners
 - Fast rendering: we only need to handle a handful of a hundred
   sprites at most
