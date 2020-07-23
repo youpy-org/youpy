@@ -21,7 +21,7 @@ def mkcli():
         except KeyError:
             raise argparse.ArgumentTypeError(
                 "invalid log level '{}' (pick one in {})"
-                .format(text, ", ".join(_logging.STR2LEVEL.keys())))
+                .format(text, ", ".join(logging.STR2LEVEL.keys())))
     parser = argparse.ArgumentParser(
         prog=PROGNAME,
         description=__doc__,
@@ -41,12 +41,19 @@ def mkcli():
         type=log_level,
         default="info",
         help="Logging level for terminal")
+    parser.add_argument(
+        "--syslog-level",
+        action="store",
+        type=log_level,
+        default="info",
+        help="System logging level for terminal")
     return parser
 
 def main(argv, opts):
     opts, _ = parse_cli_args(mkcli(), argv[1:], opts)
     try:
-        run(opts.project_dir, show_fps=opts.show_fps)
+        run(opts.project_dir, show_fps=opts.show_fps,
+            log_level=opts.log_level, syslog_level=opts.syslog_level)
         return 0
     except InvalidProjectDir as e:
         print(e)

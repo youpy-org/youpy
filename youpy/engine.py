@@ -32,7 +32,6 @@ from youpy.loop import FixedDeltaTimeEngineLoop
 
 
 LOGGER = logging.getLogger(__name__)
-# LOGGER = logging.getLogger("youpy")
 
 
 class ConsoleProgress:

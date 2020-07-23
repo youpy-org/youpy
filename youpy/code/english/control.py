@@ -7,7 +7,7 @@ import time
 
 from youpy.api import StopScript
 from youpy.api import run as _run
-from youpy.api import get_user_logger
+from youpy.api import get_script_logger
 
 
 def run(caller_locals=None, **kwargs):
@@ -31,7 +31,7 @@ class Console:
     """
 
     def _log(self, tag, *args, **kwargs):
-        return getattr(get_user_logger(), tag)(*args, **kwargs)
+        return getattr(get_script_logger(), tag)(*args, **kwargs)
 
     def debug(self, *args, **kwargs):
         return self._log("debug", *args, **kwargs)

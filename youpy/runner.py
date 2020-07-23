@@ -10,10 +10,10 @@ from youpy.project import get_project_dir
 from youpy.logging import init_logger
 
 
-def run(path, show_fps=False, log_level=None):
+def run(path, show_fps=False, log_level=None, syslog_level=None):
     project_dir = get_project_dir(path)
     project = Project(project_dir)
     engine = Engine(project, show_fps=show_fps)
-    init_logger(project, log_level=log_level)
+    init_logger(project, log_level=log_level, syslog_level=syslog_level)
     with extended_sys_path(project_dir.parent):
         return engine.run()

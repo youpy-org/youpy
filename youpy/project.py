@@ -67,5 +67,9 @@ class Project:
         return f"{self.name}.{name}.{name}"
 
     @property
-    def log_file(self):
+    def syslog_file(self):
+        return self._path / INTERNAL_DIR / "syslog.txt"
+
+    @property
+    def user_log_file(self):
         return self._path / INTERNAL_DIR / "log.txt"
