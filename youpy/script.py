@@ -65,7 +65,7 @@ class ScriptSet:
 
     def _stop_all_scripts(self):
         for script in self._scripts.values():
-            script.pipe.reply_queue.put(message.StopScript())
+            script.pipe.reply_queue.put(StopScript())
 
     def __iter__(self):
         return iter(self._scripts.values())

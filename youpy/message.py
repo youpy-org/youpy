@@ -10,9 +10,6 @@ from dataclasses import dataclass
 from dataclasses import field
 
 
-class StopScript:
-    pass
-
 @dataclass
 class SharedVariableNew:
     name: str
