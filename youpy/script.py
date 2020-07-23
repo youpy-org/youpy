@@ -11,6 +11,7 @@ from youpy import message
 from youpy.logging import get_user_logger_name
 from youpy.logging import getLogger
 
+LOGGER = getLogger(__name__)
 
 class ScriptSet:
 
@@ -53,13 +54,12 @@ class ScriptSet:
             s.join(timeout=timeout)
             if not s.is_alive():
                 terminated.append(s.name)
-        # TODO(Nicolas Despres): Move the printing to engine?
         for name in terminated:
             del self._scripts[name]
         if self._scripts:
-            print(f"There were {len(self._scripts)} unterminated scripts:")
+            LOGGER.error(f"There were {len(self._scripts)} unterminated scripts:")
             for name in self._scripts:
-                print(f"  {name}")
+                LOGGER.error(f"  {name}")
             return False
         return True
 
