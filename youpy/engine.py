@@ -16,6 +16,7 @@ import pygame
 
 from youpy.project import Project
 from youpy.tools import FrequencyMeter
+from youpy.tools import print_simple_banner
 from youpy.data import Color
 from youpy.data import _Scene
 from youpy.data import Scene
@@ -423,7 +424,7 @@ class Engine:
             raise RuntimeError("engine already running")
         self._is_running = True
         try:
-            LOGGER.info(f"Initializing {self.project.name}...")
+            self._show_banner()
             pygame.init()
             pygame.display.set_caption(self.project.name)
             self.scene.surface = pygame.display.set_mode(self.scene.size)
@@ -490,3 +491,8 @@ class Engine:
                                 event.KeyPressed(key=k.name))
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
+
+    def _show_banner(self):
+        print_simple_banner(f"Initializing {self.project.name}...",
+                            separator="*",
+                            printer=LOGGER.info)
