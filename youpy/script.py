@@ -57,7 +57,7 @@ class ScriptSet:
         for name in terminated:
             del self._scripts[name]
         if self._scripts:
-            LOGGER.error(f"There were {len(self._scripts)} unterminated scripts:")
+            LOGGER.error(f"There were {len(self._scripts)} non-terminated scripts:")
             for name in self._scripts:
                 LOGGER.error(f"  {name}")
             return False
