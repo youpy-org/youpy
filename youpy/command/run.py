@@ -47,13 +47,19 @@ def mkcli():
         type=log_level,
         default="info",
         help="System logging level for terminal")
+    parser.add_argument(
+        "--log-context",
+        action="store_true",
+        default=False,
+        help="Whether to prefix all log messages with the running context")
     return parser
 
 def main(argv, opts):
     opts, _ = parse_cli_args(mkcli(), argv[1:], opts)
     try:
         run(opts.project_dir, show_fps=opts.show_fps,
-            log_level=opts.log_level, syslog_level=opts.syslog_level)
+            log_level=opts.log_level, syslog_level=opts.syslog_level,
+            log_context=opts.log_context)
         return 0
     except InvalidProjectDir as e:
         print(e)

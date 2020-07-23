@@ -35,7 +35,8 @@ def as_log_level(obj):
     else:
         raise TypeError(f"cannot interpret object of type {type(obj).__name__} to as a log level")
 
-def init_logger(project, log_level=None, syslog_level=None):
+def init_logger(project, log_level=None, syslog_level=None,
+                log_context=False):
     if log_level is None:
         log_level = logging.INFO
     if syslog_level is None:
@@ -51,8 +52,9 @@ def init_logger(project, log_level=None, syslog_level=None):
     precise_formatter = logging.Formatter(
         "%(asctime)s: %(name)s: %(lowerlevelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S")
-    brief_formatter = logging.Formatter(
-        "%(name)s: %(lowerlevelname)s: %(message)s")
+    context_brief_format = "%(name)s: %(lowerlevelname)s: %(message)s"
+    brief_format = context_brief_format if log_context else "%(message)s"
+    brief_formatter = logging.Formatter(brief_format)
 
     stream_handler = logging.StreamHandler(sys.stdout)
     system_file_handler = logging.FileHandler(project.syslog_file,
