@@ -8,6 +8,9 @@ from collections import defaultdict
 
 from youpy.tools import IDENT_PATTERN
 
+import logging
+LOGGER = logging.getLogger(__name__)
+
 
 EVENT_FUNC_PREFIX = "when_"
 
@@ -17,7 +20,7 @@ class EventHandlers:
         self._handlers = defaultdict(list)
 
     def register(self, event, handler):
-        # print(f"register event handler for {event!r} - hash_value={event._hash_value!r} - hash={hash(event)}")
+        LOGGER.debug(f"register handler for {event!r} - hash_value={event._hash_value!r}")
         self._handlers[event].append(handler)
 
     def get(self, event):
