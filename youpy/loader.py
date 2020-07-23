@@ -31,7 +31,7 @@ class Loader:
     def _load_backdrops(self, engine):
         for i, path in enumerate(iter_images_set(engine.project.stage_dir)):
             _add_item_to_dict(engine.scene.backdrops, Image(path))
-            self.progress.in_section("backdrops", i, path)
+            self.progress.in_section("backdrop", i, path)
         load_event_handlers_to(
             engine.event_manager.event_handlers,
             import_module(engine.project.stage_module_path))
@@ -46,7 +46,7 @@ class Loader:
                 import_module(engine.project.sprite_module_path(sprite.name)),
                 sprite=sprite)
             _add_item_to_dict(engine.sprites, sprite)
-            self.progress.in_section("sprites", i, path)
+            self.progress.in_section("sprite", i, path)
         self.progress.end_section()
 
 class DummyProgress:
