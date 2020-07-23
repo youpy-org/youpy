@@ -380,7 +380,7 @@ class EventManager:
 
     def schedule(self, event):
         handlers = self.event_handlers.get(event)
-        # print(f"schedule {len(handlers)} handlers for event: {event} - hash_value={event._hash_value!r} - hash={hash(event)}")
+        #LOGGER.debug(f"schedule {len(handlers)} handlers for event: {event} - hash_value={event._hash_value!r}")
         self._pending.extend(handlers)
 
     def trigger(self):
