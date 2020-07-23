@@ -69,3 +69,9 @@ class FrequencyMeter:
         return f"{self.__class__.__name__}(count={self.count}, "\
             f"frequency={self._frequency}, "\
             f"last_updated_at={self._last_updated_at})"
+
+def print_simple_banner(msg, separator="*", printer=print):
+    banner_str = separator * len(msg)
+    printer(banner_str)
+    printer(msg)
+    printer(banner_str)
