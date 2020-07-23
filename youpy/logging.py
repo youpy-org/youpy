@@ -29,7 +29,7 @@ ROOT_LOGGER_NAME = "youpy"
 
 def as_log_level(obj):
     if isinstance(obj, str):
-        return STR2LEVEL[obj]
+        return STR2LEVEL[obj.lower()]
     elif isinstance(obj, int):
         return obj
     else:
