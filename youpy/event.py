@@ -6,7 +6,7 @@
 import re
 from collections import defaultdict
 
-from youpy._tools import IDENT_PATTERN
+from youpy.tools import IDENT_PATTERN
 
 
 EVENT_FUNC_PREFIX = "when_"

@@ -6,15 +6,15 @@
 import sys
 import traceback
 
-from youpy import _concurrency
-from . import message
+from youpy import concurrency
+from youpy import message
 
 
 class ScriptSet:
 
     def __init__(self):
         self._scripts = {}
-        self._done_scripts = _concurrency.Queue()
+        self._done_scripts = concurrency.Queue()
 
     def bulk_trigger(self, event_handlers):
         for event_handler in event_handlers:
@@ -36,7 +36,7 @@ class ScriptSet:
         while True:
             try:
                 script = self._done_scripts.get(block=False)
-            except _concurrency.EmptyQueue:
+            except concurrency.EmptyQueue:
                 break
             else:
                 del self._scripts[script.name]
@@ -78,15 +78,15 @@ def get_script_name(event_handler):
     return ".".join((('stage' if event_handler.sprite is None else event_handler.sprite.name),
                      event_handler.callback.__name__))
 
-class Script(_concurrency.Task):
+class Script(concurrency.Task):
 
-    context = _concurrency.get_context()
+    context = concurrency.get_context()
 
     def __init__(self, event_handler, scene, done_queue=None):
         super().__init__(name=get_script_name(event_handler), daemon=True)
         self.event_handler = event_handler
         self.scene = scene
-        self.pipe = _concurrency.Pipe()
+        self.pipe = concurrency.Pipe()
         self._done_queue = done_queue
         self.exc_info = None
 

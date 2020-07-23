@@ -9,9 +9,8 @@ from collections import OrderedDict
 
 import pygame
 
-from youpy._tools import as_ratio
-from youpy._tools import scale_size_by
-from youpy import math
+from youpy.tools import as_ratio
+from youpy.tools import scale_size_by
 from youpy import math
 
 

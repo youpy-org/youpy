@@ -7,11 +7,11 @@ import sys
 import argparse
 import os
 
-from youpy._command import import_command
-from youpy._command import iter_command_names
-from youpy._command import CommandNotFoundError
-from youpy._cli.argparse import ArgparseFormatter
-from youpy._cli.argparse import chop_cmdsep
+from youpy.command import import_command
+from youpy.command import iter_command_names
+from youpy.command import CommandNotFoundError
+from youpy.cli.argparse import ArgparseFormatter
+from youpy.cli.argparse import chop_cmdsep
 
 
 PROGNAME = "youpy"

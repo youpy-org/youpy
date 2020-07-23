@@ -5,7 +5,7 @@
 
 from pathlib import Path
 
-from youpy._engine.error import YoupyException
+from youpy.error import YoupyException
 
 
 class InvalidProjectDir(YoupyException):

@@ -5,11 +5,11 @@
 
 import argparse
 
-from youpy._cli.argparse import ArgparseFormatter
-from youpy._cli.argparse import parse_cli_args
+from youpy.cli.argparse import ArgparseFormatter
+from youpy.cli.argparse import parse_cli_args
 from youpy.runner import run
-from youpy._project import InvalidProjectDir
-from youpy import _logging
+from youpy.project import InvalidProjectDir
+from youpy import logging
 
 
 PROGNAME = "youpy-run"
@@ -17,7 +17,7 @@ PROGNAME = "youpy-run"
 def mkcli():
     def log_level(text):
         try:
-            return _logging.STR2LEVEL[text]
+            return logging.STR2LEVEL[text]
         except KeyError:
             raise argparse.ArgumentTypeError(
                 "invalid log level '{}' (pick one in {})"

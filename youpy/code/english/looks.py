@@ -3,10 +3,10 @@
 """
 
 
-from youpy._engine.api import get_scene
-from youpy._engine.api import send_request
-from youpy._engine.api import get_context_sprite_name
-from youpy._engine import message
+from youpy.api import get_scene
+from youpy.api import send_request
+from youpy.api import get_context_sprite_name
+from youpy.api import message
 
 
 def switch_backdrop_to(backdrop):

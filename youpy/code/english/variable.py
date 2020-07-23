@@ -3,8 +3,8 @@
 """
 
 
-from youpy._engine.api import send_request
-from youpy._engine import message
+from youpy.api import send_request
+from youpy.api import message
 
 
 class SharedVariable:

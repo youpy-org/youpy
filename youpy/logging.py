@@ -6,7 +6,7 @@
 import logging
 import sys
 
-from youpy._tools import rev_dict
+from youpy.tools import rev_dict
 
 
 LEVEL2STR = {

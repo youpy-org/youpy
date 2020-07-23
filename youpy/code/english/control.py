@@ -5,8 +5,8 @@
 
 import time
 
-from youpy._engine.script import StopScript
-from youpy.runner import run as _run
+from youpy.api import StopScript
+from youpy.api import run as _run
 
 
 def run(caller_locals=None, **kwargs):

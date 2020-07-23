@@ -13,21 +13,21 @@ import logging
 
 import pygame
 
-from youpy._project import Project
-from youpy._engine.tools import FrequencyMeter
-from youpy._engine.data import Color
-from youpy._engine.data import _Scene
-from youpy._engine.data import Scene
-from youpy._engine.data import SCENE_EDGE
-from youpy._engine import event
-from youpy._engine.loader import Loader
-from youpy._engine.configurer import Configurer
-from youpy._engine.script import ScriptSet
-from youpy._engine import message
-from youpy._concurrency import EmptyQueue
+from youpy.project import Project
+from youpy.tools import FrequencyMeter
+from youpy.data import Color
+from youpy.data import _Scene
+from youpy.data import Scene
+from youpy.data import SCENE_EDGE
+from youpy import event
+from youpy.loader import Loader
+from youpy.configurer import Configurer
+from youpy.script import ScriptSet
+from youpy import message
+from youpy.concurrency import EmptyQueue
 from youpy.keys import iter_keys
 from youpy.keys import check_key
-from youpy._engine.loop import FixedDeltaTimeEngineLoop
+from youpy.loop import FixedDeltaTimeEngineLoop
 
 
 LOGGER = logging.getLogger(__name__)
