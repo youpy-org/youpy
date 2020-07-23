@@ -65,3 +65,7 @@ class Project:
 
     def sprite_module_path(self, name):
         return f"{self.name}.{name}.{name}"
+
+    @property
+    def log_file(self):
+        return self._path / INTERNAL_DIR / "log.txt"

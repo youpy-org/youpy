@@ -9,6 +9,7 @@ from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
+import logging
 
 import pygame
 
@@ -27,6 +28,10 @@ from youpy._concurrency import EmptyQueue
 from youpy.keys import iter_keys
 from youpy.keys import check_key
 from youpy._engine.loop import FixedDeltaTimeEngineLoop
+
+
+LOGGER = logging.getLogger(__name__)
+# LOGGER = logging.getLogger("youpy")
 
 
 class ConsoleProgress:
@@ -402,7 +407,7 @@ class Engine:
             raise RuntimeError("engine already running")
         self._is_running = True
         try:
-            print(f"Initializing {self.project.name}...")
+            LOGGER.info(f"Initializing {self.project.name}...")
             pygame.init()
             pygame.display.set_caption(self.project.name)
             self.scene.surface = pygame.display.set_mode(self.scene.size)
@@ -428,13 +433,13 @@ class Engine:
         default_font_name = pygame.font.get_default_font()
         # print(f"default font: {default_font_name}")
         self.default_font = pygame.font.Font(default_font_name, 16)
-        print("Loading...")
+        LOGGER.info("Loading...")
         self.scene.surface.fill(self.LOAD_BACK_COLOR._c)
         self._flip()
         Loader(progress=ConsoleProgress()).load(self)
 
     def _configure(self):
-        print("Configuring...")
+        LOGGER.info("Configuring...")
         Configurer(self).configure()
 
     def _loop(self):

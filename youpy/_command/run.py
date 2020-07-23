@@ -9,11 +9,19 @@ from youpy._cli.argparse import ArgparseFormatter
 from youpy._cli.argparse import parse_cli_args
 from youpy.runner import run
 from youpy._project import InvalidProjectDir
+from youpy import _logging
 
 
 PROGNAME = "youpy-run"
 
 def mkcli():
+    def log_level(text):
+        try:
+            return _logging.STR2LEVEL[text]
+        except KeyError:
+            raise argparse.ArgumentTypeError(
+                "invalid log level '{}' (pick one in {})"
+                .format(text, ", ".join(_logging.STR2LEVEL.keys())))
     parser = argparse.ArgumentParser(
         prog=PROGNAME,
         description=__doc__,
@@ -27,6 +35,12 @@ def mkcli():
         "--show-fps",
         action="store_true",
         help="Show FPS in the top-right corner of the screen.")
+    parser.add_argument(
+        "--log-level",
+        action="store",
+        type=log_level,
+        default="info",
+        help="Logging level for terminal")
     return parser
 
 def main(argv, opts):
