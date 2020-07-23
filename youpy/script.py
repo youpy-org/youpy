@@ -5,9 +5,11 @@
 
 import sys
 import traceback
+import logging
 
 from youpy import concurrency
 from youpy import message
+from youpy.logging import get_client_logger_name
 
 
 class ScriptSet:
@@ -132,3 +134,11 @@ def get_context_sprite_name():
 def get_scene():
     script = get_context_script()
     return script.scene
+
+def get_user_logger_name():
+    script = get_context_script()
+    name = get_script_name(script.event_handler)
+    return get_client_logger_name(name)
+
+def get_user_logger():
+    return logging.getLogger(get_user_logger_name())

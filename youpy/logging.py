@@ -52,3 +52,6 @@ def record_factory(*args, **kwargs):
     return record
 
 logging.setLogRecordFactory(record_factory)
+
+def get_client_logger_name(name):
+    return f"youpy.client.{name}"

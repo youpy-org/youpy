@@ -7,6 +7,7 @@ import time
 
 from youpy.api import StopScript
 from youpy.api import run as _run
+from youpy.api import get_user_logger
 
 
 def run(caller_locals=None, **kwargs):
@@ -25,7 +26,32 @@ def wait(delay):
 def stop():
     raise StopScript()
 
+class Console:
+    """Allow to print message with different severity to the console.
+    """
+
+    def _log(self, tag, *args, **kwargs):
+        return getattr(get_user_logger(), tag)(*args, **kwargs)
+
+    def debug(self, *args, **kwargs):
+        return self._log("debug", *args, **kwargs)
+
+    def info(self, *args, **kwargs):
+        return self._log("info", *args, **kwargs)
+
+    def warning(self, *args, **kwargs):
+        return self._log("warning", *args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        return self._log("error", *args, **kwargs)
+
+    def fatal(self, *args, **kwargs):
+        return self._log("fatal", *args, **kwargs)
+
+console = Console()
+
 __all__ = (
+    "console",
     "run",
     "stop",
     "wait",

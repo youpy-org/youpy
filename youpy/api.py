@@ -16,6 +16,7 @@ from youpy.script import get_scene
 from youpy.script import send_request
 from youpy.script import get_context_sprite_name
 from youpy.script import StopScript
+from youpy.script import get_user_logger
 from youpy.runner import run
 from youpy import message
 from youpy import math
