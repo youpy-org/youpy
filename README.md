@@ -16,6 +16,10 @@ function. On the contrary, Youpy brings a modern graphical API allowing
 teachers to create rich recreational activities for education purpose
 accessible to student with no programming skills.
 
+See how the Python code is close to the Scratch code, in this example.
+
+![Scratch VS Youpy's code](doc/code-example.png)
+
 Youpy's goals:
 - Make beginners enjoy programming in Python as much as in Scratch
 - Stick to plain Python code with less implicit magic possible.
