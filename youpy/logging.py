@@ -39,7 +39,7 @@ def init_logger(project, log_level=None, syslog_level=None):
     youpy_logger = logging.getLogger(ROOT_LOGGER_NAME)
     # Pass all messages to handlers. Severity-level are configured by
     # handlers.
-    youpy_logger.setLevel(logging.DEBUG)
+    youpy_logger.setLevel(-1)
 
     precise_formatter = logging.Formatter(
         "%(asctime)s: %(name)s: %(lowerlevelname)s: %(message)s",
