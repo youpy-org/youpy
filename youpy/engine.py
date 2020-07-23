@@ -5,6 +5,7 @@
 
 from collections.abc import MutableMapping
 from collections import OrderedDict
+from collections import Counter
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -41,6 +42,22 @@ class ConsoleProgress:
 
     def end_section(self):
         print() # flush
+
+class LoggerProgress:
+
+    def __init__(self):
+        self._count = Counter()
+
+    def in_section(self, name, index, path):
+        self._count[name] += 1
+        LOGGER.info(f"Loading {index+1: 4d}th {name:>10s}: {path}")
+
+    def end_section(self):
+        for name, count in self._count.items():
+            LOGGER.info(f"Loaded {count} {name}(s)")
+        # Reset counter between each section, otherwise previous section count
+        # are repeated.
+        self._count.clear()
 
 class FPSRenderer:
 
@@ -436,7 +453,7 @@ class Engine:
         LOGGER.info("Loading...")
         self.scene.surface.fill(self.LOAD_BACK_COLOR._c)
         self._flip()
-        Loader(progress=ConsoleProgress()).load(self)
+        Loader(progress=LoggerProgress()).load(self)
 
     def _configure(self):
         LOGGER.info("Configuring...")
