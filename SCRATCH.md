@@ -219,3 +219,17 @@ Already implemented as Python function.
 - They must be assigned once before first use (in Scratch
   you create it in the GUI).
 - They can be of any type.
+
+## Events
+
+Events in Youpy are implemented as callback function following a
+naming convention. It has some drawbacks.
+
+- You can only have when function of the same name in the same
+  module. This is due to Python basic name binding. If you define a
+  variable or a function with the name twice the second definition
+  overwrite the first one. Thus, you can have only one
+  `when_program_start` event per sprite. Whereas in Scratch you may
+  provide multiple script triggered on this event. The common
+  workaround is define two functions and call them in the event
+  handler. You will lose parallelism but in most cases it does not matter.
