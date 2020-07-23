@@ -5,11 +5,11 @@
 
 import sys
 import traceback
-import logging
 
 from youpy import concurrency
 from youpy import message
 from youpy.logging import get_user_logger_name
+from youpy.logging import getLogger
 
 
 class ScriptSet:
@@ -141,4 +141,4 @@ def get_script_logger_name():
     return get_user_logger_name(name)
 
 def get_script_logger():
-    return logging.getLogger(get_script_logger_name())
+    return getLogger(get_script_logger_name())

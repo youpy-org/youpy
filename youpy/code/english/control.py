@@ -8,6 +8,7 @@ import time
 from youpy.api import StopScript
 from youpy.api import run as _run
 from youpy.api import get_script_logger
+from youpy import logging
 
 
 def run(caller_locals=None, **kwargs):
@@ -30,23 +31,23 @@ class Console:
     """Allow to print message with different severity to the console.
     """
 
-    def _log(self, tag, *args, **kwargs):
-        return getattr(get_script_logger(), tag)(*args, **kwargs)
-
     def debug(self, *args, **kwargs):
-        return self._log("debug", *args, **kwargs)
+        return get_script_logger().log(logging.DEBUG, *args, **kwargs)
 
     def info(self, *args, **kwargs):
-        return self._log("info", *args, **kwargs)
+        return get_script_logger().log(logging.INFO, *args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        return self._log("warning", *args, **kwargs)
+        return get_script_logger().log(logging.WARNING, *args, **kwargs)
 
     def error(self, *args, **kwargs):
-        return self._log("error", *args, **kwargs)
+        return get_script_logger().log(logging.ERROR, *args, **kwargs)
 
     def fatal(self, *args, **kwargs):
-        return self._log("fatal", *args, **kwargs)
+        return get_script_logger().log(logging.FATAL, *args, **kwargs)
+
+    def print(self, *args, **kwargs):
+        return get_script_logger().log(logging.PRINT, *args, **kwargs)
 
 console = Console()
 

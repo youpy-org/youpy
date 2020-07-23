@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from youpy.tools import IDENT_PATTERN
 
-import logging
+from youpy import logging
 LOGGER = logging.getLogger(__name__)
 
 

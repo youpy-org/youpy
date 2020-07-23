@@ -8,13 +8,20 @@ import sys
 
 from youpy.tools import rev_dict
 
+from logging import DEBUG
+from logging import INFO
+from logging import WARNING
+from logging import ERROR
+from logging import FATAL
+PRINT = FATAL + 1000
+logging.addLevelName(PRINT, "PRINT")
 
 LEVEL2STR = {
-    logging.DEBUG: "debug",
-    logging.INFO: "info",
-    logging.WARNING: "warning",
-    logging.ERROR: "error",
-    logging.FATAL: "fatal",
+    DEBUG: "debug",
+    INFO: "info",
+    WARNING: "warning",
+    ERROR: "error",
+    FATAL: "fatal",
 }
 STR2LEVEL = rev_dict(LEVEL2STR)
 
@@ -88,3 +95,6 @@ class UserLogFilter(logging.Filter):
 
     def filter(self, record):
         return record.name.startswith(USER_LOGGER_NAME)
+
+def getLogger(name):
+    return logging.getLogger(name)

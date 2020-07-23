@@ -10,7 +10,6 @@ from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
-import logging
 
 import pygame
 
@@ -32,6 +31,7 @@ from youpy.keys import check_key
 from youpy.loop import FixedDeltaTimeEngineLoop
 
 
+from youpy import logging
 LOGGER = logging.getLogger(__name__)
 
 
@@ -493,6 +493,8 @@ class Engine:
             #     MOUSE._set_pos(*event.pos)
 
     def _show_banner(self):
+        def printer(msg):
+            LOGGER.log(logging.PRINT, msg)
         print_simple_banner(f"Initializing {self.project.name}...",
                             separator="*",
-                            printer=LOGGER.info)
+                            printer=printer)
