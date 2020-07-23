@@ -25,10 +25,10 @@ def init_logger(project, log_level=None):
     youpy_logger.setLevel(log_level)
 
     precise_formatter = logging.Formatter(
-        "%(asctime)s: %(name)s: %(levelname)s: %(message)s",
+        "%(asctime)s: %(name)s: %(lowerlevelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S")
     brief_formatter = logging.Formatter(
-        "%(name)s: %(levelname)s: %(message)s")
+        "%(name)s: %(lowerlevelname)s: %(message)s")
 
     stream_handler = logging.StreamHandler(sys.stdout)
     file_handler = logging.FileHandler(project.log_file,
@@ -43,3 +43,12 @@ def init_logger(project, log_level=None):
     youpy_logger.addHandler(file_handler)
 
     return youpy_logger
+
+_old_record_factory = logging.getLogRecordFactory()
+
+def record_factory(*args, **kwargs):
+    record = _old_record_factory(*args, **kwargs)
+    record.lowerlevelname = record.levelname.lower()
+    return record
+
+logging.setLogRecordFactory(record_factory)
