@@ -38,7 +38,7 @@ def as_log_level(obj):
 def init_logger(project, log_level=None, syslog_level=None,
                 log_context=False):
     if log_level is None:
-        log_level = logging.INFO
+        log_level = logging.WARNING
     if syslog_level is None:
         syslog_level = logging.INFO
     log_level = as_log_level(log_level)

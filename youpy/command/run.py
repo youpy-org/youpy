@@ -39,7 +39,7 @@ def mkcli():
         "--log-level",
         action="store",
         type=log_level,
-        default="info",
+        default="warning",
         help="Logging level for terminal")
     parser.add_argument(
         "--syslog-level",
