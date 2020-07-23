@@ -28,3 +28,6 @@ def extended_sys_path(path):
         sys.path.pop()
 
 IDENT_PATTERN = r"[^\s\d]\w+"
+
+def rev_dict(d):
+    return {v:k for k, v in d.items()}
