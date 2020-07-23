@@ -9,7 +9,7 @@ def when_backdrop_switches_to_InGame():
         if touching(scene.edge):
             y = y_position()
             if y < -150:
-                console.info("player has lost the game")
+                console.print("player has lost the game")
                 switch_backdrop_to("GameOver")
                 stop()
             elif y > 150:
