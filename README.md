@@ -12,7 +12,7 @@ and a front-end API as close as possible to Scratch.
 
 Many beginners guide for Python only offers command line activities
 based on the austere interface supported by the `input` and `print`
-function. On the contrary, Youpy brings a modern graphical API allowing
+functions. On the contrary, Youpy brings a modern graphical API allowing
 teachers to create rich recreational activities for educational purpose
 accessible to student with no programming skills.
 
@@ -20,7 +20,7 @@ For instance, imagine a simple game represented by the following
 screenshot, where
 the player control the "Hand" sprite at the bottom of the stage to
 catch the bouncing ball sprite. The player scores one point each time the
-ball touches the top edge and loses when the ball touches the bottom
+ball touches the top edge. The game is over when the ball touches the bottom
 edge.
 
 ![BallBar screenshot](doc/ballbar-screenshot.png)
