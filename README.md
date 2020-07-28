@@ -25,7 +25,7 @@ edge.
 
 ![BallBar screenshot](doc/ballbar-screenshot.png)
 
-Looks at this snippet of code from the "BasketBall" sprite, and see
+Look at this snippet of code from the "BasketBall" sprite, and see
 how close is the Python code written using Youpy from its Scratch equivalent.
 
 ![Scratch VS Youpy's code](doc/code-example.png)
