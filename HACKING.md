@@ -60,3 +60,7 @@ python3 -m unittest discover -s youpy.test
    ```bash
    unset V PYENV_VERSION
    ```
+1. Remove version file.
+   ```bash
+   make clean-version
+   ```

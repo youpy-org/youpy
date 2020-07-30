@@ -126,8 +126,8 @@ clean-tag:
 	$(GIT) tag -d "$(TAG)" || true
 
 .PHONY: clean-version
-clean-$(VERSION_FILE):
-	rm -f $(VERSION_FILE)
+clean-version:
+	rm -f $(VERSION_FILE) $(VERSION_PY_FILE)
 
 .PHONY: clean-all
 clean-all: clean clean-tag clean-VERSION
