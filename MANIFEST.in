@@ -3,4 +3,4 @@ include README.md
 include VERSION.txt
 include REVISION.txt
 include requirements.txt
-recursive-include youpy/examples *.json *.png LICENSE.txt
+recursive-include youpy/examples *.json *.png *.sb3 LICENSE.txt
