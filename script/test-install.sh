@@ -35,5 +35,6 @@ then
 fi
 VERSION="$1"
 
+# We test for the TEST server!!
 pip3 install -i https://test.pypi.org/simple/ "youpy==$VERSION"
 python3 -m youpy.examples.SimpleBasketBall
