@@ -16,10 +16,15 @@ from youpy.cli.argparse import chop_cmdsep
 
 PROGNAME = "youpy"
 
-# Get replaced in the release process so that we do not probe the
-# repository (which is not present) once released.
-__version__ = 'dev'
-__revision__ = 'git'
+try:
+    from youpy import version as _version
+except ImportError:
+    __version__ = 'dev'
+    __revision__ = 'git'
+else:
+    __version__ = _version.__version__
+    __revision__ = _version.__revision__
+    del _version
 
 _VERSION_SCRIPT = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                "script", "version")

@@ -2,3 +2,4 @@ wheel>=0.34.2
 Sphynx>=3.1.2
 twine>=3.2.0
 tox>=3.17.1
+virtualenv>=20.0.18
