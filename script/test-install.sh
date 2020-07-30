@@ -36,4 +36,4 @@ fi
 VERSION="$1"
 
 pip3 install -i https://test.pypi.org/simple/ "youpy==$VERSION"
-python3 -m youpy.examples.BallBar
+python3 -m youpy.examples.SimpleBasketBall

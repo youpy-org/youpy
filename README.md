@@ -23,7 +23,7 @@ catch the bouncing ball sprite. The player scores one point each time the
 ball touches the top edge. The game is over when the ball touches the bottom
 edge.
 
-![BallBar screenshot](doc/ballbar-screenshot.png)
+![SimpleBasketBall screenshot](doc/SimpleBasketBall-screenshot.png)
 
 Look at this snippet of code from the "BasketBall" sprite, and see
 how close is the Python code written using Youpy from its Scratch equivalent.

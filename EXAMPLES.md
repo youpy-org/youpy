@@ -18,12 +18,12 @@ Then follow this procedure for running an example:
 
 1. Using the Terminal, you can just type:
    ```bash
-   python -m youpy.examples.BallBar
+   python -m youpy.examples.SimpleBasketBall
    ```
 1. Using the Thonny IDE, you can run in the console:
    ```python
    from youpy.examples import run_example
-   run_example("BallBar")
+   run_example("SimpleBasketBall")
    ```
 
 ## Third-party examples
