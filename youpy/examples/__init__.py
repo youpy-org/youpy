@@ -6,7 +6,7 @@
 import os
 
 from youpy.runner import run as _run
-from youpy._project import INTERNAL_DIR as _INTERNAL_DIR
+from youpy.project import INTERNAL_DIR as _INTERNAL_DIR
 
 
 _EXAMPLES_DIR = os.path.dirname(__file__)
