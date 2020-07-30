@@ -27,6 +27,7 @@ def read_requirements():
     return requirements
 
 
+# The 'version' module has been generated before if you use the Makefile
 from youpy.version import VERSION
 
 ### Configure warnings emitted by 'setup()' we are interested in.

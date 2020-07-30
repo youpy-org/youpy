@@ -26,22 +26,28 @@ else:
     __revision__ = _version.__revision__
     del _version
 
-_VERSION_SCRIPT = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                               "script", "version")
+def git_describe():
+    import subprocess
+    cmd = ["git", "describe", "--long", "--match", "v*", "--dirty"]
+    output = subprocess.check_output(cmd).decode().strip()
+    if output.startswith("v"):
+        output = output[1:]
+    return output
 
 def get_version():
     if __version__ != 'dev':
         return __version__
-    import subprocess as sp
-    cmd = [_VERSION_SCRIPT, "get"]
-    return sp.check_output(cmd).decode().strip()
+    return git_describe()
+
+def git_revision():
+    import subprocess
+    cmd = ["git", "rev-parse", "HEAD"]
+    return subprocess.check_output(cmd).decode().strip()
 
 def get_revision():
     if __revision__ != 'git':
         return __revision__
-    import subprocess as sp
-    cmd = [_VERSION_SCRIPT, "revision"]
-    return sp.check_output(cmd).decode().strip()
+    return git_revision()
 
 def get_version_string():
     return \
