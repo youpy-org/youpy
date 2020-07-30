@@ -1,0 +1,14 @@
+Copyright (c) 2020, Nicolas Desprès CC BY-SA
+
+https://creativecommons.org/licenses/by-sa/2.0/deed.en
+
+-----------------------------------------------------------------------------
+
+The images included in this project comes from the Scratch project
+and are licenced under CC-BY-SA 2.0
+
+https://creativecommons.org/licenses/by-sa/2.0/deed.en
+
+Scratch is a project of the Scratch Foundation, in collaboration with
+the Lifelong Kindergarten Group at the MIT Media Lab. It is available
+for free at https://scratch.mit.edu

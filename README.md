@@ -48,6 +48,17 @@ To summarize:
 
 ## License
 
-Youpy is release under the term of the [BSD 3-Clause license](LICENSE.txt)
+Youpy is released under the term of the [BSD 3-Clause license](LICENSE.txt)
 Copyright (c) 2020, Nicolas Desprès
 All rights reserved.
+
+### Examples
+
+The examples available in the `youpy/examples/` directory may be
+distributed under different term. In such a case, a `LICENSE.txt` file
+will be present at the root of the example directory.
+
+The `<project>.sb3` files included in `youpy/examples/` are released under the
+term of the `<project>/LICENSE.txt` if present or the term of
+the [BSD 3-Clause license](LICENSE.txt) (where `<project>` may be one
+of the example project name.
