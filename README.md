@@ -55,10 +55,10 @@ All rights reserved.
 ### Examples
 
 The examples available in the `youpy/examples/` directory may be
-distributed under different term. In such a case, a `LICENSE.txt` file
-will be present at the root of the example directory.
+distributed under different terms. In such a case, a `LICENSE.txt` file
+is present at the root of the example directory.
 
 The `<project>.sb3` files included in `youpy/examples/` are released under the
-term of the `<project>/LICENSE.txt` if present or the term of
+terms of the `<project>/LICENSE.txt` if present or the terms of
 the [BSD 3-Clause license](LICENSE.txt) (where `<project>` may be one
-of the example project name.
+of the example project name).
