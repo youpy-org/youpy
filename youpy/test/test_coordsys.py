@@ -6,7 +6,7 @@
 import unittest
 import math
 
-from youpy._engine import coordsys
+from youpy import coordsys
 
 
 class TestScratchDegree(unittest.TestCase):

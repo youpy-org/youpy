@@ -6,10 +6,10 @@
 import unittest
 from collections import defaultdict
 
-from youpy._engine.event import EventHandlers
-from youpy._engine.event import EventHandler
-from youpy._engine.event import ProgramStart
-from youpy._engine.event import BackdropSwitches
+from youpy.event import EventHandlers
+from youpy.event import EventHandler
+from youpy.event import ProgramStart
+from youpy.event import BackdropSwitches
 
 
 class TestEventProgramStart(unittest.TestCase):
