@@ -13,6 +13,7 @@ from youpy.command import CommandNotFoundError
 from youpy.cli.argparse import ArgparseFormatter
 from youpy.cli.argparse import chop_cmdsep
 
+ME_DIR = os.path.dirname(__file__)
 
 PROGNAME = "youpy"
 
@@ -28,7 +29,8 @@ else:
 
 def git_describe():
     import subprocess
-    cmd = ["git", "describe", "--long", "--match", "v*", "--dirty"]
+    cmd = ["git", '-C', os.fspath(ME_DIR),
+           "describe", "--long", "--match", "v*", "--dirty"]
     output = subprocess.check_output(cmd).decode().strip()
     if output.startswith("v"):
         output = output[1:]
@@ -41,7 +43,7 @@ def get_version():
 
 def git_revision():
     import subprocess
-    cmd = ["git", "rev-parse", "HEAD"]
+    cmd = ["git", '-C', os.fspath(ME_DIR), "rev-parse", "HEAD"]
     return subprocess.check_output(cmd).decode().strip()
 
 def get_revision():

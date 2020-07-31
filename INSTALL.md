@@ -54,7 +54,32 @@ with an embedded Python interpreter.
 
 1. From the terminal:
    ```bash
-   python -m pip install --upgrade youpy
+   python3 -m pip install --upgrade youpy
    ```
 1. From Thonny, use the package manager from the `Tools` menu and
    click the upgrade button.
+
+# Development mode
+
+This type of installation is useful when you want to use the
+bleeding-edge version from Youpy git repository.
+
+## Install
+
+```bash
+git clone 'https://github.com/nicolasdespres/youpy'
+cd youpy
+python3 setup.py develop
+```
+
+## Uninstall
+
+```bash
+python3 setup.py develop --uninstall
+```
+
+## Upgrade
+
+```bash
+git pull
+```

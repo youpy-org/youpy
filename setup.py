@@ -28,7 +28,10 @@ def read_requirements():
 
 
 # The 'version' module has been generated before if you use the Makefile
-from youpy.version import VERSION
+try:
+    from youpy.version import VERSION
+except ModuleNotFoundError:
+    VERSION = "0.0.0" # version for 'develop' install
 
 ### Configure warnings emitted by 'setup()' we are interested in.
 import warnings
