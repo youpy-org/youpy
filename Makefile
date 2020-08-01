@@ -8,7 +8,6 @@ CHECK_DIRTY ?= true
 GIT_REMOTE ?= origin
 GIT ?= git
 SED ?= sed
-VENV_DIST_TEST_DIR ?= venv-dist-test
 
 # ==========
 # Parameters
@@ -18,6 +17,7 @@ PROJECT := youpy
 REVISION := $(shell git rev-parse HEAD)
 DIST_DIR := dist
 BUILD_DIR := build
+VENV_DIST_TEST_DIR ?= test-dist-venv
 DOC_DIR := doc
 RELNOTES_DIR := $(DOC_DIR)/RelNotes
 VERSION_FILE := VERSION
@@ -119,7 +119,9 @@ publish-test: $(PKG_FILES) push
 
 .PHONY: clean
 clean:
-	rm -rf "$(DIST_DIR)" "$(BUILD_DIR)" $(MANIFEST_FILE) $(VERSION_PY_FILE)
+	rm -rf "$(DIST_DIR)" "$(BUILD_DIR)"
+	rm -rf "$(MANIFEST_FILE)" "$(VERSION_PY_FILE)"
+	rm -rf "$(VENV_DIST_TEST_DIR)"
 
 .PHONY: clean-tag
 clean-tag:

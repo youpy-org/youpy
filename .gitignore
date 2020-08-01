@@ -18,4 +18,4 @@ __pycache__/
 /VERSION
 
 # Used to test distribution locally
-/venv-dist-test/
+/test-dist-venv/
