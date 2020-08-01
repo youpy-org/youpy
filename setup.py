@@ -9,12 +9,15 @@
 
 import os
 import sys
-import codecs
 
 from setuptools import setup
 from setuptools import find_packages
 
 ROOT_DIR = os.path.dirname(__file__)
+
+def readfile(filepath):
+    with open(filepath) as stream:
+        return stream.read()
 
 def read_requirements():
     requirements = []
@@ -52,7 +55,7 @@ setup(
     license="BSD 3-clause",
     # TODO(Nicolas Despres): Change this once we have a website.
     description="Python game engine for beginners",
-    long_description="Youpy is a simple game engine framework inspired by Scratch for educational use and beginners student.",
+    long_description=readfile(os.path.join(ROOT_DIR, "README.md")),
     keywords='game education',
     url='https://github.com/nicolasdespres/youpy',
     project_urls={
