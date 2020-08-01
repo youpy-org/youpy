@@ -4,10 +4,12 @@ Introduction
 Detail basic command to know when hacking `youpy`.
 All commands must be executed from the root of the repository.
 
+Prefer to use GNU Make 4.x.
+
 # Development tool chain
 
 ```bash
-python3 -m pip install -r development.txt
+make install-devtools
 ```
 
 # Test suite
@@ -15,7 +17,7 @@ python3 -m pip install -r development.txt
 Use this command to run the entire test suite:
 
 ```bash
-python3 -m unittest discover -s youpy.test
+make test
 ```
 
 # Release
