@@ -44,15 +44,11 @@ $(MANIFEST_FILE): $(SOURCES) $(GENERATED_SOURCES)
 	rm -f $@
 	for i in $(SOURCES); do echo "include $$i" >> $@; done
 
-.PHONY: check_branch
-check_branch:
-	if $(CHECK_BRANCH); then [[ "$$(git branch --show-current)" =~ ^(master)$$ ]]; fi
 
-.PHONY: check_dirty
-check_dirty:
+$(VERSION_PY_FILE): $(VERSION_PY_FILE).in $(VERSION_FILE)
+	echo $(VERSION) | grep -q -E '^[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$$'
 	if $(CHECK_DIRTY); then test -z "$$(git status --porcelain)"; fi
-
-$(VERSION_PY_FILE): $(VERSION_PY_FILE).in $(VERSION_FILE) check_dirty check_branch
+	if $(CHECK_BRANCH); then [[ "$$(git branch --show-current)" =~ ^(master)$$ ]]; fi
 	$(SED) -e "s/@VERSION@/$(VERSION)/;s/@REVISION@/$(REVISION)/" < $< > $@
 
 PKG_SOURCES := $(VERSION_PY_FILE) $(MANIFEST_FILE)
