@@ -132,7 +132,7 @@ clean-version:
 	rm -f $(VERSION_FILE) $(VERSION_PY_FILE)
 
 .PHONY: clean-all
-clean-all: clean clean-tag clean-VERSION
+clean-all: clean clean-tag clean-version
 
 # ==========
 # Test rules
