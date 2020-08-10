@@ -9,7 +9,7 @@ Prefer to use GNU Make 4.x.
 # Development tool chain
 
 ```bash
-make install-devtools
+python -m pip install -r requirements.txt
 ```
 
 # Test suite
@@ -17,7 +17,7 @@ make install-devtools
 Use this command to run the entire test suite:
 
 ```bash
-make test
+python -m unittest discover -s youpy.test
 ```
 
 # Release

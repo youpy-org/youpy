@@ -134,21 +134,5 @@ clean-version:
 .PHONY: clean-all
 clean-all: clean clean-tag clean-version
 
-# ==========
-# Test rules
-# ==========
-
-.PHONY: test
-test:
-	$(PYTHON) -m unittest discover -s youpy.test
-
-.PHONY: install-requirements
-install-requirements:
-	$(PYTHON) -m pip install -r requirements.txt
-
-.PHONY: install-devtools
-install-devtools:
-	$(PYTHON) -m pip install -r development.txt
-
 # Delete output file on error.
 .DELETE_ON_ERROR:
