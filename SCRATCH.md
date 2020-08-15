@@ -226,8 +226,8 @@ Already implemented as Python function.
 Events in Youpy are implemented as callback function following a
 naming convention. It has some drawbacks.
 
-- You can only have when function of the same name in the same
-  module. This is due to Python basic name binding. If you define a
+- You can only have one function of the same name in the same
+  module. This is due to Python name binding. If you define a
   variable or a function with the name twice the second definition
   overwrite the first one. Thus, you can have only one
   `when_program_start` event per sprite. Whereas in Scratch you may
