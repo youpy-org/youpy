@@ -95,6 +95,7 @@ convention (function name starting by `when_`).
 | when green flag clicked | `when_program_start` | no |
 | when key pressed | `when_<key>_key_pressed` | no |
 | when stage clicked | not implemented yet | no |
+| when this sprite clicked | not implemented yet | no |
 | when backdrop switches to | `when_backdrop_switches_to_` | no |
 | when loudness | not implemented yet | no |
 | when timer | not implemented yet | no |
