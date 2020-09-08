@@ -26,6 +26,10 @@ for a in range(360):
     _SINUS.append(sin(r))
     _TANS.append(tan(r))
 del a, r
+_COSINUS[90] = 0.0
+_COSINUS[270] = -0.0
+_SINUS[0] = 0.0
+_SINUS[180] = -0.0
 
 def fast_sin(degree):
     return _SINUS[degree]
