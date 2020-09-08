@@ -45,3 +45,7 @@ class SpriteGetCollision:
 class SpriteBatchOp:
     name: str
     ops: Tuple[Mapping]
+
+@dataclass
+class Wait:
+    delay: float

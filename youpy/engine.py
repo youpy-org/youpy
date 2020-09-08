@@ -309,6 +309,15 @@ class RequestProcessors:
                     collisions.append(name)
             return collisions
 
+    class WaitProcessor(RequestProcessor):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.start_time = self.engine.elapsed_time
+
+        def _run(self):
+            self._finished = (self.engine.elapsed_time - self.start_time > self.request.delay)
+
 class SharedVariable:
 
     def __init__(self, shared_variable_set, value):
@@ -435,7 +444,12 @@ class Engine:
             self._configure()
             self.scripts.scene = Scene.from_scene(self.scene)
             self._server = Server(self)
-            return self._loop()
+            self.event_manager.schedule(event.ProgramStart())
+            self._loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 100)
+            clock = pygame.time.Clock()
+            while self._is_running:
+                self._loop.step()
+            self.scripts.join()
         finally:
             self._is_running = False
             pygame.quit()
@@ -458,14 +472,6 @@ class Engine:
     def _configure(self):
         LOGGER.info("Configuring...")
         Configurer(self).configure()
-
-    def _loop(self):
-        self.event_manager.schedule(event.ProgramStart())
-        loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 100)
-        clock = pygame.time.Clock()
-        while self._is_running:
-            loop.step()
-        self.scripts.join()
 
     def _simulate(self):
         self.event_manager.trigger()
@@ -498,3 +504,7 @@ class Engine:
         print_simple_banner(f"Initializing {self.project.name}...",
                             separator="*",
                             printer=printer)
+
+    @property
+    def elapsed_time(self):
+        return self._loop.elapsed_time

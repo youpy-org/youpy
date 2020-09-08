@@ -3,11 +3,11 @@
 """
 
 
-import time
-
 from youpy.api import StopScript
 from youpy.api import run as _run
 from youpy.api import get_script_logger
+from youpy.api import send_request
+from youpy.api import message
 from youpy import logging
 
 
@@ -22,7 +22,7 @@ def run(caller_locals=None, **kwargs):
     _run(caller_locals["__file__"], **kwargs)
 
 def wait(delay):
-    time.sleep(delay)
+    send_request(message.Wait(delay=delay))
 
 def stop():
     raise StopScript()
