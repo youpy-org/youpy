@@ -30,6 +30,12 @@ _COSINUS[90] = 0.0
 _COSINUS[270] = -0.0
 _SINUS[0] = 0.0
 _SINUS[180] = -0.0
+_TANS[0] = 0.0
+_TANS[180] = -0.0
+_TANS[45] = 1.0
+_TANS[3*45] = -1.0
+_TANS[5*45] = 1.0
+_TANS[7*45] = -1.0
 
 def fast_sin(degree):
     return _SINUS[degree]
