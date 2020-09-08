@@ -27,7 +27,7 @@ class Configurer:
 
     def configure(self):
         cfg = self.load(self.engine.project.config_file)
-        self._configure_scene(self.engine.scene, cfg.get("scene"))
+        self._configure_scene(self.engine.scene, cfg.get("scene", {}))
         self._configure_sprites(self.engine.sprites, cfg.get("sprites"),
                                 self.engine.scene.coordsys)
 
@@ -50,8 +50,7 @@ class Configurer:
             scene.anglesys = anglesys_class()
 
     def _configure_scene(self, scene, cfg):
-        if cfg is None:
-            return
+        assert cfg is not None
         self._configure_coordsys(scene, cfg)
         self._configure_anglesys(scene, cfg)
         initial_backdrop = cfg.get("initial_backdrop")
