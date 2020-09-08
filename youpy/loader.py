@@ -14,6 +14,9 @@ from .event import try_make_event
 from .event import EVENT_FUNC_PREFIX
 from .event import EventHandler
 
+from youpy import logging
+LOGGER = logging.getLogger(__name__)
+
 
 def _add_item_to_dict(d, obj):
     assert " " not in obj.name
@@ -29,6 +32,9 @@ class Loader:
         self._load_sprites(engine)
 
     def _load_backdrops(self, engine):
+        if not engine.project.stage_dir.is_dir():
+            LOGGER.warning("no stage script found")
+            return
         for i, path in enumerate(iter_images_set(engine.project.stage_dir)):
             _add_item_to_dict(engine.scene.backdrops, Image(path))
             self.progress.in_section("backdrop", i, path)
