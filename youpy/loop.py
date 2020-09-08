@@ -5,6 +5,7 @@
 
 from abc import ABC
 from abc import abstractmethod
+import time
 
 import pygame
 
@@ -14,10 +15,15 @@ class EngineLoop(ABC):
     def __init__(self, render, simulate):
         self.render = render
         self.simulate = simulate
+        self.start_at = time.time()
 
     @abstractmethod
     def step(self):
         pass
+
+    @property
+    def elapsed_time(self):
+        return time.time() - self.start_at
 
 class FixedDeltaTimeEngineLoop(EngineLoop):
 
