@@ -191,7 +191,16 @@ def get_context_frontend_sprite():
 from youpy import math # needed by bounce
 from youpy.math import Point
 
+# Sprite front-end API
+# --------------------
+# o Client-side version of the EngineSprite.
+# o Parse and check arguments to provide a user-friendly API to users.
+# o Do coordinate/angle conversion to honor users preferences.
+# Maybe later:
+# o Cache local state to reduce engine loads.
 class Sprite:
+    """A drawn object on stage that can move and collide.
+    """
 
     def __init__(self, engine_sprite):
         if not isinstance(engine_sprite, EngineSprite):
