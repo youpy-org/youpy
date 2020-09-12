@@ -147,26 +147,12 @@ class EngineSprite:
         self._visible = visible
 
     def point_in_direction(self, angle):
-        if not isinstance(angle, int):
-            raise TypeError("angle must be int, not {}"
-                            .format(type(angle).__name__))
-        if not 0 <= angle < 360:
-            raise ValueError(
-                "angle must be between 0 and 360 degree excluded, "\
-                f"but is equal to {angle}")
         self._direction = angle
 
     def direction(self):
         return self._direction
 
     def turn_counter_clockwise(self, angle):
-        if not isinstance(angle, int):
-            raise TypeError("angle must be int, not {}"
-                            .format(type(angle).__name__))
-        if not 0 <= angle < 360:
-            raise ValueError(
-                "angle must be between 0 and 360 degree excluded, "\
-                f"but is equal to {angle}")
         self._direction += angle
         self._direction %= 360
 

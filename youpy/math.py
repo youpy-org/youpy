@@ -358,6 +358,9 @@ class degree(AngleSys):
     def from_degree(self, x):
         return x
 
+    def check_angle(self, angle):
+        check_degree_angle(angle)
+
 class radian(AngleSys):
 
     def init(self):
@@ -374,6 +377,11 @@ class radian(AngleSys):
 
     def from_degree(self, degree):
         return degree_to_radian(degree)
+
+    def check_angle(self, angle):
+        if not isinstance(angle, (int, float)):
+            raise TypeError("angle must be int or float, not {}"
+                            .format(type(angle).__name__))
 
 class scratch_degree(AngleSys):
 
@@ -396,3 +404,15 @@ class scratch_degree(AngleSys):
         if a > 180:
             a = a - 360
         return round(a)
+
+    def check_angle(self, angle):
+        check_degree_angle(angle)
+
+def check_degree_angle(angle):
+    if not isinstance(angle, int):
+        raise TypeError("angle must be int, not {}"
+                        .format(type(angle).__name__))
+    if not 0 <= angle < 360:
+        raise ValueError(
+            "angle must be between 0 and 360 degrees excluded, "\
+            f"but is equal to {angle}")

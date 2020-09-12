@@ -271,6 +271,7 @@ class Sprite:
             args=(0, self._scene.coordsys.dir_y * step_y)))
 
     def point_in_direction(self, angle):
+        self._scene.anglesys.check_angle(angle)
         send_request(message.SpriteOp(
             name=self.name,
             op="point_in_direction",
@@ -332,6 +333,7 @@ class Sprite:
             )))
 
     def turn_counter_clockwise(self, angle):
+        self._scene.anglesys.check_angle(angle)
         send_request(message.SpriteOp(
             name=self.name,
             op="turn_counter_clockwise",
