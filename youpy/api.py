@@ -14,7 +14,6 @@ code available in users projects.
 from youpy.engine import Engine
 from youpy.script import get_scene
 from youpy.script import send_request
-from youpy.script import get_context_sprite_name
 from youpy.script import StopScript
 from youpy.script import get_script_logger
 from youpy.script import Sprite

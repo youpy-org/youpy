@@ -126,10 +126,6 @@ class Script(concurrency.Task):
             raise reply
         return reply
 
-    @property
-    def sprite(self):
-        return self.event_handler.sprite
-
 # ====================
 # Front-end Sprite API
 # ====================
@@ -141,14 +137,6 @@ def get_context_script():
 def send_request(request):
     """Send a request to the engine server."""
     return get_context_script().send(request)
-
-def get_context_sprite_name():
-    """Get the name of the sprite bound to the current thread."""
-    script = get_context_script()
-    sprite = script.sprite
-    if sprite is None:
-        raise RuntimeError("no sprite associated to this script")
-    return sprite.name
 
 def get_scene():
     script = get_context_script()
