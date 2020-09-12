@@ -205,7 +205,6 @@ class Point:
     def discrete(self):
         return Point(discretize(self.x), discretize(self.y))
 
-
 class Size:
 
     __slots__ = ("_w", "_h")
@@ -277,9 +276,6 @@ class center(CoordSys):
     def __init__(self, origin):
         self.origin = origin
 
-    dir_x = 1
-    dir_y = -1
-
     def abscissa_to(self, x):
         return x - self.origin[0]
 
@@ -308,13 +304,18 @@ class center(CoordSys):
         """
         r.center = p.discrete.tuple
 
+    def vector_from(self, v):
+        """center -> topleft"""
+        return Point(v.x, -v.y)
+
+    def vector_to(self, v):
+        """topleft -> center"""
+        return Point(v.x, -v.y)
+
 class topleft(CoordSys):
 
     def __init__(self, origin):
         pass
-
-    dir_x = 1
-    dir_y = 1
 
     def abscissa_to(self, x):
         return x
@@ -341,6 +342,12 @@ class topleft(CoordSys):
         p: Point in top-left coordinate system
         """
         r.topleft = p.discrete.tuple
+
+    def vector_from(self, v):
+        return v
+
+    def vector_to(self, v):
+        return v
 
 class AngleSys(_BaseSystem, metaclass=_MetaSystem):
 

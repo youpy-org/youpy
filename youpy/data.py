@@ -163,8 +163,10 @@ class EngineSprite:
 
     def move(self, step):
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
-        self.move_by(step * math.fast_cos(self._direction),
-                     -step * math.fast_sin(self._direction))
+        v = Point(math.fast_cos(self._direction),
+                  math.fast_sin(self._direction))
+        v *= step
+        self.move_by(*self.scene.coordsys.vector_from(v).tuple)
 
     def move_by(self, step_x, step_y):
         self.go_to(self._position.x + step_x, self._position.y + step_y)

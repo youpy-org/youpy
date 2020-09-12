@@ -249,8 +249,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="move_by",
-            args=(self._scene.coordsys.dir_x * step_x,
-                  self._scene.coordsys.dir_y * step_y)))
+            args=self._scene.coordsys.vector_from(Point(step_x, step_y)).tuple))
 
     def change_x_by(self, step_x):
         if not isinstance(step_x, int):
@@ -259,7 +258,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="move_by",
-            args=(self._scene.coordsys.dir_x * step_x, 0)))
+            args=self._scene.coordsys.vector_from(Point(step_x, 0)).tuple))
 
     def change_y_by(self, step_y):
         if not isinstance(step_y, int):
@@ -268,7 +267,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="move_by",
-            args=(0, self._scene.coordsys.dir_y * step_y)))
+            args=self._scene.coordsys.vector_from(Point(0, step_x)).tuple))
 
     def point_in_direction(self, angle):
         self._scene.anglesys.check_angle(angle)
@@ -331,8 +330,7 @@ class Sprite:
             ops=(
                 dict(op="point_in_direction",
                      args=(new_angle_degree,)),
-                dict(op="move_by", args=(scene.coordsys.dir_x * dx,
-                                         scene.coordsys.dir_y * dy)),
+                dict(op="move_by", args=scene.coordsys.vector_from(Point(dx, dy)).tuple),
             )))
 
     def turn_counter_clockwise(self, angle):
