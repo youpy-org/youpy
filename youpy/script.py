@@ -277,8 +277,8 @@ class Sprite:
             args=(self._scene.anglesys.to_degree(angle),)))
 
     def move(self, step):
-        if not isinstance(step, int):
-            raise TypeError("step must be int, not {}"
+        if not isinstance(step, (int, float)):
+            raise TypeError("step must be int or float, not {}"
                             .format(type(step).__name__))
         send_request(message.SpriteOp(
             name=self.name,
