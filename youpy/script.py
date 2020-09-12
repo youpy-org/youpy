@@ -77,7 +77,7 @@ class StopScript(Exception):
     pass
 
 def get_script_name(event_handler):
-    return ".".join((('stage' if event_handler.sprite is None else event_handler.sprite.name),
+    return ".".join((('stage' if event_handler.in_stage else event_handler.sprite.name),
                      event_handler.callback.__name__))
 
 class Script(concurrency.Task):

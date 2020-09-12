@@ -101,11 +101,15 @@ class EventHandler:
         self.sprite = sprite
 
     def __repr__(self):
-        return f"{type(self).__name__}(callback={self.callback.__name__!r}, sprite={None if self.sprite is None else self.sprite.name!r})"
+        return f"{type(self).__name__}(callback={self.callback.__name__!r}, sprite={None if self.in_stage else self.sprite.name!r})"
 
     @property
     def name(self):
-        return f"{'stage' if self.sprite is None else self.sprite.name}.{self.callback.__name__}"
+        return f"{'stage' if self.in_stage else self.sprite.name}.{self.callback.__name__}"
+
+    @property
+    def in_stage(self):
+        return self.sprite is None
 
 def try_make_event(handler_name):
     for event_type in Event.types:
