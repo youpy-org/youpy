@@ -60,7 +60,7 @@ class Point:
 
     @classmethod
     def null(cls):
-        return cls(0.0, 0.0)
+        return cls(0, 0)
 
     def __init__(self, x, y):
         self._x = x
