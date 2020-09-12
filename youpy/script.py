@@ -316,3 +316,9 @@ class Sprite:
     def hide(self):
         """Hide the current sprite."""
         send_request(message.SpriteOp(name=self.name, op="hide"))
+
+    def touched_objects(self):
+        return send_request(message.SpriteGetCollision(name=self.name))
+
+    def touching(self, object):
+        return object in self.touched_objects()

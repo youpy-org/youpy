@@ -3,10 +3,10 @@
 """
 
 
+from ._internal import wrap_sprite_method
+
 from youpy.api import get_scene
 from youpy.api import send_request
-from youpy.api import get_context_sprite_name
-from youpy.api import message
 from youpy.api import SCENE_EDGE
 
 
@@ -34,15 +34,20 @@ class Scene:
 
 scene = Scene()
 
-def touched_objects():
-    sprite_name = get_context_sprite_name()
-    return send_request(message.SpriteGetCollision(name=sprite_name))
+sprite_functions = (
+    "touched_objects",
+    "touching",
+    )
 
-def touching(object):
-    return object in touched_objects()
+for name in sprite_functions:
+    def modulename(): pass # only need to get the current module name
+    globals()[name] = wrap_sprite_method(name, modulename.__module__)
+del name, modulename
 
-__all__ = (
+__all__ = sprite_functions + (
     "scene",
     "touched_objects",
     "touching",
 )
+
+del sprite_functions
