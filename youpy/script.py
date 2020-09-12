@@ -11,6 +11,7 @@ from youpy import message
 from youpy.logging import get_user_logger_name
 from youpy.logging import getLogger
 from inspect import signature
+from youpy.data import EngineSprite
 
 LOGGER = getLogger(__name__)
 
@@ -158,6 +159,9 @@ from youpy import math # needed by bounce
 class Sprite:
 
     def __init__(self, engine_sprite):
+        if not isinstance(engine_sprite, EngineSprite):
+            raise TypeError("engine_sprite must be EngineSprite, not {}"
+                            .format(type(engine_sprite).__name__))
         self._engine_sprite = engine_sprite
 
     @property

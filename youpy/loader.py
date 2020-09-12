@@ -76,6 +76,9 @@ def load_images_set(path):
     return l
 
 def load_sprite_images(sprite):
+    if not isinstance(sprite, EngineSprite):
+        raise TypeError("sprite must be EngineSprite, not {}"
+                        .format(type(sprite).__name__))
     sprite.images = load_images_set(sprite.path)
     assert len(sprite.images) > 0
     sprite._index = 0
