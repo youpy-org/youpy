@@ -153,8 +153,7 @@ class EngineSprite:
         return self._direction
 
     def turn_counter_clockwise(self, angle):
-        self._direction += angle
-        self._direction %= 360
+        self._direction = self.scene.anglesys.inc_angle(self._direction, angle)
 
     def move(self, step):
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
