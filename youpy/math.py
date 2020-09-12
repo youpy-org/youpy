@@ -50,6 +50,8 @@ def fast_tan(degree):
 def norm(x, y):
     return sqrt(x ** 2 + y ** 2)
 
+discretize = int
+
 # TODO(Nicolas Despres): unit test this class
 class Point:
 
@@ -184,6 +186,9 @@ class Point:
         self._x = point.x
         self._y = point.y
 
+    @property
+    def discrete(self):
+        return Point(discretize(self.x), discretize(self.y))
 
 
 class Size:

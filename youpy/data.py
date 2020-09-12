@@ -12,6 +12,7 @@ import pygame
 from youpy.tools import as_ratio
 from youpy.tools import scale_size_by
 from youpy import math
+from youpy.math import Point
 
 
 class Color:
@@ -119,7 +120,7 @@ class EngineSprite:
             x = p[0]
         if y is None:
             y = p[1]
-        setattr(self._rect, type(self.scene.coordsys).__name__, (x, y))
+        self.scene.coordsys.set_rect_position(self._rect, Point(x, y))
 
     def position(self):
         return getattr(self._rect, type(self.scene.coordsys).__name__)

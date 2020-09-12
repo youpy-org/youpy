@@ -44,6 +44,14 @@ class center(coordsys):
         """center -> topleft"""
         return Point(self.abscissa_from(p.x), self.ordinate_from(p.y))
 
+    def set_rect_position(self, r, p):
+        """Set the position of rect _r_ to point _p_.
+
+        r: Rect in center coordinate system
+        p: Point in center coordinate system
+        """
+        r.center = p.discrete.to_tuple()
+
 class topleft(coordsys):
 
     def __init__(self, origin):
@@ -69,6 +77,14 @@ class topleft(coordsys):
 
     def point_from(self, p):
         return p
+
+    def set_rect_position(self, r, p):
+        """Set the position of rect _r_ to point _p_.
+
+        r: Rect in top-left coordinate system
+        p: Point in top-left coordinate system
+        """
+        r.topleft = p.discrete.to_tuple()
 
 class anglesys:
     @classmethod
