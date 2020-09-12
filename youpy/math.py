@@ -94,6 +94,7 @@ class Point:
             self._y += obj
         else:
             raise NotImplementedError(f"cannot add a '{type(obj).__name__}' to a Point")
+        return self
 
     def __add__(self, obj):
         p = self.copy()
@@ -109,6 +110,7 @@ class Point:
             self._y -= obj
         else:
             raise NotImplementedError(f"cannot add a '{type(obj).__name__}' to a {type(self).__name__}")
+        return self
 
     def __sub__(self, obj):
         p = self.copy()
@@ -121,6 +123,7 @@ class Point:
             self._y *= obj
         else:
             raise NotImplementedError(f"cannot multiply a {type(self).__name__} by a '{type(obj).__name__}'")
+        return self
 
     def __mul__(self, scalar):
         p = self.copy()
@@ -133,6 +136,7 @@ class Point:
             self._y /= obj
         else:
             raise NotImplementedError(f"cannot multiply a {type(self).__name__} by a '{type(obj).__name__}'")
+        return self
 
     def __truediv__(self, scalar):
         p = self.copy()
@@ -145,6 +149,7 @@ class Point:
             self._y **= obj
         else:
             raise NotImplementedError(f"'{type(obj).__name__}' is not a valid power of a {type(self).__name__}")
+        return self
 
     def __pow__(self, obj):
         p = Point.copy()
