@@ -130,6 +130,10 @@ class Script(concurrency.Task):
     def sprite(self):
         return self.event_handler.sprite
 
+# ====================
+# Front-end Sprite API
+# ====================
+
 def get_context_script():
     """Return the script bound to the current thread."""
     return Script.context.script
@@ -161,6 +165,8 @@ def get_script_logger():
 def get_context_frontend_sprite():
     return Script.context.frontend_sprite
 
+from youpy import math # needed by bounce
+
 class Sprite:
 
     def __init__(self, engine_sprite):
@@ -183,6 +189,47 @@ class Sprite:
             op="go_to",
             args=get_scene()._coordsys.point_from(x, y)))
 
+    def set_x_to(self, x):
+        if not isinstance(x, int):
+            raise TypeError("x must be int, not {}"
+                            .format(type(x).__name__))
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="go_to",
+            args=(get_scene()._coordsys.abscissa_from(x), None)))
+
+    def set_y_to(self, y):
+        if not isinstance(y, int):
+            raise TypeError("y must be int, not {}"
+                            .format(type(y).__name__))
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="go_to",
+            args=(None, get_scene()._coordsys.ordinate_from(y))))
+
+    def move_by(self, step_x, step_y):
+        """Change sprite position by _step_x_ and _step_y_."""
+        if not isinstance(step_x, int):
+            raise TypeError("step_x must be int, not {}"
+                            .format(type(step_x).__name__))
+        if not isinstance(step_y, int):
+            raise TypeError("step_y must be int, not {}"
+                            .format(type(step_y).__name__))
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="move_by",
+            args=(get_scene()._coordsys.dir_x * step_x,
+                  get_scene()._coordsys.dir_y * step_y)))
+
+    def change_x_by(self, step_x):
+        if not isinstance(step_x, int):
+            raise TypeError("step_x must be int, not {}"
+                            .format(type(step_x).__name__))
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="move_by",
+            args=(get_scene()._coordsys.dir_x * step_x, 0)))
+
     def change_y_by(self, step_y):
         if not isinstance(step_y, int):
             raise TypeError("step_y must be int, not {}"
@@ -191,3 +238,73 @@ class Sprite:
             name=self.name,
             op="move_by",
             args=(0, get_scene()._coordsys.dir_y * step_y)))
+
+    def point_in_direction(self, angle):
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="point_in_direction",
+            args=(get_scene()._anglesys.to_degree(angle),)))
+
+    def move(self, step):
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="move",
+            args=(step,)))
+
+    def _get_state(self):
+        return send_request(message.SpriteOp(name=self.name, op="get_state"))
+
+    def position(self):
+        return get_scene()._coordsys.point_to(*self._get_state().position())
+
+    def x_position(self):
+        return self.position()[0]
+
+    def y_position(self):
+        return self.position()[1]
+
+    def direction(self):
+        return get_scene()._anglesys.from_degree(self._get_state().direction())
+
+    def bounce_if_on_edge(self):
+        st = self._get_state()
+        angle_degree = st.direction()
+        r = st.rect
+        scene = get_scene()
+        if r.left < 0 or r.right > scene.width: # vertical edges
+            new_angle = math.atan2(math.fast_sin(angle_degree),
+                                   -math.fast_cos(angle_degree))
+            if r.left < 0:
+                dx = -r.left
+            else:
+                dx = scene.width - r.right
+            dy = int(round(dx * math.tan(new_angle)))
+        elif r.top < 0 or r.bottom > scene.height: # horizontal edges
+            new_angle = math.atan2(-math.fast_sin(angle_degree),
+                                   math.fast_cos(angle_degree))
+            if r.top < 0:
+                dy = r.top
+            else:
+                dy = r.bottom - scene.height
+            dx = int(round(dy * math.tan(new_angle)))
+        else: # no collision
+            return
+        new_angle_degree = int(round(math.radian_to_degree(new_angle))) % 360
+        # print(f"{angle_degree=};{new_angle=};{new_angle_degree=};{r=};{dx=};{dy=}")
+        send_request(message.SpriteBatchOp(
+            name=self.name,
+            ops=(
+                dict(op="point_in_direction",
+                     args=(new_angle_degree,)),
+                dict(op="move_by", args=(scene._coordsys.dir_x * dx,
+                                         scene._coordsys.dir_y * dy)),
+            )))
+
+    def turn_counter_clockwise(self, angle):
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="turn_counter_clockwise",
+            args=(angle,)))
+
+    def turn_clockwise(self, angle):
+        return self.turn_counter_clockwise(-angle % 360)
