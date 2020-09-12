@@ -7,6 +7,7 @@ import re
 from collections import defaultdict
 
 from youpy.tools import IDENT_PATTERN
+from youpy.data import EngineSprite
 
 from youpy import logging
 LOGGER = logging.getLogger(__name__)
@@ -98,6 +99,10 @@ class EventHandler:
     def __init__(self, callback, sprite=None):
         assert callback is not None
         self.callback = callback
+        if sprite is not None:
+            if not isinstance(sprite, EngineSprite):
+                raise TypeError("sprite must be EngineSprite, not {}"
+                                .format(type(sprite).__name__))
         self.sprite = sprite
 
     def __repr__(self):
