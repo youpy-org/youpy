@@ -6,7 +6,8 @@
 import json
 
 from .error import YoupyException
-from . import coordsys
+from .coordsys import CoordSys
+from .coordsys import AngleSys
 from .data import scale_sprite_by
 from .math import Point
 
@@ -36,19 +37,19 @@ class Configurer:
                                 self.engine.scene.coordsys)
 
     def _configure_coordsys(self, scene, cfg):
-        coordsys_name = cfg.get("coordinate_system", coordsys.coordsys.DEFAULT)
+        coordsys_name = cfg.get("coordinate_system", CoordSys.DEFAULT)
         LOGGER.info(f"{coordsys_name} coordinate system")
         try:
-            coordsys_class = getattr(coordsys, coordsys_name)
-        except AttributeError:
+            coordsys_class = CoordSys.get_system(coordsys_name)
+        except KeyError:
             raise ConfigError(f"invalid coordinate system: '{coordsys_name}'")
         else:
             scene.coordsys = coordsys_class(getattr(scene, coordsys_name))
 
     def _configure_anglesys(self, scene, cfg):
-        anglesys_name = cfg.get("angle_system", coordsys.anglesys.DEFAULT)
+        anglesys_name = cfg.get("angle_system", AngleSys.DEFAULT)
         try:
-            anglesys_class = getattr(coordsys, anglesys_name)
+            anglesys_class = AngleSys.get_system(anglesys_name)
         except AttributeError:
             raise ConfigError(f"invalid angle system: '{anglesys_name}'")
         else:

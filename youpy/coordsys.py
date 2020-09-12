@@ -1,21 +1,47 @@
 # -*- encoding: utf-8 -*-
-"""Coordinate system converter.
+"""Coordinate and angle system converter.
 """
 
+
+from collections import OrderedDict
 
 from youpy.math import degree_to_radian
 from youpy.math import radian_to_degree
 from youpy.math import Point
 
 
-class coordsys:
+class _BaseSystem:
+    """Mix-in for the meta class"""
+
     @classmethod
     def get_name(cls):
         return cls.__name__
 
+    @classmethod
+    def get_system(cls, name):
+        return cls._systems[name]
+
+class _MetaSystem(type):
+
+    _systems = OrderedDict()
+
+    @classmethod
+    def __prepare__(meetacls, name, bases, **kwargs):
+        return OrderedDict()
+
+    def __new__(metacls, name, bases, namespace, **kwargs):
+        cls = super().__new__(metacls, name, bases, namespace, **kwargs)
+        if bases == (_BaseSystem,): # base class
+            cls._systems = OrderedDict()
+        else:
+            cls._systems[name] = cls
+        return cls
+
+class CoordSys(_BaseSystem, metaclass=_MetaSystem):
+
     DEFAULT = "center"
 
-class center(coordsys):
+class center(CoordSys):
     """Converter from 'center' coordinate system to pygame top-left coordinate system."""
 
     def __init__(self, origin):
@@ -52,7 +78,7 @@ class center(coordsys):
         """
         r.center = p.discrete.tuple
 
-class topleft(coordsys):
+class topleft(CoordSys):
 
     def __init__(self, origin):
         pass
@@ -86,14 +112,11 @@ class topleft(coordsys):
         """
         r.topleft = p.discrete.tuple
 
-class anglesys:
-    @classmethod
-    def get_name(cls):
-        return cls.__name__
+class AngleSys(_BaseSystem, metaclass=_MetaSystem):
 
     DEFAULT = "scratch_degree"
 
-class degree(anglesys):
+class degree(AngleSys):
 
     def init(self):
         return 0
@@ -110,7 +133,7 @@ class degree(anglesys):
     def from_degree(self, x):
         return x
 
-class radian(anglesys):
+class radian(AngleSys):
 
     def init(self):
         return 0.0
@@ -127,7 +150,7 @@ class radian(anglesys):
     def from_degree(self, degree):
         return degree_to_radian(degree)
 
-class scratch_degree(anglesys):
+class scratch_degree(AngleSys):
 
     def init(self):
         return 90
