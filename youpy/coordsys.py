@@ -95,6 +95,9 @@ class anglesys:
 
 class degree(anglesys):
 
+    def init(self):
+        return 0
+
     def to(self, radian):
         return radian_to_degree(radian) % 360
 
@@ -109,6 +112,9 @@ class degree(anglesys):
 
 class radian(anglesys):
 
+    def init(self):
+        return 0.0
+
     def to(self, x):
         return x
 
@@ -122,6 +128,9 @@ class radian(anglesys):
         return degree_to_radian(degree)
 
 class scratch_degree(anglesys):
+
+    def init(self):
+        return 90
 
     def to(self, radian):
         return self.from_degree(radian_to_degree(radian))
