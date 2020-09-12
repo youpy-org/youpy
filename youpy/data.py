@@ -105,7 +105,13 @@ class EngineSprite:
         return self._path.name
 
     def __repr__(self):
-        return f"EngineSprite(name={self.name!r})"
+        return "".join((f"EngineSprite(name={self.name!r})",
+                        ", ".join((f"name={self.name!r}",
+                                   f"visible={self._visible!r}",
+                                   f"position=({self._position.tuple!r}",
+                                   f"direction={self._direction!r}",
+                                   )),
+                        ")"))
 
     @property
     def rect(self):
