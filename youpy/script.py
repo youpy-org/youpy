@@ -285,7 +285,7 @@ class Sprite:
         return send_request(message.SpriteOp(name=self.name, op="get_state"))
 
     def position(self):
-        return self._scene.coordsys.point_to(*self._get_state().position())
+        return self._scene.coordsys.point_to(*self._get_state().position)
 
     def x_position(self):
         return self.position()[0]
@@ -294,11 +294,11 @@ class Sprite:
         return self.position()[1]
 
     def direction(self):
-        return self._scene.anglesys.from_degree(self._get_state().direction())
+        return self._scene.anglesys.from_degree(self._get_state().direction)
 
     def bounce_if_on_edge(self):
         st = self._get_state()
-        angle_degree = st.direction()
+        angle_degree = st.direction
         r = st.rect
         scene = self._scene
         if r.left < 0 or r.right > scene.width: # vertical edges
