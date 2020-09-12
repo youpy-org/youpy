@@ -212,7 +212,7 @@ def scale_sprite_by(sprite, ratio=None):
         scale_image_by(image, ratio=ratio)
     sprite.rect.size = sprite.current_image.rect.size
 
-class _Scene:
+class EngineScene:
     """Internal scene representation."""
 
     DEFAULT_WIDTH = 480

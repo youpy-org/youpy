@@ -17,7 +17,7 @@ from youpy.project import Project
 from youpy.tools import FrequencyMeter
 from youpy.tools import print_simple_banner
 from youpy.data import Color
-from youpy.data import _Scene
+from youpy.data import EngineScene
 from youpy.data import Scene
 from youpy.data import SCENE_EDGE
 from youpy import event
@@ -416,7 +416,7 @@ class Engine:
 
     def __init__(self, project, show_fps=False):
         self.project = project
-        self.scene = _Scene()
+        self.scene = EngineScene()
         self.sprites = {}
         self._is_running = False
         self.event_manager = EventManager(self)
