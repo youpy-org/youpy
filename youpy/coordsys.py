@@ -50,7 +50,7 @@ class center(coordsys):
         r: Rect in center coordinate system
         p: Point in center coordinate system
         """
-        r.center = p.discrete.to_tuple()
+        r.center = p.discrete.tuple
 
 class topleft(coordsys):
 
@@ -84,7 +84,7 @@ class topleft(coordsys):
         r: Rect in top-left coordinate system
         p: Point in top-left coordinate system
         """
-        r.topleft = p.discrete.to_tuple()
+        r.topleft = p.discrete.tuple
 
 class anglesys:
     @classmethod

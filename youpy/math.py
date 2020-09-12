@@ -176,7 +176,8 @@ class Point:
         self._x = 0
         self._y = 0
 
-    def to_tuple(self):
+    @property
+    def tuple(self):
         return (self._x, self._y)
 
     def set(self, point):
@@ -211,7 +212,8 @@ class Size:
     def height(self):
         return self._h
 
-    def to_tuple(self):
+    @property
+    def tuple(self):
         return (self._w, self._h)
 
     def set(self, obj):

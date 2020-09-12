@@ -218,7 +218,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="go_to",
-            args=self._scene.coordsys.point_from(Point(x, y)).to_tuple()))
+            args=self._scene.coordsys.point_from(Point(x, y)).tuple))
 
     def set_x_to(self, x):
         if not isinstance(x, int):
@@ -286,7 +286,7 @@ class Sprite:
         return send_request(message.SpriteOp(name=self.name, op="get_state"))
 
     def position(self):
-        return self._scene.coordsys.point_to(Point(*self._get_state().position)).to_tuple()
+        return self._scene.coordsys.point_to(Point(*self._get_state().position)).tuple
 
     def x_position(self):
         return self.position()[0]

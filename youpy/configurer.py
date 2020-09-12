@@ -83,7 +83,7 @@ class Configurer:
         scale_sprite_by(sprite, ratio=ratio)
         position = cfg.get("position")
         if position is not None:
-            sprite.go_to(*coordsys.point_from(Point(*position)).to_tuple())
+            sprite.go_to(*coordsys.point_from(Point(*position)).tuple)
         visible = cfg.get("visible", None)
         if visible is not None:
             sprite.visible = visible
