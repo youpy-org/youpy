@@ -9,6 +9,9 @@ from .error import YoupyException
 from . import coordsys
 from .data import scale_sprite_by
 
+from youpy import logging
+LOGGER = logging.getLogger(__name__)
+
 
 class ConfigError(YoupyException):
     pass
@@ -33,6 +36,7 @@ class Configurer:
 
     def _configure_coordsys(self, scene, cfg):
         coordsys_name = cfg.get("coordinate_system", coordsys.coordsys.DEFAULT)
+        LOGGER.info(f"{coordsys_name} coordinate system")
         try:
             coordsys_class = getattr(coordsys, coordsys_name)
         except AttributeError:
