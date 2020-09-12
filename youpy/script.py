@@ -308,3 +308,11 @@ class Sprite:
 
     def turn_clockwise(self, angle):
         return self.turn_counter_clockwise(-angle % 360)
+
+    def show(self):
+        """Show the current sprite."""
+        send_request(message.SpriteOp(name=self.name, op="show"))
+
+    def hide(self):
+        """Hide the current sprite."""
+        send_request(message.SpriteOp(name=self.name, op="hide"))
