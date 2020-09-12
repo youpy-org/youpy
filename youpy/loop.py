@@ -15,7 +15,7 @@ class EngineLoop(ABC):
     def __init__(self, render, simulate):
         self.render = render
         self.simulate = simulate
-        self.start_at = time.time()
+        self.started_at = time.time()
 
     @abstractmethod
     def step(self):
@@ -23,7 +23,7 @@ class EngineLoop(ABC):
 
     @property
     def elapsed_time(self):
-        return time.time() - self.start_at
+        return time.time() - self.started_at
 
 class FixedDeltaTimeEngineLoop(EngineLoop):
 
