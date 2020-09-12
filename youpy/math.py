@@ -8,6 +8,7 @@ from math import sin
 from math import cos
 from math import tan
 from math import atan2
+from math import sqrt
 
 
 def degree_to_radian(degree):
@@ -45,3 +46,6 @@ def fast_cos(degree):
 
 def fast_tan(degree):
     return _TANS[degree]
+
+def norm(x, y):
+    return sqrt(x ** 2 + y ** 2)
