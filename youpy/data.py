@@ -157,9 +157,6 @@ class EngineSprite:
         self._direction %= 360
 
     def move(self, step):
-        if not isinstance(step, int):
-            raise TypeError("step must be int, not {}"
-                            .format(type(step).__name__))
         # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
         self.move_by(step * math.fast_cos(self._direction),
                      -step * math.fast_sin(self._direction))
