@@ -9,7 +9,7 @@ import operator
 from collections.abc import Callable
 
 from .data import Image
-from .data import Sprite
+from .data import EngineSprite
 from .event import try_make_event
 from .event import EVENT_FUNC_PREFIX
 from .event import EventHandler
@@ -45,7 +45,7 @@ class Loader:
 
     def _load_sprites(self, engine):
         for i, path in enumerate(engine.project.iter_sprite_dirs()):
-            sprite = Sprite(path)
+            sprite = EngineSprite(path)
             load_sprite_images(sprite)
             load_event_handlers_to(
                 engine.event_manager.event_handlers,
