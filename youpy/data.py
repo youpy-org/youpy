@@ -91,6 +91,7 @@ class EngineSprite:
             raise TypeError("scene must be EngineScene, not {}"
                             .format(type(scene).__name__))
         self.scene = scene
+        self._position = Point.null()
         self._rect = None
         self._visible = True
         self._direction = 0 # direction angle in degree
@@ -115,15 +116,17 @@ class EngineSprite:
         self._rect = new_rect
 
     def go_to(self, x, y):
-        p = self.position()
+        p = self._position
         if x is None:
-            x = p[0]
+            x = p.x
         if y is None:
-            y = p[1]
-        self.scene.coordsys.set_rect_position(self._rect, Point(x, y))
+            y = p.y
+        self._position.x = x
+        self._position.y = y
+        self.scene.coordsys.set_rect_position(self._rect, self._position)
 
     def position(self):
-        return getattr(self._rect, type(self.scene.coordsys).__name__)
+        return self._position.tuple
 
     @property
     def current_image(self):
@@ -176,8 +179,7 @@ class EngineSprite:
                      -step * math.fast_sin(self._direction))
 
     def move_by(self, step_x, step_y):
-        x, y = self.position()
-        self.go_to(x + step_x, y + step_y)
+        self.go_to(self._position.x + step_x, self._position.y + step_y)
 
     def get_state(self):
         class State:
