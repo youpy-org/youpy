@@ -119,12 +119,15 @@ class Script(concurrency.Task):
         return self.event_handler.sprite
 
 def get_context_script():
+    """Return the script bound to the current thread."""
     return Script.context.script
 
 def send_request(request):
+    """Send a request to the engine server."""
     return get_context_script().send(request)
 
 def get_context_sprite_name():
+    """Get the name of the sprite bound to the current thread."""
     script = get_context_script()
     sprite = script.sprite
     if sprite is None:
