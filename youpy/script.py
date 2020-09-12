@@ -12,6 +12,7 @@ from youpy.logging import get_user_logger_name
 from youpy.logging import getLogger
 from inspect import signature
 from youpy.data import EngineSprite
+from youpy.data import EngineScene
 
 LOGGER = getLogger(__name__)
 
@@ -32,8 +33,7 @@ class ScriptSet:
             # event handler run slower than the pace of repeated key stroke.
             # In such a case, we just drop some event.
             return
-        script = Script(event_handler, self.scene,
-                        done_queue=self._done_scripts)
+        script = Script(event_handler, done_queue=self._done_scripts)
         self._scripts[script.name] = script
         script.start()
 
@@ -85,10 +85,9 @@ class Script(concurrency.Task):
 
     context = concurrency.get_context()
 
-    def __init__(self, event_handler, scene, done_queue=None):
+    def __init__(self, event_handler, done_queue=None):
         super().__init__(name=get_script_name(event_handler), daemon=True)
         self.event_handler = event_handler
-        self.scene = scene
         self.pipe = concurrency.Pipe()
         self._done_queue = done_queue
         self.exc_info = None
@@ -139,9 +138,44 @@ def send_request(request):
     """Send a request to the engine server."""
     return get_context_script().send(request)
 
+
+class Scene:
+    """Scene holds properties of the stage.
+    """
+
+    # WARNING: Make sure everything is read-only since they are accessed
+    #          concurrently.
+
+    __slots__ = ("_engine_scene",)
+
+    def __init__(self, engine_scene):
+        if not isinstance(engine_scene, EngineScene):
+            raise TypeError("EngineScene must be scene, not {}"
+                            .format(type(EngineScene).__name__))
+        self._engine_scene = engine_scene
+
+    @property
+    def width(self):
+        return self._engine_scene.width
+
+    @property
+    def height(self):
+        return self._engine_scene.height
+
+    @property
+    def edge(self):
+        return self._engine_scene.EDGE
+
+_SCENE = None
+
+def set_scene(engine_scene):
+    # Must be called before the game start and never changed during to
+    # prevent data collision when accessed concurrently.
+    global _SCENE
+    _SCENE = Scene(engine_scene)
+
 def get_scene():
-    script = get_context_script()
-    return script.scene
+    return _SCENE
 
 def get_script_logger_name():
     script = get_context_script()
@@ -168,6 +202,10 @@ class Sprite:
     def name(self):
         return self._engine_sprite.name
 
+    @property
+    def _scene(self):
+        return self._engine_sprite.scene
+
     def go_to(self, x, y):
         """Change sprite position to _x_ and _y_."""
         if not isinstance(x, int):
@@ -179,7 +217,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="go_to",
-            args=get_scene()._coordsys.point_from(x, y)))
+            args=self._scene.coordsys.point_from(x, y)))
 
     def set_x_to(self, x):
         if not isinstance(x, int):
@@ -188,7 +226,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="go_to",
-            args=(get_scene()._coordsys.abscissa_from(x), None)))
+            args=(self._scene.coordsys.abscissa_from(x), None)))
 
     def set_y_to(self, y):
         if not isinstance(y, int):
@@ -197,7 +235,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="go_to",
-            args=(None, get_scene()._coordsys.ordinate_from(y))))
+            args=(None, self._scene.coordsys.ordinate_from(y))))
 
     def move_by(self, step_x, step_y):
         """Change sprite position by _step_x_ and _step_y_."""
@@ -210,8 +248,8 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="move_by",
-            args=(get_scene()._coordsys.dir_x * step_x,
-                  get_scene()._coordsys.dir_y * step_y)))
+            args=(self._scene.coordsys.dir_x * step_x,
+                  self._scene.coordsys.dir_y * step_y)))
 
     def change_x_by(self, step_x):
         if not isinstance(step_x, int):
@@ -220,7 +258,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="move_by",
-            args=(get_scene()._coordsys.dir_x * step_x, 0)))
+            args=(self._scene.coordsys.dir_x * step_x, 0)))
 
     def change_y_by(self, step_y):
         if not isinstance(step_y, int):
@@ -229,13 +267,13 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="move_by",
-            args=(0, get_scene()._coordsys.dir_y * step_y)))
+            args=(0, self._scene.coordsys.dir_y * step_y)))
 
     def point_in_direction(self, angle):
         send_request(message.SpriteOp(
             name=self.name,
             op="point_in_direction",
-            args=(get_scene()._anglesys.to_degree(angle),)))
+            args=(self._scene.anglesys.to_degree(angle),)))
 
     def move(self, step):
         send_request(message.SpriteOp(
@@ -247,7 +285,7 @@ class Sprite:
         return send_request(message.SpriteOp(name=self.name, op="get_state"))
 
     def position(self):
-        return get_scene()._coordsys.point_to(*self._get_state().position())
+        return self._scene.coordsys.point_to(*self._get_state().position())
 
     def x_position(self):
         return self.position()[0]
@@ -256,13 +294,13 @@ class Sprite:
         return self.position()[1]
 
     def direction(self):
-        return get_scene()._anglesys.from_degree(self._get_state().direction())
+        return self._scene.anglesys.from_degree(self._get_state().direction())
 
     def bounce_if_on_edge(self):
         st = self._get_state()
         angle_degree = st.direction()
         r = st.rect
-        scene = get_scene()
+        scene = self._scene
         if r.left < 0 or r.right > scene.width: # vertical edges
             new_angle = math.atan2(math.fast_sin(angle_degree),
                                    -math.fast_cos(angle_degree))
@@ -288,8 +326,8 @@ class Sprite:
             ops=(
                 dict(op="point_in_direction",
                      args=(new_angle_degree,)),
-                dict(op="move_by", args=(scene._coordsys.dir_x * dx,
-                                         scene._coordsys.dir_y * dy)),
+                dict(op="move_by", args=(scene.coordsys.dir_x * dx,
+                                         scene.coordsys.dir_y * dy)),
             )))
 
     def turn_counter_clockwise(self, angle):

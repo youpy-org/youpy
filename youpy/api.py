@@ -21,4 +21,3 @@ from youpy.script import get_context_frontend_sprite
 from youpy.runner import run
 from youpy import message
 from youpy import math
-from youpy.data import SCENE_EDGE

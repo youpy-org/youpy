@@ -6,7 +6,7 @@ def when_backdrop_switches_to_InGame():
     point_in_direction(45)
     while True:
         move(10)
-        if touching(scene.edge):
+        if touching(Stage.edge):
             y = y_position()
             if y < -150:
                 console.print("player has lost the game")

@@ -18,12 +18,11 @@ from youpy.tools import FrequencyMeter
 from youpy.tools import print_simple_banner
 from youpy.data import Color
 from youpy.data import EngineScene
-from youpy.data import Scene
-from youpy.data import SCENE_EDGE
 from youpy import event
 from youpy.loader import Loader
 from youpy.configurer import Configurer
 from youpy.script import ScriptSet
+from youpy.script import set_scene
 from youpy import message
 from youpy.concurrency import EmptyQueue
 from youpy.keys import iter_keys
@@ -303,7 +302,7 @@ class RequestProcessors:
             sprite = self.engine.sprites[self.request.name]
             collisions = []
             if not self.engine.scene.rect.contains(sprite.rect):
-                collisions.append(SCENE_EDGE)
+                collisions.append(EngineScene.EDGE)
             for name, other_sprite in self.engine.sprites.items():
                 if sprite.rect.colliderect(other_sprite.rect):
                     collisions.append(name)
@@ -442,7 +441,7 @@ class Engine:
             self._load()
             self.event_manager.check()
             self._configure()
-            self.scripts.scene = Scene.from_scene(self.scene)
+            set_scene(self.scene)
             self._server = Server(self)
             self.event_manager.schedule(event.ProgramStart())
             self._loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 100)

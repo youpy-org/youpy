@@ -45,7 +45,7 @@ class Loader:
 
     def _load_sprites(self, engine):
         for i, path in enumerate(engine.project.iter_sprite_dirs()):
-            sprite = EngineSprite(path)
+            sprite = EngineSprite(path, scene=engine.scene)
             load_sprite_images(sprite)
             load_event_handlers_to(
                 engine.event_manager.event_handlers,

@@ -116,11 +116,15 @@ class EngineSprite:
             n._direction = self._direction
             return n
 
-    def __init__(self, path, coordsys_name="center"):
+    def __init__(self, path, coordsys_name="center", scene=None):
         self._path = Path(path)
         assert self._path.is_dir()
         self.images = []
         self._index = -1
+        if not isinstance(scene, EngineScene):
+            raise TypeError("scene must be EngineScene, not {}"
+                            .format(type(scene).__name__))
+        self.scene = scene
         self._st = self._State(coordsys_name=coordsys_name)
 
     @property
@@ -218,12 +222,17 @@ class EngineScene:
     DEFAULT_WIDTH = 480
     DEFAULT_HEIGHT = 360
 
+    # Sentinel object to mark scene edge in collision list.
+    EDGE = object()
+
     def __init__(self):
         self.width = self.DEFAULT_WIDTH
         self.height = self.DEFAULT_HEIGHT
         self.surface = None
         self.backdrops = OrderedDict() # important to support "next backdrop"
         self._backdrop = None
+        self.coordsys = None # set at configuration time
+        self.anglesys = None # set at configuration time
 
     @property
     def size(self):
@@ -248,34 +257,3 @@ class EngineScene:
     @backdrop.setter
     def backdrop(self, backdrop):
         self._backdrop = self.backdrops[backdrop]
-
-class Scene:
-    """Scene front-end.
-
-    Concurrently accessed from user script. Passed to every running script.
-    Should be pickable.
-    """
-
-    @classmethod
-    def from_scene(cls, scene):
-        return cls(width=scene.width,
-                   height=scene.height,
-                   coordsys=scene.coordsys,
-                   anglesys=scene.anglesys)
-
-    def __init__(self, width=None, height=None, coordsys=None, anglesys=None):
-        self._width = width
-        self._height = height
-        self._coordsys = coordsys
-        self._anglesys = anglesys
-
-    @property
-    def width(self):
-        return self._width
-
-    @property
-    def height(self):
-        return self._height
-
-# Sentinel object to mark scene edge in collision list.
-SCENE_EDGE = object()
