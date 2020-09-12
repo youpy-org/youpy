@@ -74,6 +74,14 @@ class Point:
     def y(self):
         return self._y
 
+    @x.setter
+    def x(self, x):
+        self._x = x
+
+    @y.setter
+    def y(self, y):
+        self._y = y
+
     def copy(self):
         return type(self)(self._x, self._y)
 
