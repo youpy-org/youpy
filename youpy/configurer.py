@@ -6,8 +6,8 @@
 import json
 
 from .error import YoupyException
-from .coordsys import CoordSys
-from .coordsys import AngleSys
+from .math import CoordSys
+from .math import AngleSys
 from .data import scale_sprite_by
 from .math import Point
 
