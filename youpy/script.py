@@ -10,6 +10,7 @@ from youpy import concurrency
 from youpy import message
 from youpy.logging import get_user_logger_name
 from youpy.logging import getLogger
+from inspect import signature
 
 LOGGER = getLogger(__name__)
 
@@ -93,6 +94,8 @@ class Script(concurrency.Task):
 
     def run(self):
         self.context.script = self
+        if self.event_handler.sprite is not None:
+            self.context.frontend_sprite = Sprite(self.event_handler.sprite)
         try:
             self._run()
         except StopScript:
@@ -104,7 +107,17 @@ class Script(concurrency.Task):
                 self._done_queue.put(self, block=False)
 
     def _run(self):
-        self.event_handler.callback()
+        if self.event_handler.in_stage:
+            return self.event_handler.callback()
+        else:
+            sig = signature(self.event_handler.callback)
+            nparameters = len(sig.parameters)
+            if nparameters == 0:
+                return self.event_handler.callback()
+            elif nparameters == 1:
+                return self.event_handler.callback(self.context.frontend_sprite)
+            else:
+                raise TypeError(f"too many parameters defined for event handler '{self.event_handler_name}'")
 
     def send(self, request):
         self.pipe.request_queue.put(request)
@@ -144,3 +157,37 @@ def get_script_logger_name():
 
 def get_script_logger():
     return getLogger(get_script_logger_name())
+
+def get_context_frontend_sprite():
+    return Script.context.frontend_sprite
+
+class Sprite:
+
+    def __init__(self, engine_sprite):
+        self._engine_sprite = engine_sprite
+
+    @property
+    def name(self):
+        return self._engine_sprite.name
+
+    def go_to(self, x, y):
+        """Change sprite position to _x_ and _y_."""
+        if not isinstance(x, int):
+            raise TypeError("x must be int, not {}"
+                            .format(type(x).__name__))
+        if not isinstance(y, int):
+            raise TypeError("y must be int, not {}"
+                            .format(type(y).__name__))
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="go_to",
+            args=get_scene()._coordsys.point_from(x, y)))
+
+    def change_y_by(self, step_y):
+        if not isinstance(step_y, int):
+            raise TypeError("step_y must be int, not {}"
+                            .format(type(step_y).__name__))
+        send_request(message.SpriteOp(
+            name=self.name,
+            op="move_by",
+            args=(0, get_scene()._coordsys.dir_y * step_y)))

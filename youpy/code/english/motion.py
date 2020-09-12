@@ -2,27 +2,14 @@
 """
 """
 
-
+from youpy.api import get_context_sprite_name
 from youpy.api import get_scene
 from youpy.api import send_request
-from youpy.api import get_context_sprite_name
 from youpy.api import message
 from youpy.api import math
 
+from ._internal import wrap_sprite_method
 
-def go_to(x, y):
-    """Change sprite position to _x_ and _y_."""
-    if not isinstance(x, int):
-        raise TypeError("x must be int, not {}"
-                        .format(type(x).__name__))
-    if not isinstance(y, int):
-        raise TypeError("y must be int, not {}"
-                        .format(type(y).__name__))
-    sprite_name = get_context_sprite_name()
-    send_request(message.SpriteOp(
-        name=sprite_name,
-        op="go_to",
-        args=get_scene()._coordsys.point_from(x, y)))
 
 def set_x_to(x):
     if not isinstance(x, int):
@@ -68,16 +55,6 @@ def change_x_by(step_x):
         name=sprite_name,
         op="move_by",
         args=(get_scene()._coordsys.dir_x * step_x, 0)))
-
-def change_y_by(step_y):
-    if not isinstance(step_y, int):
-        raise TypeError("step_y must be int, not {}"
-                        .format(type(step_y).__name__))
-    sprite_name = get_context_sprite_name()
-    send_request(message.SpriteOp(
-        name=sprite_name,
-        op="move_by",
-        args=(0, get_scene()._coordsys.dir_y * step_y)))
 
 def point_in_direction(angle):
     sprite_name = get_context_sprite_name()
@@ -174,3 +151,8 @@ __all__ = (
     "x_position",
     "y_position",
 )
+
+for name in ("go_to", "change_y_by"):
+    def modulename(): pass # only need to get the current module name
+    globals()[name] = wrap_sprite_method(name, modulename.__module__)
+del name, modulename
