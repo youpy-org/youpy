@@ -7,6 +7,7 @@ import re
 from collections import defaultdict
 
 from youpy.tools import IDENT_PATTERN
+from youpy.data import EngineSprite
 
 from youpy import logging
 LOGGER = logging.getLogger(__name__)
@@ -98,14 +99,22 @@ class EventHandler:
     def __init__(self, callback, sprite=None):
         assert callback is not None
         self.callback = callback
+        if sprite is not None:
+            if not isinstance(sprite, EngineSprite):
+                raise TypeError("sprite must be EngineSprite, not {}"
+                                .format(type(sprite).__name__))
         self.sprite = sprite
 
     def __repr__(self):
-        return f"{type(self).__name__}(callback={self.callback.__name__!r}, sprite={None if self.sprite is None else self.sprite.name!r})"
+        return f"{type(self).__name__}(callback={self.callback.__name__!r}, sprite={None if self.in_stage else self.sprite.name!r})"
 
     @property
     def name(self):
-        return f"{'stage' if self.sprite is None else self.sprite.name}.{self.callback.__name__}"
+        return f"{'stage' if self.in_stage else self.sprite.name}.{self.callback.__name__}"
+
+    @property
+    def in_stage(self):
+        return self.sprite is None
 
 def try_make_event(handler_name):
     for event_type in Event.types:

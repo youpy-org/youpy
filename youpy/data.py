@@ -73,7 +73,7 @@ def scale_image_by(image, ratio=None):
     size = scale_size_by(image.rect.size, ratio)
     image.surface = pygame.transform.scale(image.surface, size)
 
-class Sprite:
+class EngineSprite:
     """Hold the data of a Sprite as used internally by the engine.
 
     We use the "native" coordinate system in this class (eg. top-left corner
@@ -132,7 +132,7 @@ class Sprite:
         return self._path.name
 
     def __repr__(self):
-        return f"_engine.Sprite(name={self.name!r})"
+        return f"EngineSprite(name={self.name!r})"
 
     @property
     def rect(self):
