@@ -215,9 +215,12 @@ def scale_sprite_by(sprite, ratio=None):
 class _Scene:
     """Internal scene representation."""
 
+    DEFAULT_WIDTH = 480
+    DEFAULT_HEIGHT = 360
+
     def __init__(self):
-        self.width = 480
-        self.height = 360
+        self.width = self.DEFAULT_WIDTH
+        self.height = self.DEFAULT_HEIGHT
         self.surface = None
         self.backdrops = OrderedDict() # important to support "next backdrop"
         self._backdrop = None
