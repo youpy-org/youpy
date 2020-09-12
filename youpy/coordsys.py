@@ -5,7 +5,7 @@
 
 from youpy.math import degree_to_radian
 from youpy.math import radian_to_degree
-
+from youpy.math import Point
 
 
 class coordsys:
@@ -16,6 +16,7 @@ class coordsys:
     DEFAULT = "center"
 
 class center(coordsys):
+    """Converter from 'center' coordinate system to pygame top-left coordinate system."""
 
     def __init__(self, origin):
         self.origin = origin
@@ -29,9 +30,9 @@ class center(coordsys):
     def ordinate_to(self, y):
         return self.origin[1] - y
 
-    def point_to(self, x, y):
+    def point_to(self, p):
         """topleft -> center"""
-        return (self.abscissa_to(x), self.ordinate_to(y))
+        return Point(self.abscissa_to(p.x), self.ordinate_to(p.y))
 
     def abscissa_from(self, x):
         return self.origin[0] + x
@@ -39,9 +40,9 @@ class center(coordsys):
     def ordinate_from(self, y):
         return self.origin[1] - y
 
-    def point_from(self, x, y):
+    def point_from(self, p):
         """center -> topleft"""
-        return (self.abscissa_from(x), self.ordinate_from(y))
+        return Point(self.abscissa_from(p.x), self.ordinate_from(p.y))
 
 class topleft(coordsys):
 
@@ -57,8 +58,8 @@ class topleft(coordsys):
     def ordinate_to(self, y):
         return y
 
-    def point_to(self, *args):
-        return args
+    def point_to(self, p):
+        return p
 
     def abscissa_from(self, x):
         return x
@@ -66,8 +67,8 @@ class topleft(coordsys):
     def ordinate_from(self, y):
         return y
 
-    def point_from(self, *args):
-        return args
+    def point_from(self, p):
+        return p
 
 class anglesys:
     @classmethod

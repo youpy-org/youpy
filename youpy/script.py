@@ -189,6 +189,7 @@ def get_context_frontend_sprite():
     return Script.context.frontend_sprite
 
 from youpy import math # needed by bounce
+from youpy.math import Point
 
 class Sprite:
 
@@ -217,7 +218,7 @@ class Sprite:
         send_request(message.SpriteOp(
             name=self.name,
             op="go_to",
-            args=self._scene.coordsys.point_from(x, y)))
+            args=self._scene.coordsys.point_from(Point(x, y)).to_tuple()))
 
     def set_x_to(self, x):
         if not isinstance(x, int):
@@ -285,7 +286,7 @@ class Sprite:
         return send_request(message.SpriteOp(name=self.name, op="get_state"))
 
     def position(self):
-        return self._scene.coordsys.point_to(*self._get_state().position)
+        return self._scene.coordsys.point_to(Point(*self._get_state().position)).to_tuple()
 
     def x_position(self):
         return self.position()[0]
