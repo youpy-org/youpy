@@ -299,7 +299,7 @@ class Sprite:
         return send_request(message.SpriteOp(name=self.name, op="get_state"))
 
     def position(self):
-        return self._scene.coordsys.point_to(Point(*self._get_state().position)).tuple
+        return self._scene.coordsys.point_to(self._get_state().position).tuple
 
     def x_position(self):
         return self.position()[0]

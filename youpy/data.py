@@ -134,8 +134,9 @@ class EngineSprite:
         self._position.y = y
         self.scene.coordsys.set_rect_position(self._rect, self._position)
 
+    @property
     def position(self):
-        return self._position.tuple
+        return self._position
 
     @property
     def current_image(self):
@@ -179,7 +180,7 @@ class EngineSprite:
         class State:
             visible = self._visible
             rect = self._rect.copy()
-            position = self.position()
+            position = self._position.copy()
             direction = self.direction()
         return State()
 
