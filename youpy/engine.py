@@ -10,12 +10,14 @@ from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
+from time import time
 
 import pygame
 
 from youpy.project import Project
 from youpy.tools import FrequencyMeter
 from youpy.tools import print_simple_banner
+from youpy.tools import format_milliseconds
 from youpy.data import Color
 from youpy.data import EngineScene
 from youpy import event
@@ -420,6 +422,8 @@ class AbstractSimulation(ABC):
         self.__is_running = False
         # Total simulated time elapsed since the simulation boot
         self.__time = 0
+        self.__real_simu_duration = 0
+        self.__real_render_duration = 0
 
     @property
     def is_running(self):
@@ -472,15 +476,31 @@ class AbstractSimulation(ABC):
         pass
 
     def simulate(self, delta_time):
+        t0 = time()
         self._on_simulate(delta_time)
+        t1 = time()
+        self.__real_simu_duration = int((t1 - t0) * 1000)
+        if self.__real_simu_duration > delta_time:
+            LOGGER.warning(f"it tooks {self.__real_simu_duration}ms to simulate {delta_time}ms: simulation is too slow!")
         self.__time += delta_time
+
+    @property
+    def real_simu_duration(self):
+        return self.__real_simu_duration
 
     @abstractmethod
     def _on_simulate(self, delta_time):
         pass
 
     def render(self):
+        t0 = time()
         self._on_render()
+        t1 = time()
+        self.__real_render_duration = int((t1 - t0) * 1000)
+
+    @property
+    def real_render_duration(self):
+        return self.__real_render_duration
 
     @abstractmethod
     def _on_render(self):
@@ -570,15 +590,26 @@ class Simulation(AbstractSimulation):
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
 
-
 class Engine:
-    """Run a simulation."""
+    """Run a simulation.
 
-    def __init__(self, simu, target_fps=30):
+    Parameters:
+      target_fps: the number of frames per second the engine will try to run at
+      delta_time: one physical time step in millisecond
+    """
+
+    def __init__(self, simu, target_fps=30, delta_time=5):
+        if not isinstance(target_fps, int):
+            raise TypeError("target_fps must be int, not {}"
+                            .format(type(target_fps).__name__))
+        if not isinstance(delta_time, int):
+            raise TypeError("delta_time must be int, not {}"
+                            .format(type(delta_time).__name__))
         self.simu = simu
-        self._clock = None
         self._target_fps = target_fps # The pace will try to keep
-        self._simu_time = 0
+        self._delta_time = delta_time
+        # Initialized in run() after the simulation boot
+        self._clock = None
 
     @property
     def is_running(self):
@@ -588,15 +619,49 @@ class Engine:
         try:
             self.simu.boot()
             self._clock = pygame.time.Clock()
+            # Total running time (physics+rendering+sleep)
+            # elapsed since the simulation boot
+            self._running_time = 0
+            self._started_at = time()
+            accumulated_time = 0
             while self.simu.is_running:
-                self.simu.simulate()
+                frame_time = self._clock.get_time()
+                self._running_time += frame_time
+                accumulated_time += frame_time
+                simu_count = 0
+                while accumulated_time >= self._delta_time:
+                    self.simu.simulate(self._delta_time)
+                    accumulated_time -= self._delta_time
+                    simu_count += 1
                 self.simu.render()
+                # slowdown the simulation to meet the target FPS
                 self._clock.tick_busy_loop(self._target_fps)
                 self.simu.flip()
+                # print(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=} ; simu={format_milliseconds(self.simu.time)} ; running={format_milliseconds(self._running_time)} ; simu_duration={self.simu.real_simu_duration}ms ; render_duration={self.simu.real_render_duration}ms ; real={format_milliseconds(self.real_time)}")
             self.simu.shutdown()
         finally:
             self.simu.halt()
 
     @property
     def elapsed_time(self):
-        return self._clock.get_raw_time()
+        return self._clock.get_time()
+
+    @property
+    def target_fps(self):
+        return self._target_fps
+
+    @property
+    def delta_time(self):
+        return self._delta_time
+
+    @property
+    def running_time(self):
+        return self._running_time
+
+    @property
+    def real_time(self):
+        return int((time() - self._started_at) * 1000) # ms
+
+    @property
+    def fps(self):
+        return self._clock.get_fps()
