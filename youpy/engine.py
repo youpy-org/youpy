@@ -312,10 +312,12 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.start_time = self.simu.elapsed_time
+            self.delay = int(self.request.delay * 1000) #ms
+            self.start_time = self.simu.time
 
         def _run(self):
-            self._finished = (self.simu.elapsed_time - self.start_time > self.request.delay)
+            waiting_time = self.simu.time - self.start_time
+            self._finished = waiting_time > self.delay
 
     class StopProgramProcessor(OneShotProcessor):
         def _run_once(self):

@@ -22,6 +22,10 @@ def run(caller_locals=None, **kwargs):
     _run(caller_locals["__file__"], **kwargs)
 
 def wait(delay):
+    """Wait for _delay_ seconds (decimal value allowed)."""
+    if not isinstance(delay, (int, float)):
+        raise TypeError("delay must be int or float, not {}"
+                        .format(type(delay).__name__))
     send_request(message.Wait(delay=delay))
 
 def stop():
