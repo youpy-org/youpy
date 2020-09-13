@@ -130,6 +130,11 @@ class Point:
         p *= scalar
         return p
 
+    def __rmul__(self, scalar):
+        p = self.copy()
+        p *= scalar
+        return p
+
     def __itruediv__(self, obj):
         if isinstance(obj, (int, float)):
             self._x /= obj
