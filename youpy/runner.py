@@ -11,12 +11,13 @@ from youpy.project import get_project_dir
 from youpy.logging import init_logger
 
 
-def run(path, show_fps=False, log_level=None, syslog_level=None,
-        log_context=False):
+def run(path,
+        show_fps=False, fps=30,
+        log_level=None, syslog_level=None, log_context=False):
     project_dir = get_project_dir(path)
     project = Project(project_dir)
     simu = Simulation(project, show_fps=show_fps)
-    engine = Engine(simu)
+    engine = Engine(simu, target_fps=fps)
     init_logger(project, log_level=log_level, syslog_level=syslog_level,
                 log_context=log_context)
     with extended_sys_path(project_dir.parent):
