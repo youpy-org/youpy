@@ -29,6 +29,7 @@ from youpy import message
 from youpy.concurrency import EmptyQueue
 from youpy.keys import iter_keys
 from youpy.keys import check_key
+from youpy import math
 
 
 from youpy import logging
@@ -313,6 +314,27 @@ class RequestProcessors:
                 if sprite.rect.colliderect(other_sprite.rect):
                     collisions.append(name)
             return collisions
+
+    class SpriteMoveProcessor(RequestProcessor):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.sprite = self.simu.sprites[self.request.name]
+            if self.request.step == 0:
+                self._set_reply(None)
+                return
+            self.run_step = self.sprite.MOVE_DURATION // self.simu.delta_time
+            inc_step = self.request.step / self.run_step
+            self.velocity = self.sprite.get_velocity_from_direction()
+            assert math.isclose(self.velocity.norm(), 1.0)
+            # self.final = (self.sprite.position + self.request.step * self.velocity).discrete
+            self.velocity *= inc_step
+            # print(f"{self.velocity=}")
+
+        def _run(self):
+            self.sprite.move_by_velocity(self.velocity)
+            self.run_step -= 1
+            self._set_reply_if(self.run_step == 0)
 
     class WaitProcessor(RequestProcessor):
 

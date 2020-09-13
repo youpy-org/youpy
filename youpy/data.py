@@ -82,6 +82,9 @@ class EngineSprite:
     it is modified).
     """
 
+    # Easier if it is a multiple of the delta-time (must be an int)
+    MOVE_DURATION = 20 # ms
+
     def __init__(self, path, coordsys_name="center", scene=None):
         self._path = Path(path)
         assert self._path.is_dir()
@@ -161,15 +164,16 @@ class EngineSprite:
     def turn_counter_clockwise(self, angle):
         self._direction = self.scene.anglesys.inc_angle(self._direction, angle)
 
-    def move(self, step):
-        # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
-        v = Point(math.fast_cos(self._direction),
-                  math.fast_sin(self._direction))
-        v *= step
-        self.move_by(*self.scene.coordsys.vector_from(v).tuple)
-
     def move_by(self, step_x, step_y):
         self.go_to(self._position.x + step_x, self._position.y + step_y)
+
+    def move_by_velocity(self, velocity):
+        self.move_by(velocity.x, velocity.y)
+
+    def get_velocity_from_direction(self):
+        return self.scene.coordsys.vector_from(
+            Point(math.fast_cos(self._direction),
+                  math.fast_sin(self._direction)))
 
     def get_state(self):
         class State:

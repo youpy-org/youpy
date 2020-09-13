@@ -277,13 +277,23 @@ class Sprite:
             args=(self._scene.anglesys.to_degree(angle),)))
 
     def move(self, step):
+        """Move this sprite forward by _step_ step.
+
+        The sprite moves by _step_ steps toward the direction it is currently
+        pointing to.
+
+        Moving a sprite always takes the same amount of time. Thus, the biggest
+        the step is (in absolute value) the faster the sprite moves.
+
+        As a consequence, calling `move(2)' is *not* equivalent to calling
+        `move(1)' twice. The sprite will stop at the same position but if it
+        takes T seconds to run `move(2)', it will takes 2*T seconds to run
+        `move(1)' twice.
+        """
         if not isinstance(step, (int, float)):
             raise TypeError("step must be int or float, not {}"
                             .format(type(step).__name__))
-        send_request(message.SpriteOp(
-            name=self.name,
-            op="move",
-            args=(step,)))
+        send_request(message.SpriteMove(name=self.name, step=step))
 
     def _get_state(self):
         return send_request(message.SpriteOp(name=self.name, op="get_state"))

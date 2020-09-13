@@ -6,6 +6,7 @@
 from typing import Any
 from typing import Tuple
 from typing import Mapping
+from typing import Union
 from dataclasses import dataclass
 from dataclasses import field
 
@@ -45,6 +46,11 @@ class SpriteGetCollision:
 class SpriteBatchOp:
     name: str
     ops: Tuple[Mapping]
+
+@dataclass
+class SpriteMove:
+    name: str
+    step: Union[int, float]
 
 @dataclass
 class Wait:
