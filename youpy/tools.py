@@ -75,3 +75,12 @@ def print_simple_banner(msg, separator="*", printer=print):
     printer(banner_str)
     printer(msg)
     printer(banner_str)
+
+def format_milliseconds(total_milliseconds):
+    if not isinstance(total_milliseconds, int):
+        raise TypeError("total_milliseconds must be int, not {}"
+                        .format(type(total_milliseconds).__name__))
+    total_seconds, milliseconds = divmod(total_milliseconds, 1000)
+    total_minutes, seconds = divmod(total_seconds, 60)
+    total_hours, minutes = divmod(total_minutes, 60)
+    return f"{total_hours}:{minutes:02}:{seconds:02}.{milliseconds:03}"
