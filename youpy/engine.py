@@ -444,7 +444,7 @@ class Engine:
             set_scene(self.scene)
             self._server = Server(self)
             self.event_manager.schedule(event.ProgramStart())
-            self._loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 100)
+            self._loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 30)
             clock = pygame.time.Clock()
             while self._is_running:
                 self._loop.step()
