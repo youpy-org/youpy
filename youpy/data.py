@@ -132,6 +132,13 @@ class EngineSprite:
             y = p.y
         self._position.x = x
         self._position.y = y
+        self._update_rect_position()
+
+    def go_to_position(self, position):
+        self._position = position
+        self._update_rect_position()
+
+    def _update_rect_position(self):
         self.scene.coordsys.set_rect_position(self._rect, self._position)
 
     @property

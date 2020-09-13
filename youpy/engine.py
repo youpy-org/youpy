@@ -324,16 +324,24 @@ class RequestProcessors:
                 self._set_reply(None)
                 return
             self.run_step = self.sprite.MOVE_DURATION // self.simu.delta_time
-            inc_step = self.request.step / self.run_step
+            assert self.run_step > 0, "MOVE_DURATION must be higher than simulation delta-time"
             self.velocity = self.sprite.get_velocity_from_direction()
             assert math.isclose(self.velocity.norm(), 1.0)
-            # self.final = (self.sprite.position + self.request.step * self.velocity).discrete
+            self.final = self.sprite.position + self.request.step * self.velocity
+            inc_step = self.request.step / self.run_step
             self.velocity *= inc_step
-            # print(f"{self.velocity=}")
 
         def _run(self):
             self.sprite.move_by_velocity(self.velocity)
             self.run_step -= 1
+            if self.run_step == 0:
+                self._finish()
+
+        def _finish(self):
+            # Move the sprite to the final position in all cases so that
+            # if MOVE_DURATION is not a multiple of delta_time, we still end-up
+            # at the right position.
+            self.sprite.go_to_position(self.final)
             self._set_reply_if(self.run_step == 0)
 
     class WaitProcessor(RequestProcessor):

@@ -6,15 +6,20 @@ from time import time
 # See EngineSprite.MOVE_DURATION constant.
 
 def when_space_key_pressed():
-    go_to(-230, 0)
+    X0 = -230
+    go_to(X0, 0)
 
     console.print("duration must be invariant by fps")
 
+    N = 200
+    S = 2
     t0 = time()
-    for _ in range(200):
-        move(2)
+    for _ in range(N):
+        move(S)
     t1 = time()
     duration = t1 - t0
     console.print(f"{duration=}")
+
+    assert position() == (X0 + N * 2, 0)
 
     stop_program(reason="end of experiment")
