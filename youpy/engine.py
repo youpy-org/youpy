@@ -27,7 +27,6 @@ from youpy import message
 from youpy.concurrency import EmptyQueue
 from youpy.keys import iter_keys
 from youpy.keys import check_key
-from youpy.loop import FixedDeltaTimeEngineLoop
 
 
 from youpy import logging
@@ -60,20 +59,20 @@ class LoggerProgress:
 
 class FPSRenderer:
 
-    def __init__(self, fps, engine):
+    def __init__(self, fps, simu):
         self.fps = fps
-        self.engine = engine
+        self.simu = simu
 
     def update(self):
-        self._surf = self.engine.default_font.render(
+        self._surf = self.simu.default_font.render(
             f'{self.fps.frequency: 3.0f}', True, Color.white._c)
         self._rect = self._surf.get_rect().copy()
-        self._rect.topleft = (self.engine.scene.width - self._rect.width, 0)
+        self._rect.topleft = (self.simu.scene.width - self._rect.width, 0)
         print("FPS:", self.fps)
 
     def render(self):
-        self.engine.scene.surface.fill(Color.black._c, self._rect)
-        self.engine.scene.surface.blit(self._surf, self._rect)
+        self.simu.scene.surface.fill(Color.black._c, self._rect)
+        self.simu.scene.surface.blit(self._surf, self._rect)
 
 class DummyFPSRenderer:
 
@@ -92,8 +91,8 @@ class SharedVariablesRenderer:
         surface: pygame.Surface
         rect: pygame.Rect
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self, simu):
+        self.simu = simu
         self._states = OrderedDict()
 
     def render(self, shared_variables):
@@ -101,8 +100,8 @@ class SharedVariablesRenderer:
             self._update(shared_variables)
             shared_variables.clear_change_flag()
         for state in self._states.values():
-            self.engine.scene.surface.fill(Color.black._c, state.rect)
-            self.engine.scene.surface.blit(state.surface, state.rect)
+            self.simu.scene.surface.fill(Color.black._c, state.rect)
+            self.simu.scene.surface.blit(state.surface, state.rect)
 
     def _update(self, shared_variables):
         update_rect = False
@@ -119,7 +118,7 @@ class SharedVariablesRenderer:
                     pass
                 if state.value != var.get():
                     state.value = var.get()
-                    state.surface = self.engine.default_font.render(
+                    state.surface = self.simu.default_font.render(
                         f"{state.name} = {state.value}", True, Color.white._c)
                     if state.rect is not None:
                         state.rect.width = state.surface.get_rect().width
@@ -139,20 +138,19 @@ class SharedVariablesRenderer:
 
 class Renderer:
 
-    def __init__(self, engine, show_fps=False):
-        self.engine = engine
+    def __init__(self, simu, show_fps=False):
+        self.simu = simu
         self.fps = FrequencyMeter()
-        self._fps_renderer = FPSRenderer(self.fps, engine) if show_fps else DummyFPSRenderer()
-        self._shared_variables_renderer = SharedVariablesRenderer(self.engine)
+        self._fps_renderer = FPSRenderer(self.fps, simu) if show_fps else DummyFPSRenderer()
+        self._shared_variables_renderer = SharedVariablesRenderer(self.simu)
 
     def render(self):
-        self._render_scene(self.engine.scene)
-        self._render_sprites(self.engine.scene, self.engine.sprites)
-        self._shared_variables_renderer.render(self.engine.shared_variables)
+        self._render_scene(self.simu.scene)
+        self._render_sprites(self.simu.scene, self.simu.sprites)
+        self._shared_variables_renderer.render(self.simu.shared_variables)
         if self.fps.update():
             self._fps_renderer.update()
         self._fps_renderer.render()
-        self.engine._flip()
 
     def _render_scene(self, scene):
         if scene.backdrop is None:
@@ -171,8 +169,8 @@ class Renderer:
 
 class Server:
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self, simu):
+        self.simu = simu
         self._running = [] # currently running processors
 
     def process_requests(self):
@@ -180,13 +178,13 @@ class Server:
         self._run()
 
     def _collect(self):
-        for script in self.engine.scripts:
+        for script in self.simu.scripts:
             try:
                 request = script.pipe.request_queue.get(block=False)
             except EmptyQueue:
                 pass
             else:
-                processor = RequestProcessors.new(self.engine, script, request)
+                processor = RequestProcessors.new(self.simu, script, request)
                 self._running.append(processor)
 
     def _run(self):
@@ -211,15 +209,15 @@ class RequestProcessors:
                 f"no processor available for request: '{request_type_name}'")
 
     @classmethod
-    def new(cls, engine, script, request):
+    def new(cls, simu, script, request):
         proc_type = cls.get(request)
-        return proc_type(engine, script, request)
+        return proc_type(simu, script, request)
 
     class RequestProcessor(ABC):
         """Base class of request processor"""
 
-        def __init__(self, engine, script, request):
-            self.engine = engine
+        def __init__(self, simu, script, request):
+            self.simu = simu
             self.script = script
             self.request = request
             self._finished = False
@@ -258,37 +256,37 @@ class RequestProcessors:
 
     class SharedVariableNewProcessor(OneShotProcessor):
         def _run_once(self):
-            self.engine.shared_variables[self.request.name] = self.request.value
+            self.simu.shared_variables[self.request.name] = self.request.value
 
     class SharedVariableDelProcessor(OneShotProcessor):
         def _run_once(self):
-            del self.engine.shared_variables[self.request.name]
+            del self.simu.shared_variables[self.request.name]
 
     class SharedVariableOpProcessor(OneShotProcessor):
         def _run_once(self):
-            f = getattr(self.engine.shared_variables[self.request.name],
+            f = getattr(self.simu.shared_variables[self.request.name],
                         self.request.op)
             return f(*self.request.args, **self.request.kwargs)
 
     class BackdropSwitchToProcessor(OneShotProcessor):
         def _run_once(self):
-            if self.engine.scene.backdrop != self.request.name:
+            if self.simu.scene.backdrop != self.request.name:
                 try:
-                    self.engine.scene.backdrop = self.request.name
+                    self.simu.scene.backdrop = self.request.name
                 except KeyError:
                     raise ValueError(f"invalid backdrop: '{self.request.name}'")
-                self.engine.event_manager.schedule(
+                self.simu.event_manager.schedule(
                     event.BackdropSwitches(backdrop=self.request.name))
 
     class SpriteOpProcessor(OneShotProcessor):
         def _run_once(self):
-            sprite = self.engine.sprites[self.request.name]
+            sprite = self.simu.sprites[self.request.name]
             f = getattr(sprite, self.request.op)
             return f(*self.request.args, **self.request.kwargs)
 
     class SpriteBatchOpProcessor(OneShotProcessor):
         def _run_once(self):
-            sprite = self.engine.sprites[self.request.name]
+            sprite = self.simu.sprites[self.request.name]
             rets = []
             for op in self.request.ops:
                 f = getattr(sprite, op["op"])
@@ -299,11 +297,11 @@ class RequestProcessors:
     class SpriteGetCollisionProcessor(OneShotProcessor):
         # TODO(Nicolas Despres): Handle mask
         def _run_once(self):
-            sprite = self.engine.sprites[self.request.name]
+            sprite = self.simu.sprites[self.request.name]
             collisions = []
-            if not self.engine.scene.rect.contains(sprite.rect):
+            if not self.simu.scene.rect.contains(sprite.rect):
                 collisions.append(EngineScene.EDGE)
-            for name, other_sprite in self.engine.sprites.items():
+            for name, other_sprite in self.simu.sprites.items():
                 if sprite.rect.colliderect(other_sprite.rect):
                     collisions.append(name)
             return collisions
@@ -312,10 +310,10 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.start_time = self.engine.elapsed_time
+            self.start_time = self.simu.elapsed_time
 
         def _run(self):
-            self._finished = (self.engine.elapsed_time - self.start_time > self.request.delay)
+            self._finished = (self.simu.elapsed_time - self.start_time > self.request.delay)
 
 class SharedVariable:
 
@@ -381,8 +379,8 @@ class SharedVariableSet(MutableMapping):
 
 class EventManager:
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self, simu):
+        self.simu = simu
         self.event_handlers = event.EventHandlers()
         self._pending = []
 
@@ -394,7 +392,7 @@ class EventManager:
     def trigger(self):
         # if self._pending:
         #     print(f"trigger")
-        self.engine.scripts.bulk_trigger(self._pending)
+        self.simu.scripts.bulk_trigger(self._pending)
         self._pending.clear()
 
     def check(self):
@@ -406,54 +404,123 @@ class EventManager:
 
     def _check_event(self, e):
         if isinstance(e, event.BackdropSwitches):
-            if e.backdrop not in self.engine.scene.backdrops:
+            if e.backdrop not in self.simu.scene.backdrops:
                 raise ValueError(f"unknown backdrop '{e.backdrop}'")
         elif isinstance(e, event.KeyPressed):
             check_key(e.key)
 
-class Engine:
+class AbstractSimulation(ABC):
+
+    def __init__(self):
+        self.__is_running = False
+        # Total simulated time elapsed since the simulation boot
+        self.__time = 0
+
+    @property
+    def is_running(self):
+        return self.__is_running
+
+    def stop(self):
+        """Request the simulation to stop."""
+        self.__is_running = False
+
+    @property
+    def time(self):
+        return self.__time
+
+    def boot(self):
+        if self.__is_running:
+            raise RuntimeError("simulation already running")
+        self.__is_running = True
+        self._on_boot()
+
+    @abstractmethod
+    def _on_boot(self):
+        pass
+
+    def shutdown(self):
+        """Shut everything down (opposite of boot)."""
+        if self.__is_running:
+            raise RuntimeError("simulation still running")
+        self._on_shutdown()
+
+    @abstractmethod
+    def _on_shutdown(self):
+        pass
+
+    def halt(self):
+        """Always called."""
+        self.__is_running = False
+        self._on_halt()
+
+    @abstractmethod
+    def _on_halt(self):
+        pass
+
+    def flip(self):
+        self._on_flip()
+
+    @abstractmethod
+    def _on_flip(self):
+        pass
+
+    def simulate(self, delta_time):
+        self._on_simulate(delta_time)
+        self.__time += delta_time
+
+    @abstractmethod
+    def _on_simulate(self, delta_time):
+        pass
+
+    def render(self):
+        self._on_render()
+
+    @abstractmethod
+    def _on_render(self):
+        pass
+
+class Simulation(AbstractSimulation):
 
     def __init__(self, project, show_fps=False):
+        super().__init__()
         self.project = project
         self.scene = EngineScene()
         self.sprites = {}
-        self._is_running = False
         self.event_manager = EventManager(self)
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
         self._renderer = Renderer(self, show_fps=show_fps)
 
-    @property
-    def is_running(self):
-        return self._is_running
+    def _on_boot(self):
+        self._show_banner()
+        pygame.init()
+        pygame.display.set_caption(self.project.name)
+        self.scene.surface = pygame.display.set_mode(self.scene.size)
+        pygame.key.set_repeat(300, # ms
+                              30) # ms
+        self._load()
+        self.event_manager.check()
+        self._configure()
+        set_scene(self.scene)
+        self._server = Server(self)
+        self.event_manager.schedule(event.ProgramStart())
 
-    def run(self):
-        if self._is_running:
-            raise RuntimeError("engine already running")
-        self._is_running = True
-        try:
-            self._show_banner()
-            pygame.init()
-            pygame.display.set_caption(self.project.name)
-            self.scene.surface = pygame.display.set_mode(self.scene.size)
-            pygame.key.set_repeat(300, # ms
-                                  30) # ms
-            self._load()
-            self.event_manager.check()
-            self._configure()
-            set_scene(self.scene)
-            self._server = Server(self)
-            self.event_manager.schedule(event.ProgramStart())
-            self._loop = FixedDeltaTimeEngineLoop(self._render, self._simulate, 30)
-            while self._is_running:
-                self._loop.step()
-            self.scripts.join()
-        finally:
-            self._is_running = False
-            pygame.quit()
+    def _on_shutdown(self):
+        self.scripts.join()
 
-    def _flip(self):
+    def _on_halt(self):
+        pygame.quit()
+
+    def _on_flip(self):
         pygame.display.flip()
+
+    def _show_banner(self):
+        def printer(msg):
+            LOGGER.log(logging.PRINT, msg)
+        print_simple_banner(f"Initializing {self.project.name}...",
+                            separator="*",
+                            printer=printer)
+
 
     LOAD_BACK_COLOR = Color(62, 254, 165)
 
@@ -464,30 +531,30 @@ class Engine:
         self.default_font = pygame.font.Font(default_font_name, 16)
         LOGGER.info("Loading...")
         self.scene.surface.fill(self.LOAD_BACK_COLOR._c)
-        self._flip()
+        self.flip()
         Loader(progress=LoggerProgress()).load(self)
 
     def _configure(self):
         LOGGER.info("Configuring...")
         Configurer(self).configure()
 
-    def _simulate(self):
+    def _on_simulate(self, delta_time):
         self.event_manager.trigger()
         self._process_user_input()
         self._server.process_requests()
         self.scripts.rip_done_scripts()
 
-    def _render(self):
+    def _on_render(self):
         self._renderer.render()
 
     def _process_user_input(self):
         for e in pygame.event.get():
             # print(type(event), event)
             if e.type == pygame.QUIT:
-                self._is_running = False
+                self.stop()
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
-                    self._is_running = False
+                    self.stop()
                 else:
                     for k in iter_keys():
                         if e.key in k.code:
@@ -496,13 +563,33 @@ class Engine:
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
 
-    def _show_banner(self):
-        def printer(msg):
-            LOGGER.log(logging.PRINT, msg)
-        print_simple_banner(f"Initializing {self.project.name}...",
-                            separator="*",
-                            printer=printer)
+
+class Engine:
+    """Run a simulation."""
+
+    def __init__(self, simu, target_fps=30):
+        self.simu = simu
+        self._clock = None
+        self._target_fps = target_fps # The pace will try to keep
+        self._simu_time = 0
+
+    @property
+    def is_running(self):
+        return self.simu.is_running
+
+    def run(self):
+        try:
+            self.simu.boot()
+            self._clock = pygame.time.Clock()
+            while self.simu.is_running:
+                self.simu.simulate()
+                self.simu.render()
+                self._clock.tick_busy_loop(self._target_fps)
+                self.simu.flip()
+            self.simu.shutdown()
+        finally:
+            self.simu.halt()
 
     @property
     def elapsed_time(self):
-        return self._loop.elapsed_time
+        return self._clock.get_raw_time()

@@ -20,8 +20,8 @@ class ConfigError(YoupyException):
 
 class Configurer:
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self, simu):
+        self.simu = simu
 
     def load(self, filepath):
         try:
@@ -31,10 +31,10 @@ class Configurer:
             return {}
 
     def configure(self):
-        cfg = self.load(self.engine.project.config_file)
-        self._configure_scene(self.engine.scene, cfg.get("scene", {}))
-        self._configure_sprites(self.engine.sprites, cfg.get("sprites"),
-                                self.engine.scene.coordsys)
+        cfg = self.load(self.simu.project.config_file)
+        self._configure_scene(self.simu.scene, cfg.get("scene", {}))
+        self._configure_sprites(self.simu.sprites, cfg.get("sprites"),
+                                self.simu.scene.coordsys)
 
     def _configure_coordsys(self, scene, cfg):
         coordsys_name = cfg.get("coordinate_system", CoordSys.DEFAULT)
