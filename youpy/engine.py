@@ -426,12 +426,24 @@ class EventManager:
 
 class AbstractSimulation(ABC):
 
-    def __init__(self):
+    def __init__(self, delta_time=10):
+        """
+        Parameters:
+        - delta_time: duration in milliseconds of one physic simulation step.
+        """
+        if not isinstance(delta_time, int):
+            raise TypeError("delta_time must be int, not {}"
+                            .format(type(delta_time).__name__))
+        self.__delta_time = delta_time
         self.__is_running = False
         # Total simulated time elapsed since the simulation boot
         self.__time = 0
         self.__real_simu_duration = 0
         self.__real_render_duration = 0
+
+    @property
+    def delta_time(self):
+        return self.__delta_time
 
     @property
     def is_running(self):
@@ -483,21 +495,21 @@ class AbstractSimulation(ABC):
     def _on_flip(self):
         pass
 
-    def simulate(self, delta_time):
+    def simulate(self):
         t0 = time()
-        self._on_simulate(delta_time)
+        self._on_simulate()
         t1 = time()
         self.__real_simu_duration = int((t1 - t0) * 1000)
-        if self.__real_simu_duration > delta_time:
-            LOGGER.warning(f"it tooks {self.__real_simu_duration}ms to simulate {delta_time}ms: simulation is too slow!")
-        self.__time += delta_time
+        if self.__real_simu_duration > self.delta_time:
+            LOGGER.warning(f"it tooks {self.__real_simu_duration}ms to simulate {self.delta_time}ms: simulation is too slow!")
+        self.__time += self.delta_time
 
     @property
     def real_simu_duration(self):
         return self.__real_simu_duration
 
     @abstractmethod
-    def _on_simulate(self, delta_time):
+    def _on_simulate(self):
         pass
 
     def render(self):
@@ -573,7 +585,7 @@ class Simulation(AbstractSimulation):
         LOGGER.info("Configuring...")
         Configurer(self).configure()
 
-    def _on_simulate(self, delta_time):
+    def _on_simulate(self):
         self.event_manager.trigger()
         self._process_user_input()
         self._server.process_requests()
@@ -603,19 +615,16 @@ class Engine:
 
     Parameters:
       target_fps: the number of frames per second the engine will try to run at
-      delta_time: one physical time step in millisecond
     """
 
-    def __init__(self, simu, target_fps=30, delta_time=5):
+    def __init__(self, simu, target_fps=30):
         if not isinstance(target_fps, int):
             raise TypeError("target_fps must be int, not {}"
                             .format(type(target_fps).__name__))
-        if not isinstance(delta_time, int):
-            raise TypeError("delta_time must be int, not {}"
-                            .format(type(delta_time).__name__))
         self.simu = simu
+        if self.simu.delta_time * 1e-3 > 1 / target_fps:
+            LOGGER.warning(f"simulation delta-time {self.simu.delta_time}ms is larger than target FPS={target_fps}: simulation will never catch up")
         self._target_fps = target_fps # The pace will try to keep
-        self._delta_time = delta_time
         # Initialized in run() after the simulation boot
         self._clock = None
 
@@ -637,9 +646,9 @@ class Engine:
                 self._running_time += frame_time
                 accumulated_time += frame_time
                 simu_count = 0
-                while accumulated_time >= self._delta_time:
-                    self.simu.simulate(self._delta_time)
-                    accumulated_time -= self._delta_time
+                while accumulated_time >= self.simu.delta_time:
+                    self.simu.simulate()
+                    accumulated_time -= self.simu.delta_time
                     simu_count += 1
                 self.simu.render()
                 # slowdown the simulation to meet the target FPS
@@ -657,10 +666,6 @@ class Engine:
     @property
     def target_fps(self):
         return self._target_fps
-
-    @property
-    def delta_time(self):
-        return self._delta_time
 
     @property
     def running_time(self):
