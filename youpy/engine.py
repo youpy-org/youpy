@@ -192,10 +192,10 @@ class Server:
     def _run(self):
         still_running = []
         for proc in self._running:
-            proc()
             if proc.is_finished:
                 proc.script.pipe.reply_queue.put(proc.reply, block=False)
             else:
+                proc()
                 still_running.append(proc)
         self._running = still_running
 
@@ -222,23 +222,30 @@ class RequestProcessors:
             self.simu = simu
             self.script = script
             self.request = request
-            self._finished = False
-            self._reply = None
+            self.__finished = False
+            self.__reply = None
 
         def __call__(self):
             try:
                 self._run()
             except Exception as e:
-                self._finished = True
-                self._reply = e
+                self._set_reply(e)
 
         @property
         def is_finished(self):
-            return self._finished
+            return self.__finished
 
         @property
         def reply(self):
-            return self._reply
+            return self.__reply
+
+        def _set_reply(self, reply):
+            self.__reply = reply
+            self.__finished = True
+
+        def _set_reply_if(self, condition, reply=None):
+            if condition:
+                self._set_reply(reply)
 
         @abstractmethod
         def _run(self):
@@ -249,8 +256,7 @@ class RequestProcessors:
         """
 
         def _run(self):
-            self._reply = self._run_once()
-            self._finished = True
+            self._set_reply(self._run_once())
 
         @abstractmethod
         def _run_once(self):
@@ -317,7 +323,7 @@ class RequestProcessors:
 
         def _run(self):
             waiting_time = self.simu.time - self.start_time
-            self._finished = waiting_time > self.delay
+            self._set_reply_if(waiting_time > self.delay)
 
     class StopProgramProcessor(OneShotProcessor):
         def _run_once(self):
