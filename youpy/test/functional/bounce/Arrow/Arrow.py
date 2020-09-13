@@ -23,3 +23,6 @@ def when_space_key_pressed():
         bounce_if_on_edge()
     t3 = time()
     console.print(t3 - t2)
+
+    console.print(f"total time: {t3 - t0}")
+    stop_program(reason="end of experiment")

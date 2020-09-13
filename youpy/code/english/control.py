@@ -27,6 +27,9 @@ def wait(delay):
 def stop():
     raise StopScript()
 
+def stop_program(reason=""):
+    send_request(message.StopProgram(reason=reason))
+
 class Console:
     """Allow to print message with different severity to the console.
     """
@@ -55,5 +58,6 @@ __all__ = (
     "console",
     "run",
     "stop",
+    "stop_program",
     "wait",
 )

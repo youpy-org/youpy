@@ -315,6 +315,11 @@ class RequestProcessors:
         def _run(self):
             self._finished = (self.simu.elapsed_time - self.start_time > self.request.delay)
 
+    class StopProgramProcessor(OneShotProcessor):
+        def _run_once(self):
+            LOGGER.info(f"script {self.script.name} has stopped the program")
+            self.simu.stop(reason=self.request.reason)
+
 class SharedVariable:
 
     def __init__(self, shared_variable_set, value):
@@ -420,9 +425,11 @@ class AbstractSimulation(ABC):
     def is_running(self):
         return self.__is_running
 
-    def stop(self):
+    def stop(self, reason=""):
         """Request the simulation to stop."""
         self.__is_running = False
+        if reason:
+            LOGGER.info(f'Program stop because "{reason}"')
 
     @property
     def time(self):
@@ -551,10 +558,10 @@ class Simulation(AbstractSimulation):
         for e in pygame.event.get():
             # print(type(event), event)
             if e.type == pygame.QUIT:
-                self.stop()
+                self.stop(reason="window was closed")
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
-                    self.stop()
+                    self.stop(reason="escape was pressed")
                 else:
                     for k in iter_keys():
                         if e.key in k.code:

@@ -49,3 +49,7 @@ class SpriteBatchOp:
 @dataclass
 class Wait:
     delay: float
+
+@dataclass
+class StopProgram:
+    reason: str
