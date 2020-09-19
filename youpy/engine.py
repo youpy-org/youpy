@@ -416,12 +416,34 @@ class EventManager:
         elif isinstance(e, event.KeyPressed):
             check_key(e.key)
 
+class FPS:
+
+    def __init__(self, window_size=20):
+        self._window_size = window_size
+        self._tick = time()
+        self._count = 0
+        self._fps = 0
+
+    def tick(self):
+        self._count += 1
+        if self._count >= self._window_size:
+            t = time()
+            duration = t - self._tick
+            self._fps = self._count / duration
+            self._count = 0
+            self._tick = t
+
+    @property
+    def fps(self):
+        return self._fps
+
 class AbstractSimulation(ABC):
 
     def __init__(self):
         self.__is_running = False
         self.__real_simu_duration = 0
         self.__real_render_duration = 0
+        self.fps = FPS()
 
     @property
     @abstractmethod
@@ -503,6 +525,7 @@ class AbstractSimulation(ABC):
         t0 = time()
         self._on_render()
         t1 = time()
+        self.fps.tick()
         self.__real_render_duration = t1 - t0
 
     @property
@@ -637,13 +660,10 @@ class Engine:
             # Total running time (physics+rendering+sleep)
             # elapsed since the simulation boot
             self._running_time = 0
-            self._started_at = time()
+            self.epoch = time()
             accumulated_time = 0
             target_frame_time = 1 / self.target_fps
             frame_time = 0
-            frame_count = 0
-            epoch = time()
-            clock = pygame.time.Clock()
             while self.simu.is_running:
                 tick0 = time()
                 accumulated_time += frame_time
@@ -663,11 +683,7 @@ class Engine:
                     sleep(0.0000001)
                     tick = time()
                 frame_time = tick - tick0
-                frame_count += 1
-                # fps = (frame_count / (tick - epoch)) * 1000
-                clock.tick()
-                fps = clock.get_fps()
-                LOGGER.debug(f"{fps=:.2f} ; {simu_count=} ; {frame_time=:.6f}s ; {accumulated_time=:.6f}s ; simu={self.simu.time:.6f}s ; running={self._running_time:.6f}s ; simu_duration={self.simu.real_simu_duration:.6f}s ; render_duration={self.simu.real_render_duration:.6f}s ; real={self.real_time:.6f}")
+                LOGGER.debug(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=:.6f}s ; {accumulated_time=:.6f}s ; simu={self.simu.time:.6f}s ; running={self._running_time:.6f}s ; simu_duration={self.simu.real_simu_duration:.6f}s ; render_duration={self.simu.real_render_duration:.6f}s ; real={self.real_time:.6f}")
                 self._running_time += frame_time
             self.simu.shutdown()
         finally:
@@ -683,8 +699,8 @@ class Engine:
 
     @property
     def real_time(self):
-        return time() - self._started_at # sec
+        return time() - self.epoch # sec
 
     @property
     def fps(self):
-        return self.simu.fps()
+        return self.simu.fps.fps
