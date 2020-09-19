@@ -57,10 +57,10 @@ setup(
     description="Python game engine for beginners",
     long_description=readfile(os.path.join(ROOT_DIR, "README.md")),
     keywords='game education',
-    url='https://github.com/nicolasdespres/youpy',
+    url='https://github.com/youpy-org/youpy',
     project_urls={
-        "Source code": "https://github.com/nicolasdespres/youpy",
-        "Bug tracker": "https://github.com/nicolasdespres/youpy/issues",
+        "Source code": "https://github.com/youpy-org/youpy",
+        "Bug tracker": "https://github.com/youpy-org/youpy/issues",
     },
 
     # =====================
