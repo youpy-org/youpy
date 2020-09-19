@@ -7,6 +7,7 @@ def when_space_key_pressed():
 
     console.print("duration must be invariant by fps")
 
+    ### 1
     t0 = time()
     for _ in range(50):
         move(2)
@@ -14,6 +15,7 @@ def when_space_key_pressed():
     d1 = t1 - t0
     console.print(f"{d1=}")
 
+    ### 2
     for _ in range(50):
         move(1)
         move(1)
@@ -22,12 +24,16 @@ def when_space_key_pressed():
     console.print(f"{d2=}")
     # assert math.isclose(2*d1, d2)
 
+    ### 3
+    # Should be as fast as the first loop
     for _ in range(50):
         move(2)
-        bounce_if_on_edge()
+        for _ in range(50):
+            x_position()
     t3 = time()
     d3 = t3 - t2
     console.print(f"{d3=}")
+    # assert math.isclose(d3, d1)
 
     console.print(f"total time: {t3 - t0}")
     stop_program(reason="end of experiment")

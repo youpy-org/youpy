@@ -10,6 +10,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 from time import time
+from time import sleep
 
 import pygame
 
@@ -609,6 +610,10 @@ class Simulation(AbstractSimulation):
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
 
+def get_milliseconds():
+    # return math.floor(time() * 1000)
+    return pygame.time.get_ticks()
+
 class Engine:
     """Run a simulation.
 
@@ -634,34 +639,47 @@ class Engine:
     def run(self):
         try:
             self.simu.boot()
-            self._clock = pygame.time.Clock()
             # Total running time (physics+rendering+sleep)
             # elapsed since the simulation boot
             self._running_time = 0
             self._started_at = time()
             accumulated_time = 0
+            target_frame_time = math.floor(1000 / self.target_fps)
             frame_time = 0
+            frame_count = 0
+            epoch = get_milliseconds()
+            clock = pygame.time.Clock()
             while self.simu.is_running:
-                self._running_time += frame_time
+                tick0 = get_milliseconds()
                 accumulated_time += frame_time
                 simu_count = 0
                 while accumulated_time >= self.simu.delta_time:
-                    self.simu.process_inputs()
                     self.simu.simulate()
                     accumulated_time -= self.simu.delta_time
                     simu_count += 1
                 self.simu.render()
-                # slowdown the simulation to meet the target FPS
-                frame_time = self._clock.tick_busy_loop(self._target_fps)
                 self.simu.flip()
-                LOGGER.debug(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=} ; simu={format_milliseconds(self.simu.time)} ; running={format_milliseconds(self._running_time)} ; simu_duration={self.simu.real_simu_duration}ms ; render_duration={self.simu.real_render_duration}ms ; real={format_milliseconds(self.real_time)}")
+                self.simu.process_inputs()
+                tick = get_milliseconds()
+                # Process inputs with the remaining time until we reach the
+                # target_frame_time
+                while tick - tick0 <= target_frame_time:
+                    self.simu.process_inputs()
+                    # sleep() allow more exchange between client user thread
+                    # than pygame.time.delay()
+                    sleep(0.0000001)
+                    # pygame.time.delay(1)
+                    tick = get_milliseconds()
+                frame_time = tick - tick0
+                frame_count += 1
+                # fps = (frame_count / (tick - epoch)) * 1000
+                clock.tick()
+                fps = clock.get_fps()
+                LOGGER.debug(f"FPS={fps:.2f} ; {simu_count=} ; {frame_time=} ; {accumulated_time=} ; simu={format_milliseconds(self.simu.time)} ; running={format_milliseconds(self._running_time)} ; simu_duration={self.simu.real_simu_duration}ms ; render_duration={self.simu.real_render_duration}ms ; real={format_milliseconds(self.real_time)}")
+                self._running_time += frame_time
             self.simu.shutdown()
         finally:
             self.simu.halt()
-
-    @property
-    def elapsed_time(self):
-        return self._clock.get_time()
 
     @property
     def target_fps(self):
@@ -677,4 +695,4 @@ class Engine:
 
     @property
     def fps(self):
-        return self._clock.get_fps()
+        return self.simu.fps()
