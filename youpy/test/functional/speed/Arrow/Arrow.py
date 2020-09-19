@@ -5,7 +5,7 @@ from time import time
 # We aim to have roughly the same speed.
 # See EngineSprite.MOVE_DURATION constant.
 
-def when_space_key_pressed():
+def when_program_start():
     X0 = -230
     go_to(X0, 0)
 
