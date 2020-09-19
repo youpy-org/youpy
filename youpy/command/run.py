@@ -52,7 +52,7 @@ def mkcli():
         action="store",
         type=log_level,
         default="info",
-        help="System logging level for terminal")
+        help="System logging level")
     parser.add_argument(
         "--log-context",
         action="store_true",
