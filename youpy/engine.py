@@ -30,6 +30,7 @@ from youpy.keys import iter_keys
 from youpy.keys import check_key
 from youpy import math
 from youpy.shared_variables import SharedVariableSet
+from youpy import physics
 
 
 from youpy import logging
@@ -319,45 +320,69 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.sprite = self.simu.sprites[self.request.name]
-            if self.request.step == 0:
-                self._set_reply(None)
-                return
-            self.run_step = self.sprite.MOVE_DURATION // self.simu.delta_time
-            assert self.run_step > 0, "MOVE_DURATION must be higher than simulation delta-time"
-            self.velocity = self.sprite.get_velocity_from_direction()
-            assert math.isclose(self.velocity.norm(), 1.0)
-            self.final = self.sprite.position + self.request.step * self.velocity
-            inc_step = self.request.step / self.run_step
-            self.velocity *= inc_step
+            sprite = self.simu.sprites[self.request.name]
+            self.system = SpriteMoveSystem(sprite, self.request.step)
+            self.simu._physical_engine.schedule(self.system)
 
         def _run(self):
-            self.sprite.move_by_velocity(self.velocity)
-            self.run_step -= 1
-            if self.run_step == 0:
-                self._finish()
-
-        def _finish(self):
-            # Move the sprite to the final position in all cases so that
-            # if MOVE_DURATION is not a multiple of delta_time, we still end-up
-            # at the right position.
-            self.sprite.go_to_position(self.final)
-            self._set_reply_if(self.run_step == 0)
+            self._set_reply_if(self.system.is_finished)
 
     class WaitProcessor(RequestProcessor):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.delay = int(self.request.delay * 1000) #ms
-            self.start_time = self.simu.time
+            self.system = WaitSystem(self.request.delay)
+            self.simu._physical_engine.schedule(self.system)
 
         def _run(self):
-            waiting_time = self.simu.time - self.start_time
-            self._set_reply_if(waiting_time > self.delay)
+            self._set_reply_if(self.system.is_finished)
 
     class StopProgramProcessor(OneShotProcessor):
         def _run_once(self):
             self.simu.stop(reason=self.request.reason)
+
+class WaitSystem(physics.PhysicalSystem):
+
+    def __init__(self, delay):
+        super().__init__(*args, **kwargs)
+        self.delay = int(delay * 1000) #ms
+        self.start_time = self.engine.time
+
+    def _on_step(self):
+        waiting_time = self.engine.time - self.start_time
+        self._set_result_if(waiting_time > self.delay)
+
+class SpriteMoveSystem(physics.PhysicalSystem):
+
+    def __init__(self, sprite, move_step):
+        super().__init__()
+        self.sprite = sprite
+        self.move_step = move_step
+
+    def _on_start(self):
+        if self.move_step == 0:
+            self._set_result(None)
+            return
+        self.step_count = self.sprite.MOVE_DURATION // self.engine.delta_time
+        assert self.step_count > 0, "MOVE_DURATION must be higher than simulation delta-time"
+        self.velocity = self.sprite.get_velocity_from_direction()
+        assert math.isclose(self.velocity.norm(), 1.0)
+        self.final = self.sprite.position + self.move_step * self.velocity
+        inc_step = self.move_step / self.step_count
+        self.velocity *= inc_step
+
+    def _on_step(self):
+        self.sprite.move_by_velocity(self.velocity)
+        self.step_count -= 1
+        if self.step_count == 0:
+            self._finish()
+
+    def _finish(self):
+        # Move the sprite to the final position in all cases so that
+        # if MOVE_DURATION is not a multiple of delta_time, we still end-up
+        # at the right position.
+        self.sprite.go_to_position(self.final)
+        self._set_result_if(self.step_count == 0)
 
 class EventManager:
 
@@ -393,24 +418,15 @@ class EventManager:
 
 class AbstractSimulation(ABC):
 
-    def __init__(self, delta_time=10):
-        """
-        Parameters:
-        - delta_time: duration in milliseconds of one physic simulation step.
-        """
-        if not isinstance(delta_time, int):
-            raise TypeError("delta_time must be int, not {}"
-                            .format(type(delta_time).__name__))
-        self.__delta_time = delta_time
+    def __init__(self):
         self.__is_running = False
-        # Total simulated time elapsed since the simulation boot
-        self.__time = 0
         self.__real_simu_duration = 0
         self.__real_render_duration = 0
 
     @property
+    @abstractmethod
     def delta_time(self):
-        return self.__delta_time
+        pass
 
     @property
     def is_running(self):
@@ -423,8 +439,10 @@ class AbstractSimulation(ABC):
             LOGGER.info(f'Program stop because "{reason}"')
 
     @property
+    @abstractmethod
     def time(self):
-        return self.__time
+        """Return the total simulated time elapsed since the simulation boot."""
+        pass
 
     def boot(self):
         if self.__is_running:
@@ -462,6 +480,9 @@ class AbstractSimulation(ABC):
     def _on_flip(self):
         pass
 
+    def process_inputs(self):
+        self._on_process_inputs()
+
     def simulate(self):
         t0 = time()
         self._on_simulate()
@@ -469,7 +490,6 @@ class AbstractSimulation(ABC):
         self.__real_simu_duration = int((t1 - t0) * 1000)
         if self.__real_simu_duration > self.delta_time:
             LOGGER.warning(f"it tooks {self.__real_simu_duration}ms to simulate {self.delta_time}ms: simulation is too slow!")
-        self.__time += self.delta_time
 
     @property
     def real_simu_duration(self):
@@ -503,7 +523,16 @@ class Simulation(AbstractSimulation):
         self.event_manager = EventManager(self)
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()
+        self._physical_engine = physics.PhysicalEngine()
         self._renderer = Renderer(self, show_fps=show_fps)
+
+    @property
+    def delta_time(self):
+        return self._physical_engine.delta_time
+
+    @property
+    def time(self):
+        return self._physical_engine.time
 
     def _on_boot(self):
         self._show_banner()
@@ -552,11 +581,14 @@ class Simulation(AbstractSimulation):
         LOGGER.info("Configuring...")
         Configurer(self).configure()
 
-    def _on_simulate(self):
+    def _on_process_inputs(self):
         self.event_manager.trigger()
         self._process_user_input()
         self._server.process_requests()
         self.scripts.rip_done_scripts()
+
+    def _on_simulate(self):
+        self._physical_engine.step()
 
     def _on_render(self):
         self._renderer.render()
@@ -614,6 +646,7 @@ class Engine:
                 accumulated_time += frame_time
                 simu_count = 0
                 while accumulated_time >= self.simu.delta_time:
+                    self.simu.process_inputs()
                     self.simu.simulate()
                     accumulated_time -= self.simu.delta_time
                     simu_count += 1
