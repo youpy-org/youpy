@@ -8,6 +8,7 @@ from youpy.api import run as _run
 from youpy.api import get_script_logger
 from youpy.api import send_request
 from youpy.api import message
+from youpy.api import get_context_script
 from youpy import logging
 
 
@@ -32,6 +33,10 @@ def stop():
     raise StopScript()
 
 def stop_program(reason=""):
+    script = get_context_script()
+    get_script_logger().log(
+        logging.INFO,
+        f"script {script.name} has stopped the program")
     send_request(message.StopProgram(reason=reason))
 
 class Console:

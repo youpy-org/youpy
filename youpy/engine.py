@@ -357,7 +357,6 @@ class RequestProcessors:
 
     class StopProgramProcessor(OneShotProcessor):
         def _run_once(self):
-            LOGGER.info(f"script {self.script.name} has stopped the program")
             self.simu.stop(reason=self.request.reason)
 
 class EventManager:
