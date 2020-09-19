@@ -82,8 +82,7 @@ class EngineSprite:
     it is modified).
     """
 
-    # Easier if it is a multiple of the delta-time (must be an int)
-    MOVE_DURATION = 20 # ms
+    MOVE_DURATION = 0.02 # seconds
 
     def __init__(self, path, coordsys_name="center", scene=None):
         self._path = Path(path)

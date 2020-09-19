@@ -17,7 +17,6 @@ import pygame
 from youpy.project import Project
 from youpy.tools import FrequencyMeter
 from youpy.tools import print_simple_banner
-from youpy.tools import format_milliseconds
 from youpy.data import Color
 from youpy.data import EngineScene
 from youpy import event
@@ -364,7 +363,7 @@ class SpriteMoveSystem(physics.PhysicalSystem):
         if self.move_step == 0:
             self._set_result(None)
             return
-        self.step_count = self.sprite.MOVE_DURATION // self.engine.delta_time
+        self.step_count = math.floor(self.sprite.MOVE_DURATION / self.engine.delta_time)
         assert self.step_count > 0, "MOVE_DURATION must be higher than simulation delta-time"
         self.velocity = self.sprite.get_velocity_from_direction()
         assert math.isclose(self.velocity.norm(), 1.0)
@@ -442,7 +441,7 @@ class AbstractSimulation(ABC):
     @property
     @abstractmethod
     def time(self):
-        """Return the total simulated time elapsed since the simulation boot."""
+        """Return the total simulated time (in seconds) elapsed since the simulation boot."""
         pass
 
     def boot(self):
@@ -488,9 +487,9 @@ class AbstractSimulation(ABC):
         t0 = time()
         self._on_simulate()
         t1 = time()
-        self.__real_simu_duration = int((t1 - t0) * 1000)
+        self.__real_simu_duration = t1 - t0
         if self.__real_simu_duration > self.delta_time:
-            LOGGER.warning(f"it tooks {self.__real_simu_duration}ms to simulate {self.delta_time}ms: simulation is too slow!")
+            LOGGER.warning(f"it tooks {self.__real_simu_duration}s to simulate {self.delta_time}s: simulation is too slow!")
 
     @property
     def real_simu_duration(self):
@@ -504,7 +503,7 @@ class AbstractSimulation(ABC):
         t0 = time()
         self._on_render()
         t1 = time()
-        self.__real_render_duration = int((t1 - t0) * 1000)
+        self.__real_render_duration = t1 - t0
 
     @property
     def real_render_duration(self):
@@ -610,10 +609,6 @@ class Simulation(AbstractSimulation):
             # elif event.type == pygame.MOUSEMOTION:
             #     MOUSE._set_pos(*event.pos)
 
-def get_milliseconds():
-    # return math.floor(time() * 1000)
-    return pygame.time.get_ticks()
-
 class Engine:
     """Run a simulation.
 
@@ -626,7 +621,7 @@ class Engine:
             raise TypeError("target_fps must be int, not {}"
                             .format(type(target_fps).__name__))
         self.simu = simu
-        if self.simu.delta_time * 1e-3 > 1 / target_fps:
+        if self.simu.delta_time > 1 / target_fps:
             LOGGER.warning(f"simulation delta-time {self.simu.delta_time}ms is larger than target FPS={target_fps}: simulation will never catch up")
         self._target_fps = target_fps # The pace will try to keep
         # Initialized in run() after the simulation boot
@@ -644,13 +639,13 @@ class Engine:
             self._running_time = 0
             self._started_at = time()
             accumulated_time = 0
-            target_frame_time = math.floor(1000 / self.target_fps)
+            target_frame_time = 1 / self.target_fps
             frame_time = 0
             frame_count = 0
-            epoch = get_milliseconds()
+            epoch = time()
             clock = pygame.time.Clock()
             while self.simu.is_running:
-                tick0 = get_milliseconds()
+                tick0 = time()
                 accumulated_time += frame_time
                 simu_count = 0
                 while accumulated_time >= self.simu.delta_time:
@@ -660,22 +655,19 @@ class Engine:
                 self.simu.render()
                 self.simu.flip()
                 self.simu.process_inputs()
-                tick = get_milliseconds()
+                tick = time()
                 # Process inputs with the remaining time until we reach the
                 # target_frame_time
                 while tick - tick0 <= target_frame_time:
                     self.simu.process_inputs()
-                    # sleep() allow more exchange between client user thread
-                    # than pygame.time.delay()
                     sleep(0.0000001)
-                    # pygame.time.delay(1)
-                    tick = get_milliseconds()
+                    tick = time()
                 frame_time = tick - tick0
                 frame_count += 1
                 # fps = (frame_count / (tick - epoch)) * 1000
                 clock.tick()
                 fps = clock.get_fps()
-                LOGGER.debug(f"FPS={fps:.2f} ; {simu_count=} ; {frame_time=} ; {accumulated_time=} ; simu={format_milliseconds(self.simu.time)} ; running={format_milliseconds(self._running_time)} ; simu_duration={self.simu.real_simu_duration}ms ; render_duration={self.simu.real_render_duration}ms ; real={format_milliseconds(self.real_time)}")
+                LOGGER.debug(f"{fps=:.2f} ; {simu_count=} ; {frame_time=:.6f}s ; {accumulated_time=:.6f}s ; simu={self.simu.time:.6f}s ; running={self._running_time:.6f}s ; simu_duration={self.simu.real_simu_duration:.6f}s ; render_duration={self.simu.real_render_duration:.6f}s ; real={self.real_time:.6f}")
                 self._running_time += frame_time
             self.simu.shutdown()
         finally:
@@ -691,7 +683,7 @@ class Engine:
 
     @property
     def real_time(self):
-        return int((time() - self._started_at) * 1000) # ms
+        return time() - self._started_at # sec
 
     @property
     def fps(self):

@@ -54,14 +54,11 @@ class PhysicalSystem(ABC):
 
 class PhysicalEngine:
 
-    def __init__(self, delta_time=10):
+    def __init__(self, delta_time=0.01):
         """
         Parameters:
-        - delta_time: duration in milliseconds of one physic simulation step.
+        - delta_time: duration in seconds of one physic simulation step.
         """
-        if not isinstance(delta_time, int):
-            raise TypeError("delta_time must be int, not {}"
-                            .format(type(delta_time).__name__))
         self._delta_time = delta_time
         self._time = 0 # Total simulated time elapsed since the simulation boot
         self._scheduled_systems = []
