@@ -84,3 +84,6 @@ def format_milliseconds(total_milliseconds):
     total_minutes, seconds = divmod(total_seconds, 60)
     total_hours, minutes = divmod(total_minutes, 60)
     return f"{total_hours}:{minutes:02}:{seconds:02}.{milliseconds:03}"
+
+def callback_name(cb):
+    return ".".join((cb.__module__, cb.__qualname__))
