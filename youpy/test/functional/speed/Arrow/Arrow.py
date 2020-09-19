@@ -20,6 +20,6 @@ def when_space_key_pressed():
     duration = t1 - t0
     console.print(f"{duration=}")
 
-    assert position() == (X0 + N * 2, 0)
+    assert position() == (X0 + N * S, 0)
 
     stop_program(reason="end of experiment")
