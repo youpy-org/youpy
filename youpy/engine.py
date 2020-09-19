@@ -640,8 +640,8 @@ class Engine:
             self._running_time = 0
             self._started_at = time()
             accumulated_time = 0
+            frame_time = 0
             while self.simu.is_running:
-                frame_time = self._clock.get_time()
                 self._running_time += frame_time
                 accumulated_time += frame_time
                 simu_count = 0
@@ -652,7 +652,7 @@ class Engine:
                     simu_count += 1
                 self.simu.render()
                 # slowdown the simulation to meet the target FPS
-                self._clock.tick_busy_loop(self._target_fps)
+                frame_time = self._clock.tick_busy_loop(self._target_fps)
                 self.simu.flip()
                 LOGGER.debug(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=} ; simu={format_milliseconds(self.simu.time)} ; running={format_milliseconds(self._running_time)} ; simu_duration={self.simu.real_simu_duration}ms ; render_duration={self.simu.real_render_duration}ms ; real={format_milliseconds(self.real_time)}")
             self.simu.shutdown()
