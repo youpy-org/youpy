@@ -50,7 +50,7 @@ setup(
 
     name="youpy",
     author="Nicolas Despres",
-    #author_email="TODO: email of googlegroup?",
+    author_email="youpy@googlegroups.com",
     version=str(VERSION),
     license="BSD 3-clause",
     # TODO(Nicolas Despres): Change this once we have a website.
