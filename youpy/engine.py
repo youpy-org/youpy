@@ -669,18 +669,21 @@ class Engine:
                 accumulated_time += frame_time
                 simu_count = 0
                 while accumulated_time >= self.simu.delta_time:
+                    self.simu.process_inputs()
                     self.simu.simulate()
+                    # Give a chance to the OS to schedule the user thread.
+                    sleep(1e-6)
                     accumulated_time -= self.simu.delta_time
                     simu_count += 1
                 self.simu.render()
                 self.simu.flip()
-                self.simu.process_inputs()
                 tick = time()
                 # Process inputs with the remaining time until we reach the
                 # target_frame_time
                 while tick - tick0 <= target_frame_time:
                     self.simu.process_inputs()
-                    sleep(0.0000001)
+                    # Give a chance to the OS to schedule the user thread.
+                    sleep(1e-6)
                     tick = time()
                 frame_time = tick - tick0
                 LOGGER.debug(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=:.6f}s ; {accumulated_time=:.6f}s ; simu={self.simu.time:.6f}s ; running={self._running_time:.6f}s ; simu_duration={self.simu.real_simu_duration:.6f}s ; render_duration={self.simu.real_render_duration:.6f}s ; real={self.real_time:.6f}")
