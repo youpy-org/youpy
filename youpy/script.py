@@ -5,6 +5,7 @@
 
 import sys
 import traceback
+from random import randint
 
 from youpy import concurrency
 from youpy import message
@@ -165,6 +166,21 @@ class Scene:
     @property
     def edge(self):
         return self._engine_scene.EDGE
+
+    @property
+    def rect(self):
+        r = self._engine_scene.rect
+        self._engine_scene.coordsys.set_rect_position(r, Point.null())
+        return r
+
+    @property
+    def center(self):
+        return self.rect.center
+
+    @property
+    def random_position(self):
+        r = self.rect
+        return (randint(r.left, r.right), randint(r.top, r.bottom))
 
 _SCENE = None
 
