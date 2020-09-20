@@ -16,6 +16,7 @@ from time import time
 def when_program_start():
     X0 = -230
     go_to(X0, 0)
+    wait(1)
 
     console.print("duration must be invariant by fps")
 
