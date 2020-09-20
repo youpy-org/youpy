@@ -176,9 +176,7 @@ class EngineSprite:
         self.move_by(velocity.x, velocity.y)
 
     def get_velocity_from_direction(self):
-        return self.scene.coordsys.vector_from(
-            Point(math.fast_cos(self._direction),
-                  math.fast_sin(self._direction)))
+        return self.scene.coordsys.vector_from(Point.toward(self._direction))
 
     def get_state(self):
         class State:

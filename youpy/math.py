@@ -65,6 +65,10 @@ class Point:
     def null(cls):
         return cls(0, 0)
 
+    @classmethod
+    def toward(cls, angle):
+        return cls(fast_cos(angle), fast_sin(angle))
+
     def __init__(self, x, y):
         self._x = x
         self._y = y
