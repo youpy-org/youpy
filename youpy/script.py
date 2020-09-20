@@ -218,34 +218,31 @@ class Sprite:
 
     def go_to(self, x, y):
         """Change sprite position to _x_ and _y_."""
-        if not isinstance(x, int):
-            raise TypeError("x must be int, not {}"
+        if not isinstance(x, (int, float)):
+            raise TypeError("x must be int or float, not {}"
                             .format(type(x).__name__))
-        if not isinstance(y, int):
-            raise TypeError("y must be int, not {}"
+        if not isinstance(y, (int, float)):
+            raise TypeError("y must be int or float, not {}"
                             .format(type(y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveTo(
             name=self.name,
-            op="go_to",
-            args=self._scene.coordsys.point_from(Point(x, y)).tuple))
+            position=self._scene.coordsys.point_from(Point(x, y)).tuple))
 
     def set_x_to(self, x):
-        if not isinstance(x, int):
-            raise TypeError("x must be int, not {}"
+        if not isinstance(x, (int, float)):
+            raise TypeError("x must be int or float, not {}"
                             .format(type(x).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveTo(
             name=self.name,
-            op="go_to",
-            args=(self._scene.coordsys.abscissa_from(x), None)))
+            position=(self._scene.coordsys.abscissa_from(x), None)))
 
     def set_y_to(self, y):
-        if not isinstance(y, int):
-            raise TypeError("y must be int, not {}"
+        if not isinstance(y, (int, float)):
+            raise TypeError("y must be int or float, not {}"
                             .format(type(y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveTo(
             name=self.name,
-            op="go_to",
-            args=(None, self._scene.coordsys.ordinate_from(y))))
+            position=(None, self._scene.coordsys.ordinate_from(y))))
 
     def move_by(self, step_x, step_y):
         """Change sprite position by _step_x_ and _step_y_."""

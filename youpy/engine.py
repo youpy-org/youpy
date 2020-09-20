@@ -336,6 +336,16 @@ class RequestProcessors:
         def _run(self):
             self._set_reply_if(self.system.is_finished)
 
+    class SpriteMoveToProcessor(RequestProcessor):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            sprite = self.simu.sprites[self.request.name]
+            self.system = self.simu._physical_engine.move_sprite_to(sprite, self.request.position)
+
+        def _run(self):
+            self._set_reply_if(self.system.is_finished)
+
     class WaitProcessor(RequestProcessor):
 
         def __init__(self, *args, **kwargs):

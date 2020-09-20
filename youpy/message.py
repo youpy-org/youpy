@@ -60,6 +60,11 @@ class SpriteMoveBy:
     step_by: math.Point
 
 @dataclass
+class SpriteMoveTo:
+    name: str
+    position: Tuple[Union[int, float], Union[int, float]]
+
+@dataclass
 class Wait:
     delay: float
 
