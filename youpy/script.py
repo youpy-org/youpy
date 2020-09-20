@@ -207,6 +207,7 @@ def get_context_frontend_sprite():
 from youpy import math # needed by bounce
 from youpy.math import Point
 
+
 # Sprite front-end API
 # --------------------
 # o Client-side version of the EngineSprite.
@@ -232,14 +233,25 @@ class Sprite:
     def _scene(self):
         return self._engine_sprite.scene
 
-    def go_to(self, x, y):
-        """Change sprite position to _x_ and _y_."""
-        if not isinstance(x, (int, float)):
-            raise TypeError("x must be int or float, not {}"
-                            .format(type(x).__name__))
-        if not isinstance(y, (int, float)):
-            raise TypeError("y must be int or float, not {}"
-                            .format(type(y).__name__))
+    def go_to(self, /, x=None, y=None, point=None):
+        """Change sprite position to _x_ and _y_ or to point=(x, y)."""
+        if point is None:
+            if not isinstance(x, (int, float)):
+                raise TypeError("x must be int or float, not {}"
+                                .format(type(x).__name__))
+            if not isinstance(y, (int, float)):
+                raise TypeError("y must be int or float, not {}"
+                                .format(type(y).__name__))
+        elif isinstance(point, tuple):
+            x, y = point
+            if not isinstance(x, (int, float)):
+                raise TypeError("point first coordinate must be int or float, not {}"
+                                .format(type(x).__name__))
+            if not isinstance(y, (int, float)):
+                raise TypeError("point second coordinate must be int or float, not {}"
+                                .format(type(y).__name__))
+        else:
+            raise TypeError(f"point must be tuple or None, not {type(point).__name__}")
         send_request(message.SpriteMoveTo(
             name=self.name,
             position=self._scene.coordsys.point_from(Point(x, y)).tuple))

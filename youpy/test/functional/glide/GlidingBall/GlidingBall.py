@@ -3,7 +3,7 @@ from time import time
 import math
 
 def when_program_start():
-    go_to(*Stage.center)
+    go_to(point=Stage.center)
     D = 2.5
     while True:
         t0 = time()

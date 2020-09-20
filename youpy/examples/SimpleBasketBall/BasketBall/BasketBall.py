@@ -2,7 +2,7 @@ from youpy.code.english.everything import *
 
 def when_backdrop_switches_to_InGame():
     show()
-    go_to(0, 0)
+    go_to(x=0, y=0)
     point_in_direction(45)
     while True:
         move(10)
