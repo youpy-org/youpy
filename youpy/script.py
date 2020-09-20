@@ -249,34 +249,31 @@ class Sprite:
 
     def move_by(self, step_x, step_y):
         """Change sprite position by _step_x_ and _step_y_."""
-        if not isinstance(step_x, int):
-            raise TypeError("step_x must be int, not {}"
+        if not isinstance(step_x, (int, float)):
+            raise TypeError("step_x must be int or float, not {}"
                             .format(type(step_x).__name__))
-        if not isinstance(step_y, int):
-            raise TypeError("step_y must be int, not {}"
+        if not isinstance(step_y, (int, float)):
+            raise TypeError("step_y must be int or float, not {}"
                             .format(type(step_y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveBy(
             name=self.name,
-            op="move_by",
-            args=self._scene.coordsys.vector_from(Point(step_x, step_y)).tuple))
+            step_by=self._scene.coordsys.vector_from(Point(step_x, step_y))))
 
     def change_x_by(self, step_x):
-        if not isinstance(step_x, int):
-            raise TypeError("step_x must be int, not {}"
+        if not isinstance(step_x, (int, float)):
+            raise TypeError("step_x must be int or float, not {}"
                             .format(type(step_x).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveBy(
             name=self.name,
-            op="move_by",
-            args=self._scene.coordsys.vector_from(Point(step_x, 0)).tuple))
+            step_by=self._scene.coordsys.vector_from(Point(step_x, 0))))
 
     def change_y_by(self, step_y):
-        if not isinstance(step_y, int):
-            raise TypeError("step_y must be int, not {}"
+        if not isinstance(step_y, (int, float)):
+            raise TypeError("step_y must be int or float, not {}"
                             .format(type(step_y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveBy(
             name=self.name,
-            op="move_by",
-            args=self._scene.coordsys.vector_from(Point(0, step_x)).tuple))
+            step_by=self._scene.coordsys.vector_from(Point(0, step_y))))
 
     def point_in_direction(self, angle):
         self._scene.anglesys.check_angle(angle)

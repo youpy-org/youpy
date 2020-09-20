@@ -10,6 +10,8 @@ from typing import Union
 from dataclasses import dataclass
 from dataclasses import field
 
+from youpy import math
+
 
 @dataclass
 class SharedVariableNew:
@@ -51,6 +53,11 @@ class SpriteBatchOp:
 class SpriteMove:
     name: str
     step: Union[int, float]
+
+@dataclass
+class SpriteMoveBy:
+    name: str
+    step_by: math.Point
 
 @dataclass
 class Wait:

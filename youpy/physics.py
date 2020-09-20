@@ -65,7 +65,7 @@ class PhysicalEngine:
         # Must be the last statement
         self._time += self._delta_time
 
-    def move_sprite_by(self, sprite, step, duration=SPRITE_MOVE_DURATION):
+    def move_sprite(self, sprite, step, duration=SPRITE_MOVE_DURATION):
         if step == 0:
             system = SpriteMoveSystem(sprite, Point.null(), sprite.position, 0)
         else:
@@ -79,6 +79,14 @@ class PhysicalEngine:
         self._running_systems.append(system)
         return system
 
-    def move_sprite_to(self, sprite, destination,
-                       duration=SPRITE_MOVE_DURATION):
-        pass
+    def move_sprite_by(self, sprite, velocity, duration=SPRITE_MOVE_DURATION):
+        if velocity.is_null:
+            system = SpriteMoveSystem(sprite, velocity, sprite.position, 0)
+        else:
+            destination = sprite.position + velocity
+            step_count = math.floor(SPRITE_MOVE_DURATION / self.delta_time)
+            assert step_count > 0, "SPRITE_MOVE_DURATION must be higher than simulation delta-time"
+            velocity /= step_count
+            system = SpriteMoveSystem(sprite, velocity / step_count, destination, step_count)
+        self._running_systems.append(system)
+        return system
