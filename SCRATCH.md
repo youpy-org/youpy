@@ -20,7 +20,7 @@ Motion features may be found in `youpy.code.<language>.motion`
 | glide N secs to random position | not implemented yet | no |
 | glide N secs to mouse-pointer | not implemented yet | no |
 | glide N secs to sprite position | not implemented yet | no |
-| glide N secs to (x, y) | not implemented yet | no |
+| glide N secs to (x, y) | `glide` Youpy's function | no |
 | point in direction | `point_in_direction` Youpy's function  | no |
 | point towards mouse-pointer | not implemented yet | no |
 | point towards sprite | not implemented yet | no |

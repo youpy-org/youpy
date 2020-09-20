@@ -42,6 +42,7 @@ class PhysicalEngine:
         - delta_time: duration in seconds of one physic simulation step.
         """
         self._delta_time = delta_time
+        assert SPRITE_MOVE_DURATION > self._delta_time, "SPRITE_MOVE_DURATION must be higher than simulation delta-time"
         self._time = 0 # Total simulated time elapsed since the simulation boot
         self._running_systems = []
 
@@ -104,6 +105,7 @@ class PhysicalEngine:
         return system
 
     def _get_step_count(self, duration):
-        step_count = math.floor(duration / self.delta_time)
-        assert step_count > 0, "duration must be higher than simulation delta-time"
-        return step_count
+        if duration < self.delta_time:
+            return 1
+        else:
+            return math.floor(duration / self.delta_time)

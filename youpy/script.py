@@ -369,3 +369,23 @@ class Sprite:
 
     def touching(self, object):
         return object in self.touched_objects()
+
+    def glide(self, duration, to=None):
+        if not isinstance(duration, (int, float)):
+            raise TypeError("duration must be int or float, not {}"
+                            .format(type(duration).__name__))
+        if duration <= 0:
+            raise ValueError("duration must be positive")
+        if isinstance(to, tuple):
+            x, y = to
+            if not isinstance(x, (int, float)):
+                raise TypeError(f"first destination coordinate must be int or float, not {type(x).__name__}")
+            if not isinstance(y, (int, float)):
+                raise TypeError(f"second destination coordinate must be int or float, not {type(y).__name__}")
+            position = self._scene.coordsys.point_from(Point(x, y)).tuple
+        else:
+            raise TypeError(f"unexpected type {type(to).__name__} for 'to' argument")
+        send_request(message.SpriteGlideTo(
+            name=self.name,
+            position=position,
+            duration=duration))

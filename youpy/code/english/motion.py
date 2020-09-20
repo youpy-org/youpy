@@ -11,6 +11,7 @@ __all__ = (
     "change_x_by",
     "change_y_by",
     "direction",
+    "glide",
     "go_to",
     "move",
     "move_by",
