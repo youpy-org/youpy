@@ -167,7 +167,7 @@ Python operators. Other functions may be found in
 | `-` | `-` opeartor | no |
 | `*` | `*` opeartor | no |
 | `/` | `/` opeartor | no |
-| pick random | not implemented yet | no |
+| pick random | `random.randint` | no |
 | `>` | `>`  operator | no |
 | `<` | `<`  operator | no |
 | `=` | `==` operator  | no |
