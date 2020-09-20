@@ -411,6 +411,8 @@ class Sprite:
             if not isinstance(y, (int, float)):
                 raise TypeError(f"second destination coordinate must be int or float, not {type(y).__name__}")
             position = self._scene.coordsys.point_from(Point(x, y)).tuple
+        elif isinstance(to, str):
+            position = to
         else:
             raise TypeError(f"unexpected type {type(to).__name__} for 'to' argument")
         send_request(message.SpriteGlideTo(
