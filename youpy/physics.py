@@ -66,7 +66,7 @@ class PhysicalEngine:
         # Must be the last statement
         self._time += self._delta_time
 
-    def move_sprite(self, sprite, step, duration=SPRITE_MOVE_DURATION):
+    def move_sprite(self, sprite, step, duration=None):
         if step == 0:
             system = SpriteMoveSystem(sprite, Point.null(), sprite.position, 0)
         else:
@@ -79,7 +79,7 @@ class PhysicalEngine:
         self._running_systems.append(system)
         return system
 
-    def move_sprite_by(self, sprite, velocity, duration=SPRITE_MOVE_DURATION):
+    def move_sprite_by(self, sprite, velocity, duration=None):
         if velocity.is_null:
             system = SpriteMoveSystem(sprite, velocity, sprite.position, 0)
         else:
@@ -91,7 +91,7 @@ class PhysicalEngine:
         return system
 
     def move_sprite_to(self, sprite, position,
-                       duration=SPRITE_MOVE_DURATION):
+                       duration=None):
         x, y = position
         if x is None:
             x = sprite.position.x
@@ -105,6 +105,8 @@ class PhysicalEngine:
         return system
 
     def _get_step_count(self, duration):
+        if duration is None:
+            duration = SPRITE_MOVE_DURATION
         if duration < self.delta_time:
             return 1
         else:

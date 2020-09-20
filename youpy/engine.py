@@ -341,21 +341,11 @@ class RequestProcessors:
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             sprite = self.simu.sprites[self.request.name]
-            self.system = self.simu._physical_engine.move_sprite_to(sprite, self.request.position)
-
-        def _run(self):
-            self._set_reply_if(self.system.is_finished)
-
-    class SpriteGlideToProcessor(RequestProcessor):
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            sprite = self.simu.sprites[self.request.name]
             if isinstance(self.request.position, str):
-                position = self._get_sprite_position(self.request.position)
+                pos = self._get_sprite_position(self.request.position)
             else:
-                position = self.request.position
-            self.system = self.simu._physical_engine.move_sprite_to(sprite, position, duration=self.request.duration)
+                pos = self.request.position
+            self.system = self.simu._physical_engine.move_sprite_to(sprite, pos, self.request.duration)
 
         def _run(self):
             self._set_reply_if(self.system.is_finished)
@@ -364,7 +354,7 @@ class RequestProcessors:
             try:
                 sprite = self.simu.sprites[name]
             except KeyError:
-                raise ValueError(f"cannot glide toward unknown sprite '{name}'")
+                raise ValueError(f"unknown unknown sprite '{name}'")
             else:
                 return sprite.position.tuple
 

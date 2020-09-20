@@ -13,6 +13,7 @@ __all__ = (
     "direction",
     "glide",
     "go_to",
+    "go_to_sprite",
     "move",
     "move_by",
     "point_in_direction",

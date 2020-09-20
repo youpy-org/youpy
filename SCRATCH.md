@@ -15,7 +15,7 @@ Motion features may be found in `youpy.code.<language>.motion`
 | turn counter_clockwise | `turn_counter_clockwise` Youpy's function | no |
 | go to random position | `go_to` with `point=Stage.random_position` | no |
 | go to mouse-pointer | not implemented yet | no |
-| go to sprite position | not implemented yet | no |
+| go to sprite position | `go_to_sprite` Youpy's function | no |
 | go to (x, y) | `go_to(x, y)` Youpy's function | no |
 | glide N secs to random position | `glide` with `to=Stage.random_position` | no |
 | glide N secs to mouse-pointer | not implemented yet | no |

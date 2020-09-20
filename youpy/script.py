@@ -256,6 +256,14 @@ class Sprite:
             name=self.name,
             position=self._scene.coordsys.point_from(Point(x, y)).tuple))
 
+    def go_to_sprite(self, name):
+        if not isinstance(name, str):
+            raise TypeError("name must be str, not {}"
+                            .format(type(name).__name__))
+        send_request(message.SpriteMoveTo(
+            name=self.name,
+            position=name))
+
     def set_x_to(self, x):
         if not isinstance(x, (int, float)):
             raise TypeError("x must be int or float, not {}"
@@ -415,7 +423,7 @@ class Sprite:
             position = to
         else:
             raise TypeError(f"unexpected type {type(to).__name__} for 'to' argument")
-        send_request(message.SpriteGlideTo(
+        send_request(message.SpriteMoveTo(
             name=self.name,
             position=position,
             duration=duration))

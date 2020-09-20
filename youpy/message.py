@@ -62,13 +62,8 @@ class SpriteMoveBy:
 @dataclass
 class SpriteMoveTo:
     name: str
-    position: Tuple[Union[int, float], Union[int, float]]
-
-@dataclass
-class SpriteGlideTo:
-    name: str
-    position: Union[math.Point, str]
-    duration: Union[int, float]
+    position: Union[Tuple[Union[int, float], Union[int, float]], str]
+    duration: Any = None
 
 @dataclass
 class Wait:
