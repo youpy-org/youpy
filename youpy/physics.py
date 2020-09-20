@@ -69,8 +69,7 @@ class PhysicalEngine:
         if step == 0:
             system = SpriteMoveSystem(sprite, Point.null(), sprite.position, 0)
         else:
-            step_count = math.floor(SPRITE_MOVE_DURATION / self.delta_time)
-            assert step_count > 0, "SPRITE_MOVE_DURATION must be higher than simulation delta-time"
+            step_count = self._get_step_count(duration)
             velocity = sprite.get_velocity_from_direction()
             destination = sprite.position + step * velocity
             inc_step = step / step_count
@@ -84,8 +83,7 @@ class PhysicalEngine:
             system = SpriteMoveSystem(sprite, velocity, sprite.position, 0)
         else:
             destination = sprite.position + velocity
-            step_count = math.floor(SPRITE_MOVE_DURATION / self.delta_time)
-            assert step_count > 0, "SPRITE_MOVE_DURATION must be higher than simulation delta-time"
+            step_count = self._get_step_count(duration)
             velocity /= step_count
             system = SpriteMoveSystem(sprite, velocity / step_count, destination, step_count)
         self._running_systems.append(system)
@@ -99,9 +97,13 @@ class PhysicalEngine:
         if y is None:
             y = sprite.position.y
         destination = math.Point(x, y)
-        step_count = math.floor(SPRITE_MOVE_DURATION / self.delta_time)
-        assert step_count > 0, "SPRITE_MOVE_DURATION must be higher than simulation delta-time"
+        step_count = self._get_step_count(duration)
         velocity = (destination - sprite.position) / step_count
         system = SpriteMoveSystem(sprite, velocity, destination, step_count)
         self._running_systems.append(system)
         return system
+
+    def _get_step_count(self, duration):
+        step_count = math.floor(duration / self.delta_time)
+        assert step_count > 0, "duration must be higher than simulation delta-time"
+        return step_count
