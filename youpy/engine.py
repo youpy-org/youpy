@@ -331,26 +331,15 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.system = WaitSystem(self.request.delay)
-            self.simu._physical_engine.schedule(self.system)
+            self.start_time = self.simu.time
 
         def _run(self):
-            self._set_reply_if(self.system.is_finished)
+            waiting_time = self.simu.time - self.start_time
+            self._set_reply_if(waiting_time > self.request.delay)
 
     class StopProgramProcessor(OneShotProcessor):
         def _run_once(self):
             self.simu.stop(reason=self.request.reason)
-
-class WaitSystem(physics.PhysicalSystem):
-
-    def __init__(self, delay):
-        super().__init__(*args, **kwargs)
-        self.delay = int(delay * 1000) #ms
-        self.start_time = self.engine.time
-
-    def _on_step(self):
-        waiting_time = self.engine.time - self.start_time
-        self._set_result_if(waiting_time > self.delay)
 
 class SpriteMoveSystem(physics.PhysicalSystem):
 
