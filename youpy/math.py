@@ -199,6 +199,10 @@ class Point:
         self._y = 0
 
     @property
+    def is_null(self):
+        return self._x == 0 and self._y == 0
+
+    @property
     def tuple(self):
         return (self._x, self._y)
 
