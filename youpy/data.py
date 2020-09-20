@@ -82,9 +82,6 @@ class EngineSprite:
     it is modified).
     """
 
-    # The time a sprite takes to move from one point from another.
-    MOVE_DURATION = 0.02 # seconds
-
     def __init__(self, path, coordsys_name="center", scene=None):
         self._path = Path(path)
         assert self._path.is_dir()

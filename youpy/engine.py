@@ -321,8 +321,7 @@ class RequestProcessors:
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             sprite = self.simu.sprites[self.request.name]
-            self.system = SpriteMoveSystem(sprite, self.request.step)
-            self.simu._physical_engine.schedule(self.system)
+            self.system = self.simu._physical_engine.move_sprite_by(sprite, self.request.step)
 
         def _run(self):
             self._set_reply_if(self.system.is_finished)
@@ -340,38 +339,6 @@ class RequestProcessors:
     class StopProgramProcessor(OneShotProcessor):
         def _run_once(self):
             self.simu.stop(reason=self.request.reason)
-
-class SpriteMoveSystem(physics.PhysicalSystem):
-
-    def __init__(self, sprite, move_step):
-        super().__init__()
-        self.sprite = sprite
-        self.move_step = move_step
-
-    def _on_start(self):
-        if self.move_step == 0:
-            self._set_result(None)
-            return
-        self.step_count = math.floor(self.sprite.MOVE_DURATION / self.engine.delta_time)
-        assert self.step_count > 0, "MOVE_DURATION must be higher than simulation delta-time"
-        self.velocity = self.sprite.get_velocity_from_direction()
-        assert math.isclose(self.velocity.norm(), 1.0)
-        self.final = self.sprite.position + self.move_step * self.velocity
-        inc_step = self.move_step / self.step_count
-        self.velocity *= inc_step
-
-    def _on_step(self):
-        self.sprite.move_by_velocity(self.velocity)
-        self.step_count -= 1
-        if self.step_count == 0:
-            self._finish()
-
-    def _finish(self):
-        # Move the sprite to the final position in all cases so that
-        # if MOVE_DURATION is not a multiple of delta_time, we still end-up
-        # at the right position.
-        self.sprite.go_to_position(self.final)
-        self._set_result_if(self.step_count == 0)
 
 class EventManager:
 

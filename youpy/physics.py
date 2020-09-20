@@ -3,54 +3,36 @@
 """
 
 
-from abc import ABC
-from abc import abstractmethod
-
+from youpy import math
 from youpy import logging
 LOGGER = logging.getLogger(__name__)
 
 
-class PhysicalSystem(ABC):
+class SpriteMoveSystem:
 
-    def __init__(self):
-        self.__result = None
-        self.__finished = False
+    __slots__ = ("_sprite", "_velocity", "_destination", "_step_count")
 
-    def step(self):
-        """Run one physical step of the system."""
-        try:
-            self._on_step()
-        except Exception as e:
-            self._set_result(e)
+    def __init__(self, sprite, velocity, destination, step_count):
+        self._sprite = sprite
+        self._velocity = velocity
+        self._destination = destination
+        self._step_count = step_count
 
-    @abstractmethod
-    def _on_step(self):
-        pass
-
-    def start(self):
-        try:
-            self._on_start()
-        except Exception as e:
-            self._set_result(e)
-
-    def _on_start(self):
-        pass
+    def _step(self):
+        self._sprite.move_by_velocity(self._velocity)
+        self._step_count -= 1
+        if self._step_count == 0:
+            # Move the sprite to the final position in all cases so that
+            # if MOVE_DURATION is not a multiple of delta_time, we still end-up
+            # at the right position.
+            self._sprite.go_to_position(self._destination)
 
     @property
     def is_finished(self):
-        return self.__finished
+        return self._step_count <= 0
 
-    @property
-    def result(self):
-        return self.__result
-
-    def _set_result(self, result):
-        self.__result = result
-        self.__finished = True
-
-    def _set_result_if(self, condition, result=None):
-        if condition:
-            self._set_result(result)
+# The time a sprite takes to move from one point from another.
+SPRITE_MOVE_DURATION = 0.02 # seconds
 
 class PhysicalEngine:
 
@@ -61,7 +43,6 @@ class PhysicalEngine:
         """
         self._delta_time = delta_time
         self._time = 0 # Total simulated time elapsed since the simulation boot
-        self._scheduled_systems = []
         self._running_systems = []
 
     @property
@@ -74,24 +55,30 @@ class PhysicalEngine:
 
     def step(self):
         """Simulate one step of physical time."""
-        ### Start new systems
-        for new_system in self._scheduled_systems:
-            self._start(new_system)
-            self._running_systems.append(new_system)
-        self._scheduled_systems.clear()
         ### Run systems
         still_running_systems = []
         for running_system in self._running_systems:
             if not running_system.is_finished:
-                running_system.step()
+                running_system._step()
                 still_running_systems.append(running_system)
         self._running_systems = still_running_systems
         # Must be the last statement
         self._time += self._delta_time
 
-    def schedule(self, system):
-        self._scheduled_systems.append(system)
+    def move_sprite_by(self, sprite, step, duration=SPRITE_MOVE_DURATION):
+        if step == 0:
+            system = SpriteMoveSystem(sprite, Point.null(), sprite.position, 0)
+        else:
+            step_count = math.floor(SPRITE_MOVE_DURATION / self.delta_time)
+            assert step_count > 0, "SPRITE_MOVE_DURATION must be higher than simulation delta-time"
+            velocity = sprite.get_velocity_from_direction()
+            destination = sprite.position + step * velocity
+            inc_step = step / step_count
+            velocity *= inc_step
+            system = SpriteMoveSystem(sprite, velocity, destination, step_count)
+        self._running_systems.append(system)
+        return system
 
-    def _start(self, system):
-        system.engine = self
-        system._on_start()
+    def move_sprite_to(self, sprite, destination,
+                       duration=SPRITE_MOVE_DURATION):
+        pass
