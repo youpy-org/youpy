@@ -96,13 +96,20 @@ def load_event_handlers_to(event_handlers, mod, sprite=None):
     Arguments:
       sprite: might be None for the stage.
     """
+    module_name = mod.__name__.split(".")[-1]
     for attr in dir(mod):
         if attr.startswith(EVENT_FUNC_PREFIX):
             obj = getattr(mod, attr)
             if isinstance(obj, Callable) and hasattr(obj, "__name__"):
-                event = try_make_event(obj.__name__)
+                event = try_make_event(obj.__name__, module_name=module_name)
                 if event is None:
                     raise RuntimeError(f"invalid event name: '{attr}'")
+                if sprite is None:
+                    if not event.allowed_in_stage:
+                        raise RuntimeError(f"event '{attr}' cannot be used in stage module")
+                else:
+                    if not event.allowed_in_sprite:
+                        raise RuntimeError(f"event '{attr}' cannot be used in a sprite module")
                 event_handlers.register(
                     event,
                     EventHandler(obj, sprite=sprite))

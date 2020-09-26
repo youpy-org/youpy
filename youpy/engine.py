@@ -686,9 +686,23 @@ class Simulation(AbstractSimulation):
             elif e.type == pygame.MOUSEMOTION:
                 self.mouse.position = e.pos
             elif e.type == pygame.MOUSEBUTTONDOWN:
+                # Scratch actually trigger the event when the button is pressed
+                # and not if released after a short period as it is often the
+                # case when double-click is supported too.
+                sprite = self._get_clicked_sprite(e.pos)
+                if sprite:
+                    self.event_manager.schedule(
+                        event.SpriteClicked(module_name=sprite.name))
+                else:
+                    self.event_manager.schedule(event.StageClicked())
                 self.mouse.set_button(e.button, True)
             elif e.type == pygame.MOUSEBUTTONUP:
                 self.mouse.set_button(e.button, False)
+
+    def _get_clicked_sprite(self, position):
+        for sprite in reversed(self.sprites):
+            if sprite.rect.collidepoint(position):
+                return sprite
 
 class Engine:
     """Run a simulation.
@@ -744,7 +758,7 @@ class Engine:
                     sleep(1e-6)
                     tick = time()
                 frame_time = tick - tick0
-                LOGGER.debug(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=:.6f}s ; {accumulated_time=:.6f}s ; simu={self.simu.time:.6f}s ; running={self._running_time:.6f}s ; simu_duration={self.simu.real_simu_duration:.6f}s ; render_duration={self.simu.real_render_duration:.6f}s ; real={self.real_time:.6f}")
+                # LOGGER.debug(f"FPS={self.fps:.2f} ; {simu_count=} ; {frame_time=:.6f}s ; {accumulated_time=:.6f}s ; simu={self.simu.time:.6f}s ; running={self._running_time:.6f}s ; simu_duration={self.simu.real_simu_duration:.6f}s ; render_duration={self.simu.real_render_duration:.6f}s ; real={self.real_time:.6f}")
                 self._running_time += frame_time
             self.simu.shutdown()
         finally:

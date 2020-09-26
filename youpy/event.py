@@ -58,11 +58,18 @@ class MetaEvent(type):
 class Event(object, metaclass=MetaEvent):
 
     __slots__ = ("_hash_value", "_attrs")
+    extra_attrs = ()
+    allowed_in_stage = True
+    allowed_in_sprite = True
 
     def __init__(self, **attrs):
         self._attrs = attrs
-        for attr_name in self._decl_attrs:
+        expected_attrs = tuple(self._decl_attrs) + self.extra_attrs
+        for attr_name in expected_attrs:
             if attr_name not in self._attrs:
+                raise TypeError(f"missing keyword argument '{attr_name}'")
+        for attr_name in attrs.keys():
+            if attr_name not in expected_attrs:
                 raise TypeError(f"unexpected keyword argument '{attr_name}'")
         self._hash_value = (
             type(self).__name__,
@@ -96,6 +103,15 @@ class KeyPressed(Event):
 class ProgramStart(Event):
     pattern = r"program_start"
 
+class StageClicked(Event):
+    pattern = r"stage_clicked"
+    allowed_in_sprite = False
+
+class SpriteClicked(Event):
+    pattern = r"sprite_clicked"
+    extra_attrs = ("module_name",)
+    allowed_in_stage = False
+
 class EventHandler:
 
     def __init__(self, callback, sprite=None):
@@ -118,12 +134,14 @@ class EventHandler:
     def in_stage(self):
         return self.sprite is None
 
-def try_make_event(handler_name):
+def try_make_event(handler_name, **extra_args):
     for event_type in Event.types:
         mo = event_type.regex.fullmatch(handler_name)
         if mo:
+            kwargs = extra_args if event_type.extra_attrs else {}
+            kwargs.update(mo.groupdict())
             try:
-                return event_type(**mo.groupdict())
+                return event_type(**kwargs)
             except Exception as e:
                 raise ValueError(
                     f"invalid event handler: '{handler_name}' - {e}")
