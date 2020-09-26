@@ -35,7 +35,7 @@ class Loader:
         if not simu.project.stage_dir.is_dir():
             LOGGER.warning("no stage script found")
             return
-        for i, path in enumerate(iter_images_set(simu.project.stage_dir)):
+        for i, path in enumerate(list_images_set(simu.project.stage_dir)):
             _add_item_to_dict(simu.scene.backdrops, Image(path))
             self.progress.in_section("backdrop", i, path)
         load_event_handlers_to(
@@ -44,7 +44,7 @@ class Loader:
         self.progress.end_section()
 
     def _load_sprites(self, simu):
-        for i, path in enumerate(simu.project.iter_sprite_dirs()):
+        for i, path in enumerate(simu.project.list_sprite_dirs()):
             sprite = EngineSprite(path, scene=simu.scene)
             load_sprite_images(sprite)
             load_event_handlers_to(
@@ -70,8 +70,13 @@ def iter_images_set(path):
         if p.suffix in (".png", ".jpg"):
             yield p
 
+def list_images_set(path):
+    l = list(iter_images_set(path))
+    l.sort()
+    return l
+
 def load_images_set(path):
-    l = [Image(p) for p in iter_images_set(path)]
+    l = [Image(p) for p in list_images_set(path)]
     l.sort(key=operator.attrgetter("index"))
     return l
 

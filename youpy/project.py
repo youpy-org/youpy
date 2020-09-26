@@ -55,6 +55,11 @@ class Project:
                and p.is_dir():
                 yield p
 
+    def list_sprite_dirs(self):
+        l = list(self.iter_sprite_dirs())
+        l.sort()
+        return l
+
     @property
     def config_file(self):
         return self._path / INTERNAL_DIR / "config.json"
