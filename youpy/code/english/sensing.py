@@ -9,12 +9,12 @@ from youpy.api import get_scene
 from youpy.api import send_request
 
 
-class Scene:
+class StageType:
 
     def __getattr__(self, name):
         return getattr(get_scene(), name)
 
-Stage = Scene()
+Stage = StageType()
 
 sprite_functions = (
     "touched_objects",
