@@ -14,6 +14,7 @@ from youpy.logging import getLogger
 from inspect import signature
 from youpy.data import EngineSprite
 from youpy.data import EngineScene
+from youpy.data import EngineMouse
 
 LOGGER = getLogger(__name__)
 
@@ -127,6 +128,21 @@ class Script(concurrency.Task):
             raise reply
         return reply
 
+_MOUSE = None
+_SCENE = None
+
+def set_scene(engine_scene):
+    # Must be called before the game start and never changed during to
+    # prevent data collision when accessed concurrently.
+    global _SCENE
+    _SCENE = Scene(engine_scene)
+
+def set_mouse(engine_mouse, coordsys):
+    # Must be called before the game start and never changed during to
+    # prevent data collision when accessed concurrently.
+    global _MOUSE
+    _MOUSE = Mouse(engine_mouse, coordsys)
+
 # ====================
 # Front-end Sprite API
 # ====================
@@ -181,14 +197,6 @@ class Scene:
     def random_position(self):
         r = self.rect
         return (randint(r.left, r.right), randint(r.top, r.bottom))
-
-_SCENE = None
-
-def set_scene(engine_scene):
-    # Must be called before the game start and never changed during to
-    # prevent data collision when accessed concurrently.
-    global _SCENE
-    _SCENE = Scene(engine_scene)
 
 def get_scene():
     return _SCENE
@@ -427,3 +435,38 @@ class Sprite:
             name=self.name,
             position=position,
             duration=duration))
+
+class Mouse:
+    """Mouse state
+    """
+
+    # WARNING: Make sure everything is read-only since they are accessed
+    #          concurrently.
+
+    __slots__ = ("_engine_mouse", "_coordsys")
+
+    def __init__(self, engine_mouse, coordsys):
+        if not isinstance(engine_mouse, EngineMouse):
+            raise TypeError("EngineMouse must be scene, not {}"
+                            .format(type(EngineMouse).__name__))
+        self._engine_mouse = engine_mouse
+        self._coordsys = coordsys
+
+    @property
+    def position(self):
+        return self._coordsys.point_to(Point(*self._engine_mouse.position)).tuple
+
+    @property
+    def x(self):
+        return self.position()[0]
+
+    @property
+    def y(self):
+        return self.position()[1]
+
+    @property
+    def down(self):
+        return any(self._engine_mouse.buttons)
+
+def get_mouse():
+    return _MOUSE

@@ -14,11 +14,11 @@ Motion features may be found in `youpy.code.<language>.motion`
 | turn clockwise | `turn_clockwise` Youpy's function | no |
 | turn counter_clockwise | `turn_counter_clockwise` Youpy's function | no |
 | go to random position | `go_to` with `point=Stage.random_position` | no |
-| go to mouse-pointer | not implemented yet | no |
+| go to mouse-pointer | `go_to` with `point=Mouse.position` | no |
 | go to sprite position | `go_to_sprite` Youpy's function | no |
 | go to (x, y) | `go_to(x, y)` Youpy's function | no |
 | glide N secs to random position | `glide` with `to=Stage.random_position` | no |
-| glide N secs to mouse-pointer | not implemented yet | no |
+| glide N secs to mouse-pointer | `glide` with `to=Mouse.position` | no |
 | glide N secs to sprite position | `glide` with `to="sprite name"` | no |
 | glide N secs to (x, y) | `glide` Youpy's function | no |
 | point in direction | `point_in_direction` Youpy's function  | no |
@@ -138,9 +138,9 @@ Sensing features may be found in `youpy.code.<language>.sensing`
 | distance to sprite | not implemented yet | no |
 | ask and wait | not implemented yet | no |
 | key pressed? | not implemented yet | no |
-| mouse down?  | not implemented yet | no |
-| mouse x      | not implemented yet | no |
-| mouse y      | not implemented yet | no |
+| mouse down?  | `if Mouse.down` | no |
+| mouse x      | `Mouse.x` | no |
+| mouse y      | `Mouse.y` | no |
 | set drag mode | not implemented yet | no |
 | loudness value | not implemented yet | no |
 | show loudness value | not implemented yet | no |

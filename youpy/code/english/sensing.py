@@ -6,6 +6,7 @@
 from ._internal import wrap_sprite_method
 
 from youpy.api import get_scene
+from youpy.api import get_mouse
 from youpy.api import send_request
 
 
@@ -15,6 +16,13 @@ class StageType:
         return getattr(get_scene(), name)
 
 Stage = StageType()
+
+class MouseType:
+
+    def __getattr__(self, name):
+        return getattr(get_mouse(), name)
+
+Mouse = MouseType()
 
 sprite_functions = (
     "touched_objects",
@@ -27,6 +35,7 @@ for name in sprite_functions:
 del name, modulename
 
 __all__ = sprite_functions + (
+    "Mouse",
     "Stage",
 )
 
