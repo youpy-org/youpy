@@ -13,6 +13,9 @@ from youpy.tools import as_ratio
 from youpy.tools import scale_size_by
 from youpy import math
 from youpy.math import Point
+from youpy.concurrency import ReadLock
+from youpy.concurrency import WriteLock
+from youpy.concurrency import ReadWriteLock
 
 
 class Color:
@@ -235,3 +238,44 @@ class EngineScene:
     @backdrop.setter
     def backdrop(self, backdrop):
         self._backdrop = self.backdrops[backdrop]
+
+class EngineMouse:
+
+    def __init__(self):
+        self._read_write_lock = ReadWriteLock()
+        self._read_lock = ReadLock(self._read_write_lock)
+        self._write_lock = WriteLock(self._read_write_lock)
+        self._position = [None] * 2
+        self._buttons = [None] * 3
+
+    @property
+    def position(self):
+        with self._read_lock:
+            # Calling tuple actually do the copy.
+            # The value contains in the tuple are all int or bool. They
+            # are immutable so they can safely be accessed concurrently.
+            return tuple(self._position)
+
+    @position.setter
+    def position(self, position):
+        with self._write_lock:
+            # Enforce copy of each items.
+            self._position[0], self._position[1] = position
+
+    @property
+    def buttons(self):
+        with self._read_lock:
+            # Calling tuple actually do the copy.
+            # The value contains in the tuple are all int or bool. They
+            # are immutable so they can safely be accessed concurrently.
+            return tuple(self._buttons)
+
+    @buttons.setter
+    def buttons(self, buttons):
+        with self._write_lock:
+            # Enforce copy of each items.
+            self._buttons[0], self._buttons[1], self._buttons[2] = buttons
+
+    def set_button(self, index, pressed):
+        with self._write_lock:
+            self._buttons[index - 1] = pressed

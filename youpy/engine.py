@@ -19,11 +19,13 @@ from youpy.tools import FrequencyMeter
 from youpy.tools import print_simple_banner
 from youpy.data import Color
 from youpy.data import EngineScene
+from youpy.data import EngineMouse
 from youpy import event
 from youpy.loader import Loader
 from youpy.configurer import Configurer
 from youpy.script import ScriptSet
 from youpy.script import set_scene
+from youpy.script import set_mouse
 from youpy import message
 from youpy.concurrency import EmptyQueue
 from youpy.keys import iter_keys
@@ -530,6 +532,7 @@ class Simulation(AbstractSimulation):
         super().__init__()
         self.project = project
         self.scene = EngineScene()
+        self.mouse = EngineMouse()
         self.sprites = {}
         self.event_manager = EventManager(self)
         self.scripts = ScriptSet()
@@ -556,6 +559,9 @@ class Simulation(AbstractSimulation):
         self.event_manager.check()
         self._configure()
         set_scene(self.scene)
+        self.mouse.position = pygame.mouse.get_pos()
+        self.mouse.buttons = pygame.mouse.get_pressed()
+        set_mouse(self.mouse, self.scene.coordsys)
         self._server = Server(self)
         self.event_manager.schedule(event.ProgramStart())
 
@@ -605,6 +611,7 @@ class Simulation(AbstractSimulation):
         self._renderer.render()
 
     def _process_user_input(self):
+        # print("start input processing")
         for e in pygame.event.get():
             # print(type(e), e)
             if e.type == pygame.QUIT:
@@ -617,6 +624,12 @@ class Simulation(AbstractSimulation):
                         if e.key in k.code:
                             self.event_manager.schedule(
                                 event.KeyPressed(key=k.name))
+            elif e.type == pygame.MOUSEMOTION:
+                self.mouse.position = e.pos
+            elif e.type == pygame.MOUSEBUTTONDOWN:
+                self.mouse.set_button(e.button, True)
+            elif e.type == pygame.MOUSEBUTTONUP:
+                self.mouse.set_button(e.button, False)
 
 class Engine:
     """Run a simulation.
