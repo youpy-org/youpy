@@ -6,8 +6,13 @@
 import json
 
 from .error import YoupyException
-from . import coordsys
+from .math import CoordSys
+from .math import AngleSys
 from .data import scale_sprite_by
+from .math import Point
+
+from youpy import logging
+LOGGER = logging.getLogger(__name__)
 
 
 class ConfigError(YoupyException):
@@ -15,8 +20,8 @@ class ConfigError(YoupyException):
 
 class Configurer:
 
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self, simu):
+        self.simu = simu
 
     def load(self, filepath):
         try:
@@ -26,24 +31,25 @@ class Configurer:
             return {}
 
     def configure(self):
-        cfg = self.load(self.engine.project.config_file)
-        self._configure_scene(self.engine.scene, cfg.get("scene", {}))
-        self._configure_sprites(self.engine.sprites, cfg.get("sprites"),
-                                self.engine.scene.coordsys)
+        cfg = self.load(self.simu.project.config_file)
+        self._configure_scene(self.simu.scene, cfg.get("scene", {}))
+        self._configure_sprites(self.simu.sprites, cfg.get("sprites"),
+                                self.simu.scene.coordsys)
 
     def _configure_coordsys(self, scene, cfg):
-        coordsys_name = cfg.get("coordinate_system", coordsys.coordsys.DEFAULT)
+        coordsys_name = cfg.get("coordinate_system", CoordSys.DEFAULT)
+        LOGGER.info(f"{coordsys_name} coordinate system")
         try:
-            coordsys_class = getattr(coordsys, coordsys_name)
-        except AttributeError:
+            coordsys_class = CoordSys.get_system(coordsys_name)
+        except KeyError:
             raise ConfigError(f"invalid coordinate system: '{coordsys_name}'")
         else:
             scene.coordsys = coordsys_class(getattr(scene, coordsys_name))
 
     def _configure_anglesys(self, scene, cfg):
-        anglesys_name = cfg.get("angle_system", coordsys.anglesys.DEFAULT)
+        anglesys_name = cfg.get("angle_system", AngleSys.DEFAULT)
         try:
-            anglesys_class = getattr(coordsys, anglesys_name)
+            anglesys_class = AngleSys.get_system(anglesys_name)
         except AttributeError:
             raise ConfigError(f"invalid angle system: '{anglesys_name}'")
         else:
@@ -78,7 +84,7 @@ class Configurer:
         scale_sprite_by(sprite, ratio=ratio)
         position = cfg.get("position")
         if position is not None:
-            sprite.go_to(*coordsys.point_from(*position))
+            sprite.go_to(*coordsys.point_from(Point(*position)).tuple)
         visible = cfg.get("visible", None)
         if visible is not None:
             sprite.visible = visible

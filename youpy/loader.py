@@ -27,31 +27,31 @@ class Loader:
     def __init__(self, progress=None):
         self.progress = progress or DummyProgress()
 
-    def load(self, engine):
-        self._load_backdrops(engine)
-        self._load_sprites(engine)
+    def load(self, simu):
+        self._load_backdrops(simu)
+        self._load_sprites(simu)
 
-    def _load_backdrops(self, engine):
-        if not engine.project.stage_dir.is_dir():
+    def _load_backdrops(self, simu):
+        if not simu.project.stage_dir.is_dir():
             LOGGER.warning("no stage script found")
             return
-        for i, path in enumerate(iter_images_set(engine.project.stage_dir)):
-            _add_item_to_dict(engine.scene.backdrops, Image(path))
+        for i, path in enumerate(iter_images_set(simu.project.stage_dir)):
+            _add_item_to_dict(simu.scene.backdrops, Image(path))
             self.progress.in_section("backdrop", i, path)
         load_event_handlers_to(
-            engine.event_manager.event_handlers,
-            import_module(engine.project.stage_module_path))
+            simu.event_manager.event_handlers,
+            import_module(simu.project.stage_module_path))
         self.progress.end_section()
 
-    def _load_sprites(self, engine):
-        for i, path in enumerate(engine.project.iter_sprite_dirs()):
-            sprite = EngineSprite(path)
+    def _load_sprites(self, simu):
+        for i, path in enumerate(simu.project.iter_sprite_dirs()):
+            sprite = EngineSprite(path, scene=simu.scene)
             load_sprite_images(sprite)
             load_event_handlers_to(
-                engine.event_manager.event_handlers,
-                import_module(engine.project.sprite_module_path(sprite.name)),
+                simu.event_manager.event_handlers,
+                import_module(simu.project.sprite_module_path(sprite.name)),
                 sprite=sprite)
-            _add_item_to_dict(engine.sprites, sprite)
+            _add_item_to_dict(simu.sprites, sprite)
             self.progress.in_section("sprite", i, path)
         self.progress.end_section()
 

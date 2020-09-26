@@ -17,7 +17,7 @@ python -m pip install -r requirements.txt
 Use this command to run the entire test suite:
 
 ```bash
-python -m unittest discover -s youpy.test
+python -m unittest discover -s youpy.test.unit
 ```
 
 # Release

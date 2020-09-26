@@ -5,6 +5,7 @@
 
 import sys
 import traceback
+from random import randint
 
 from youpy import concurrency
 from youpy import message
@@ -12,6 +13,7 @@ from youpy.logging import get_user_logger_name
 from youpy.logging import getLogger
 from inspect import signature
 from youpy.data import EngineSprite
+from youpy.data import EngineScene
 
 LOGGER = getLogger(__name__)
 
@@ -32,8 +34,7 @@ class ScriptSet:
             # event handler run slower than the pace of repeated key stroke.
             # In such a case, we just drop some event.
             return
-        script = Script(event_handler, self.scene,
-                        done_queue=self._done_scripts)
+        script = Script(event_handler, done_queue=self._done_scripts)
         self._scripts[script.name] = script
         script.start()
 
@@ -85,10 +86,9 @@ class Script(concurrency.Task):
 
     context = concurrency.get_context()
 
-    def __init__(self, event_handler, scene, done_queue=None):
+    def __init__(self, event_handler, done_queue=None):
         super().__init__(name=get_script_name(event_handler), daemon=True)
         self.event_handler = event_handler
-        self.scene = scene
         self.pipe = concurrency.Pipe()
         self._done_queue = done_queue
         self.exc_info = None
@@ -139,9 +139,59 @@ def send_request(request):
     """Send a request to the engine server."""
     return get_context_script().send(request)
 
+
+class Scene:
+    """Scene holds properties of the stage.
+    """
+
+    # WARNING: Make sure everything is read-only since they are accessed
+    #          concurrently.
+
+    __slots__ = ("_engine_scene",)
+
+    def __init__(self, engine_scene):
+        if not isinstance(engine_scene, EngineScene):
+            raise TypeError("EngineScene must be scene, not {}"
+                            .format(type(EngineScene).__name__))
+        self._engine_scene = engine_scene
+
+    @property
+    def width(self):
+        return self._engine_scene.width
+
+    @property
+    def height(self):
+        return self._engine_scene.height
+
+    @property
+    def edge(self):
+        return self._engine_scene.EDGE
+
+    @property
+    def rect(self):
+        r = self._engine_scene.rect
+        self._engine_scene.coordsys.set_rect_position(r, Point.null())
+        return r
+
+    @property
+    def center(self):
+        return self.rect.center
+
+    @property
+    def random_position(self):
+        r = self.rect
+        return (randint(r.left, r.right), randint(r.top, r.bottom))
+
+_SCENE = None
+
+def set_scene(engine_scene):
+    # Must be called before the game start and never changed during to
+    # prevent data collision when accessed concurrently.
+    global _SCENE
+    _SCENE = Scene(engine_scene)
+
 def get_scene():
-    script = get_context_script()
-    return script.scene
+    return _SCENE
 
 def get_script_logger_name():
     script = get_context_script()
@@ -155,8 +205,19 @@ def get_context_frontend_sprite():
     return Script.context.frontend_sprite
 
 from youpy import math # needed by bounce
+from youpy.math import Point
 
+
+# Sprite front-end API
+# --------------------
+# o Client-side version of the EngineSprite.
+# o Parse and check arguments to provide a user-friendly API to users.
+# o Do coordinate/angle conversion to honor users preferences.
+# Maybe later:
+# o Cache local state to reduce engine loads.
 class Sprite:
+    """A drawn object on stage that can move and collide.
+    """
 
     def __init__(self, engine_sprite):
         if not isinstance(engine_sprite, EngineSprite):
@@ -168,86 +229,116 @@ class Sprite:
     def name(self):
         return self._engine_sprite.name
 
-    def go_to(self, x, y):
-        """Change sprite position to _x_ and _y_."""
-        if not isinstance(x, int):
-            raise TypeError("x must be int, not {}"
-                            .format(type(x).__name__))
-        if not isinstance(y, int):
-            raise TypeError("y must be int, not {}"
-                            .format(type(y).__name__))
-        send_request(message.SpriteOp(
+    @property
+    def _scene(self):
+        return self._engine_sprite.scene
+
+    def go_to(self, /, x=None, y=None, point=None):
+        """Change sprite position to _x_ and _y_ or to point=(x, y)."""
+        if point is None:
+            if not isinstance(x, (int, float)):
+                raise TypeError("x must be int or float, not {}"
+                                .format(type(x).__name__))
+            if not isinstance(y, (int, float)):
+                raise TypeError("y must be int or float, not {}"
+                                .format(type(y).__name__))
+        elif isinstance(point, tuple):
+            x, y = point
+            if not isinstance(x, (int, float)):
+                raise TypeError("point first coordinate must be int or float, not {}"
+                                .format(type(x).__name__))
+            if not isinstance(y, (int, float)):
+                raise TypeError("point second coordinate must be int or float, not {}"
+                                .format(type(y).__name__))
+        else:
+            raise TypeError(f"point must be tuple or None, not {type(point).__name__}")
+        send_request(message.SpriteMoveTo(
             name=self.name,
-            op="go_to",
-            args=get_scene()._coordsys.point_from(x, y)))
+            position=self._scene.coordsys.point_from(Point(x, y)).tuple))
+
+    def go_to_sprite(self, name):
+        if not isinstance(name, str):
+            raise TypeError("name must be str, not {}"
+                            .format(type(name).__name__))
+        send_request(message.SpriteMoveTo(
+            name=self.name,
+            position=name))
 
     def set_x_to(self, x):
-        if not isinstance(x, int):
-            raise TypeError("x must be int, not {}"
+        if not isinstance(x, (int, float)):
+            raise TypeError("x must be int or float, not {}"
                             .format(type(x).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveTo(
             name=self.name,
-            op="go_to",
-            args=(get_scene()._coordsys.abscissa_from(x), None)))
+            position=(self._scene.coordsys.abscissa_from(x), None)))
 
     def set_y_to(self, y):
-        if not isinstance(y, int):
-            raise TypeError("y must be int, not {}"
+        if not isinstance(y, (int, float)):
+            raise TypeError("y must be int or float, not {}"
                             .format(type(y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveTo(
             name=self.name,
-            op="go_to",
-            args=(None, get_scene()._coordsys.ordinate_from(y))))
+            position=(None, self._scene.coordsys.ordinate_from(y))))
 
     def move_by(self, step_x, step_y):
         """Change sprite position by _step_x_ and _step_y_."""
-        if not isinstance(step_x, int):
-            raise TypeError("step_x must be int, not {}"
+        if not isinstance(step_x, (int, float)):
+            raise TypeError("step_x must be int or float, not {}"
                             .format(type(step_x).__name__))
-        if not isinstance(step_y, int):
-            raise TypeError("step_y must be int, not {}"
+        if not isinstance(step_y, (int, float)):
+            raise TypeError("step_y must be int or float, not {}"
                             .format(type(step_y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveBy(
             name=self.name,
-            op="move_by",
-            args=(get_scene()._coordsys.dir_x * step_x,
-                  get_scene()._coordsys.dir_y * step_y)))
+            step_by=self._scene.coordsys.vector_from(Point(step_x, step_y))))
 
     def change_x_by(self, step_x):
-        if not isinstance(step_x, int):
-            raise TypeError("step_x must be int, not {}"
+        if not isinstance(step_x, (int, float)):
+            raise TypeError("step_x must be int or float, not {}"
                             .format(type(step_x).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveBy(
             name=self.name,
-            op="move_by",
-            args=(get_scene()._coordsys.dir_x * step_x, 0)))
+            step_by=self._scene.coordsys.vector_from(Point(step_x, 0))))
 
     def change_y_by(self, step_y):
-        if not isinstance(step_y, int):
-            raise TypeError("step_y must be int, not {}"
+        if not isinstance(step_y, (int, float)):
+            raise TypeError("step_y must be int or float, not {}"
                             .format(type(step_y).__name__))
-        send_request(message.SpriteOp(
+        send_request(message.SpriteMoveBy(
             name=self.name,
-            op="move_by",
-            args=(0, get_scene()._coordsys.dir_y * step_y)))
+            step_by=self._scene.coordsys.vector_from(Point(0, step_y))))
 
     def point_in_direction(self, angle):
+        self._scene.anglesys.check_angle(angle)
         send_request(message.SpriteOp(
             name=self.name,
             op="point_in_direction",
-            args=(get_scene()._anglesys.to_degree(angle),)))
+            args=(self._scene.anglesys.to_degree(angle),)))
 
     def move(self, step):
-        send_request(message.SpriteOp(
-            name=self.name,
-            op="move",
-            args=(step,)))
+        """Move this sprite forward by _step_ step.
+
+        The sprite moves by _step_ steps toward the direction it is currently
+        pointing to.
+
+        Moving a sprite always takes the same amount of time. Thus, the biggest
+        the step is (in absolute value) the faster the sprite moves.
+
+        As a consequence, calling `move(2)' is *not* equivalent to calling
+        `move(1)' twice. The sprite will stop at the same position but if it
+        takes T seconds to run `move(2)', it will takes 2*T seconds to run
+        `move(1)' twice.
+        """
+        if not isinstance(step, (int, float)):
+            raise TypeError("step must be int or float, not {}"
+                            .format(type(step).__name__))
+        send_request(message.SpriteMove(name=self.name, step=step))
 
     def _get_state(self):
         return send_request(message.SpriteOp(name=self.name, op="get_state"))
 
     def position(self):
-        return get_scene()._coordsys.point_to(*self._get_state().position())
+        return self._scene.coordsys.point_to(self._get_state().position).tuple
 
     def x_position(self):
         return self.position()[0]
@@ -256,13 +347,13 @@ class Sprite:
         return self.position()[1]
 
     def direction(self):
-        return get_scene()._anglesys.from_degree(self._get_state().direction())
+        return self._scene.anglesys.from_degree(self._get_state().direction)
 
     def bounce_if_on_edge(self):
         st = self._get_state()
-        angle_degree = st.direction()
+        angle_degree = st.direction
         r = st.rect
-        scene = get_scene()
+        scene = self._scene
         if r.left < 0 or r.right > scene.width: # vertical edges
             new_angle = math.atan2(math.fast_sin(angle_degree),
                                    -math.fast_cos(angle_degree))
@@ -288,11 +379,11 @@ class Sprite:
             ops=(
                 dict(op="point_in_direction",
                      args=(new_angle_degree,)),
-                dict(op="move_by", args=(scene._coordsys.dir_x * dx,
-                                         scene._coordsys.dir_y * dy)),
+                dict(op="move_by", args=scene.coordsys.vector_from(Point(dx, dy)).tuple),
             )))
 
     def turn_counter_clockwise(self, angle):
+        self._scene.anglesys.check_angle(angle)
         send_request(message.SpriteOp(
             name=self.name,
             op="turn_counter_clockwise",
@@ -314,3 +405,25 @@ class Sprite:
 
     def touching(self, object):
         return object in self.touched_objects()
+
+    def glide(self, duration, to=None):
+        if not isinstance(duration, (int, float)):
+            raise TypeError("duration must be int or float, not {}"
+                            .format(type(duration).__name__))
+        if duration <= 0:
+            raise ValueError("duration must be positive")
+        if isinstance(to, tuple):
+            x, y = to
+            if not isinstance(x, (int, float)):
+                raise TypeError(f"first destination coordinate must be int or float, not {type(x).__name__}")
+            if not isinstance(y, (int, float)):
+                raise TypeError(f"second destination coordinate must be int or float, not {type(y).__name__}")
+            position = self._scene.coordsys.point_from(Point(x, y)).tuple
+        elif isinstance(to, str):
+            position = to
+        else:
+            raise TypeError(f"unexpected type {type(to).__name__} for 'to' argument")
+        send_request(message.SpriteMoveTo(
+            name=self.name,
+            position=position,
+            duration=duration))

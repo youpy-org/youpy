@@ -36,6 +36,12 @@ def mkcli():
         action="store_true",
         help="Show FPS in the top-right corner of the screen.")
     parser.add_argument(
+        "--fps",
+        action="store",
+        type=int,
+        default=30, # Scratch's FPS according to my experiment.
+        help="Refresh rate of the simulation.")
+    parser.add_argument(
         "--log-level",
         action="store",
         type=log_level,
@@ -46,7 +52,7 @@ def mkcli():
         action="store",
         type=log_level,
         default="info",
-        help="System logging level for terminal")
+        help="System logging level")
     parser.add_argument(
         "--log-context",
         action="store_true",
@@ -57,7 +63,7 @@ def mkcli():
 def main(argv, opts):
     opts, _ = parse_cli_args(mkcli(), argv[1:], opts)
     try:
-        run(opts.project_dir, show_fps=opts.show_fps,
+        run(opts.project_dir, show_fps=opts.show_fps, fps=opts.fps,
             log_level=opts.log_level, syslog_level=opts.syslog_level,
             log_context=opts.log_context)
         return 0

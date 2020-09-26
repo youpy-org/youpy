@@ -6,8 +6,11 @@
 from typing import Any
 from typing import Tuple
 from typing import Mapping
+from typing import Union
 from dataclasses import dataclass
 from dataclasses import field
+
+from youpy import math
 
 
 @dataclass
@@ -47,5 +50,25 @@ class SpriteBatchOp:
     ops: Tuple[Mapping]
 
 @dataclass
+class SpriteMove:
+    name: str
+    step: Union[int, float]
+
+@dataclass
+class SpriteMoveBy:
+    name: str
+    step_by: math.Point
+
+@dataclass
+class SpriteMoveTo:
+    name: str
+    position: Union[Tuple[Union[int, float], Union[int, float]], str]
+    duration: Any = None
+
+@dataclass
 class Wait:
     delay: float
+
+@dataclass
+class StopProgram:
+    reason: str

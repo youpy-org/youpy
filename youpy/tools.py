@@ -75,3 +75,6 @@ def print_simple_banner(msg, separator="*", printer=print):
     printer(banner_str)
     printer(msg)
     printer(banner_str)
+
+def callback_name(cb):
+    return ".".join((cb.__module__, cb.__qualname__))

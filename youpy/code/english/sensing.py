@@ -7,32 +7,14 @@ from ._internal import wrap_sprite_method
 
 from youpy.api import get_scene
 from youpy.api import send_request
-from youpy.api import SCENE_EDGE
 
 
 class Scene:
-    """User interface to the scene read-only attributes.
 
-    WARNING: Make sure everything is read-only since they are accessed
-             concurrently.
-    """
+    def __getattr__(self, name):
+        return getattr(get_scene(), name)
 
-    # Make sure we have no attribute otherwise a lock will be required.
-    __slots__ = ()
-
-    @property
-    def width(self):
-        return get_scene().scene.width
-
-    @property
-    def height(self):
-        return get_scene().scene.height
-
-    @property
-    def edge(self):
-        return SCENE_EDGE
-
-scene = Scene()
+Stage = Scene()
 
 sprite_functions = (
     "touched_objects",
@@ -45,7 +27,7 @@ for name in sprite_functions:
 del name, modulename
 
 __all__ = sprite_functions + (
-    "scene",
+    "Stage",
     "touched_objects",
     "touching",
 )

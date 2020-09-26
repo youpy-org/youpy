@@ -16,9 +16,9 @@ from youpy.script import get_scene
 from youpy.script import send_request
 from youpy.script import StopScript
 from youpy.script import get_script_logger
+from youpy.script import get_context_script
 from youpy.script import Sprite
 from youpy.script import get_context_frontend_sprite
 from youpy.runner import run
 from youpy import message
 from youpy import math
-from youpy.data import SCENE_EDGE

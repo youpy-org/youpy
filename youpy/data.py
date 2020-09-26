@@ -12,6 +12,7 @@ import pygame
 from youpy.tools import as_ratio
 from youpy.tools import scale_size_by
 from youpy import math
+from youpy.math import Point
 
 
 class Color:
@@ -81,47 +82,19 @@ class EngineSprite:
     it is modified).
     """
 
-    class _State:
-
-        __slots__ = ("visible", "rect", "coordsys_name", "_direction")
-
-        def __init__(self, coordsys_name="center"):
-            self.visible = True
-            self.rect = None
-            self.coordsys_name = coordsys_name
-            self._direction = 0 # direction angle in degree
-
-        def go_to(self, x, y):
-            p = self.position()
-            if x is None:
-                x = p[0]
-            if y is None:
-                y = p[1]
-            setattr(self.rect, self.coordsys_name, (x, y))
-
-        def position(self):
-            return getattr(self.rect, self.coordsys_name)
-
-        def direction(self):
-            return self._direction
-
-        def turn_counter_clockwise(self, angle):
-            self._direction += angle
-            self._direction %= 360
-
-        def copy(self):
-            n = type(self)(coordsys_name=self.coordsys_name)
-            n.visible = self.visible
-            n.rect = self.rect.copy()
-            n._direction = self._direction
-            return n
-
-    def __init__(self, path, coordsys_name="center"):
+    def __init__(self, path, coordsys_name="center", scene=None):
         self._path = Path(path)
         assert self._path.is_dir()
         self.images = []
         self._index = -1
-        self._st = self._State(coordsys_name=coordsys_name)
+        if not isinstance(scene, EngineScene):
+            raise TypeError("scene must be EngineScene, not {}"
+                            .format(type(scene).__name__))
+        self.scene = scene
+        self._position = Point.null()
+        self._rect = None
+        self._visible = True
+        self._direction = 0 # direction angle in degree
 
     @property
     def path(self):
@@ -132,77 +105,86 @@ class EngineSprite:
         return self._path.name
 
     def __repr__(self):
-        return f"EngineSprite(name={self.name!r})"
+        return "".join((f"EngineSprite(name={self.name!r})",
+                        ", ".join((f"name={self.name!r}",
+                                   f"visible={self._visible!r}",
+                                   f"position=({self._position.tuple!r}",
+                                   f"direction={self._direction!r}",
+                                   )),
+                        ")"))
 
     @property
     def rect(self):
-        return self._st.rect
+        return self._rect
 
     @rect.setter
     def rect(self, new_rect):
-        self._st.rect = new_rect
+        self._rect = new_rect
 
     def go_to(self, x, y):
-        self._st.go_to(x, y)
+        p = self._position
+        if x is None:
+            x = p.x
+        if y is None:
+            y = p.y
+        self._position.x = x
+        self._position.y = y
+        self._update_rect_position()
 
+    def go_to_position(self, position):
+        self._position = position
+        self._update_rect_position()
+
+    def _update_rect_position(self):
+        self.scene.coordsys.set_rect_position(self._rect, self._position)
+
+    @property
     def position(self):
-        return self._st.position()
+        return self._position
 
     @property
     def current_image(self):
         return self.images[self._index]
 
     def show(self):
-        self._st.visible = True
+        self._visible = True
 
     def hide(self):
-        self._st.visible = False
+        self._visible = False
 
     @property
     def visible(self):
-        return self._st.visible
+        return self._visible
 
     @visible.setter
     def visible(self, visible):
-        self._st.visible = visible
+        self._visible = visible
 
     def point_in_direction(self, angle):
-        if not isinstance(angle, int):
-            raise TypeError("angle must be int, not {}"
-                            .format(type(angle).__name__))
-        if not 0 <= angle < 360:
-            raise ValueError(
-                "angle must be between 0 and 360 degree excluded, "\
-                f"but is equal to {angle}")
-        self._st._direction = angle
+        self._direction = angle
 
     def direction(self):
-        return self._st.direction()
+        return self._direction
 
     def turn_counter_clockwise(self, angle):
-        if not isinstance(angle, int):
-            raise TypeError("angle must be int, not {}"
-                            .format(type(angle).__name__))
-        if not 0 <= angle < 360:
-            raise ValueError(
-                "angle must be between 0 and 360 degree excluded, "\
-                f"but is equal to {angle}")
-        return self._st.turn_counter_clockwise(angle)
-
-    def move(self, step):
-        if not isinstance(step, int):
-            raise TypeError("step must be int, not {}"
-                            .format(type(step).__name__))
-        # print(f"move direction={self._direction}, step={step}, {x=}, {y=}, dx={dx}, dy={dy}")
-        self.move_by(step * math.fast_cos(self._st._direction),
-                     -step * math.fast_sin(self._st._direction))
+        self._direction = self.scene.anglesys.inc_angle(self._direction, angle)
 
     def move_by(self, step_x, step_y):
-        x, y = self.position()
-        self.go_to(x + step_x, y + step_y)
+        self.go_to(self._position.x + step_x, self._position.y + step_y)
+
+    def move_by_velocity(self, velocity):
+        self.move_by(velocity.x, velocity.y)
+
+    def get_velocity_from_direction(self):
+        return self.scene.coordsys.vector_from(Point.toward(self._direction))
 
     def get_state(self):
-        return self._st.copy()
+        class State:
+            visible = self._visible
+            rect = self._rect.copy()
+            position = self._position.copy()
+            direction = self.direction()
+        return State()
 
 def scale_sprite_by(sprite, ratio=None):
     """
@@ -212,15 +194,23 @@ def scale_sprite_by(sprite, ratio=None):
         scale_image_by(image, ratio=ratio)
     sprite.rect.size = sprite.current_image.rect.size
 
-class _Scene:
+class EngineScene:
     """Internal scene representation."""
 
+    DEFAULT_WIDTH = 480
+    DEFAULT_HEIGHT = 360
+
+    # Sentinel object to mark scene edge in collision list.
+    EDGE = object()
+
     def __init__(self):
-        self.width = 480
-        self.height = 360
+        self.width = self.DEFAULT_WIDTH
+        self.height = self.DEFAULT_HEIGHT
         self.surface = None
         self.backdrops = OrderedDict() # important to support "next backdrop"
         self._backdrop = None
+        self.coordsys = None # set at configuration time
+        self.anglesys = None # set at configuration time
 
     @property
     def size(self):
@@ -245,34 +235,3 @@ class _Scene:
     @backdrop.setter
     def backdrop(self, backdrop):
         self._backdrop = self.backdrops[backdrop]
-
-class Scene:
-    """Scene front-end.
-
-    Concurrently accessed from user script. Passed to every running script.
-    Should be pickable.
-    """
-
-    @classmethod
-    def from_scene(cls, scene):
-        return cls(width=scene.width,
-                   height=scene.height,
-                   coordsys=scene.coordsys,
-                   anglesys=scene.anglesys)
-
-    def __init__(self, width=None, height=None, coordsys=None, anglesys=None):
-        self._width = width
-        self._height = height
-        self._coordsys = coordsys
-        self._anglesys = anglesys
-
-    @property
-    def width(self):
-        return self._width
-
-    @property
-    def height(self):
-        return self._height
-
-# Sentinel object to mark scene edge in collision list.
-SCENE_EDGE = object()

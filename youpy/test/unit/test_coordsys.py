@@ -6,13 +6,13 @@
 import unittest
 import math
 
-from youpy import coordsys
+from youpy.math import scratch_degree
 
 
 class TestScratchDegree(unittest.TestCase):
 
     def setUp(self):
-        self.cs = coordsys.scratch_degree()
+        self.cs = scratch_degree()
 
     # radian -> degree
     REF_TABLE = (

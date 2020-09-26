@@ -13,14 +13,14 @@ Motion features may be found in `youpy.code.<language>.motion`
 | move | `move` Youpy's function | no |
 | turn clockwise | `turn_clockwise` Youpy's function | no |
 | turn counter_clockwise | `turn_counter_clockwise` Youpy's function | no |
-| go to random position | not implemented yet | no |
+| go to random position | `go_to` with `point=Stage.random_position` | no |
 | go to mouse-pointer | not implemented yet | no |
-| go to sprite position | not implemented yet | no |
+| go to sprite position | `go_to_sprite` Youpy's function | no |
 | go to (x, y) | `go_to(x, y)` Youpy's function | no |
-| glide N secs to random position | not implemented yet | no |
+| glide N secs to random position | `glide` with `to=Stage.random_position` | no |
 | glide N secs to mouse-pointer | not implemented yet | no |
-| glide N secs to sprite position | not implemented yet | no |
-| glide N secs to (x, y) | not implemented yet | no |
+| glide N secs to sprite position | `glide` with `to="sprite name"` | no |
+| glide N secs to (x, y) | `glide` Youpy's function | no |
 | point in direction | `point_in_direction` Youpy's function  | no |
 | point towards mouse-pointer | not implemented yet | no |
 | point towards sprite | not implemented yet | no |
@@ -167,7 +167,7 @@ Python operators. Other functions may be found in
 | `-` | `-` opeartor | no |
 | `*` | `*` opeartor | no |
 | `/` | `/` opeartor | no |
-| pick random | not implemented yet | no |
+| pick random | `random.randint` | no |
 | `>` | `>`  operator | no |
 | `<` | `<`  operator | no |
 | `=` | `==` operator  | no |

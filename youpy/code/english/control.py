@@ -8,6 +8,7 @@ from youpy.api import run as _run
 from youpy.api import get_script_logger
 from youpy.api import send_request
 from youpy.api import message
+from youpy.api import get_context_script
 from youpy import logging
 
 
@@ -22,10 +23,21 @@ def run(caller_locals=None, **kwargs):
     _run(caller_locals["__file__"], **kwargs)
 
 def wait(delay):
+    """Wait for _delay_ seconds (decimal value allowed)."""
+    if not isinstance(delay, (int, float)):
+        raise TypeError("delay must be int or float, not {}"
+                        .format(type(delay).__name__))
     send_request(message.Wait(delay=delay))
 
 def stop():
     raise StopScript()
+
+def stop_program(reason=""):
+    script = get_context_script()
+    get_script_logger().log(
+        logging.INFO,
+        f"script {script.name} has stopped the program")
+    send_request(message.StopProgram(reason=reason))
 
 class Console:
     """Allow to print message with different severity to the console.
@@ -55,5 +67,6 @@ __all__ = (
     "console",
     "run",
     "stop",
+    "stop_program",
     "wait",
 )
