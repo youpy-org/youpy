@@ -5,6 +5,9 @@
 [![Package stability](https://img.shields.io/pypi/status/youpy.svg)](https://pypi.org/project/youpy/)
 [![License](https://img.shields.io/pypi/l/youpy.svg)](https://pypi.org/project/youpy/)
 
+**Pre-alpha warning: this project is under development. Frequently
+check the [Scratch functions implementation status](SCRATCH.md)**
+
 Youpy aims at smoothing Python learning curve for beginners with or without
 knowledge of [Scratch](https://scratch.mit.edu/). It does this by
 providing a simple game engine framework
