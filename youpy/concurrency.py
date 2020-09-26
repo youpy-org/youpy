@@ -26,3 +26,46 @@ class Pipe:
     def __init__(self):
         self.request_queue = Queue(maxsize=self.MAXSIZE)
         self.reply_queue = Queue(maxsize=self.MAXSIZE)
+
+# Copied from https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s04.html
+class ReadWriteLock:
+    """Lock allowing shared read access but exclusive write access.
+    """
+
+    def __init__(self):
+        self._read_ready = _concurrency.Condition(_concurrency.Lock())
+        self._readers_count = 0
+
+    def acquire_read(self):
+        """Acquire a read lock.
+
+        Blocks only if a thread has acquired the write lock.
+        """
+        self._read_ready.acquire()
+        try:
+            self._readers_count += 1
+        finally:
+            self._read_ready.release()
+
+    def release_read(self):
+        """Release a read lock."""
+        self._read_ready.acquire()
+        try:
+            self._readers_count -= 1
+            if self._readers_count <= 0:
+                self._read_ready.notifyAll()
+        finally:
+            self._read_ready.release()
+
+    def acquire_write(self):
+        """Acquire a write lock.
+
+        Blocks until there are no acquired read or write locks.
+        """
+        self._read_ready.acquire()
+        while self._readers_count > 0:
+            self._read_ready.wait()
+
+    def release_write(self):
+        """Release a write lock."""
+        self._read_ready.release()
