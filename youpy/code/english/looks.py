@@ -18,6 +18,9 @@ def switch_backdrop_to(backdrop):
     send_request(message.BackdropSwitchTo(name=backdrop))
 
 sprite_functions = (
+    "change_layer_by",
+    "go_to_back_layer",
+    "go_to_front_layer",
     "hide",
     "show",
     )

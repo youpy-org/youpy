@@ -435,6 +435,21 @@ class Sprite:
             position=position,
             duration=duration))
 
+    def go_to_front_layer(self):
+        send_request(message.SpritesListOp(op="go_to_front_layer",
+                                           args=(self.name,)))
+
+    def go_to_back_layer(self):
+        send_request(message.SpritesListOp(op="go_to_back_layer",
+                                           args=(self.name,)))
+
+    def change_layer_by(self, shift):
+        if not isinstance(shift, int):
+            raise TypeError("shift must be int, not {}"
+                            .format(type(shift).__name__))
+        send_request(message.SpritesListOp(op="change_layer_by",
+                                           args=(self.name, shift)))
+
 class Mouse:
     """Mouse state
     """

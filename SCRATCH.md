@@ -59,8 +59,9 @@ Looks features may be found in `youpy.code.<language>.looks`
 | clear graphics effect | not implemented yet | no |
 | show | `show` Youpy's function | no |
 | hide | `hide` Youpy's function | no |
-| go to layer | not implemented yet | no |
-| go forward/backward N layer | not implemented yet | no |
+| go to front layer | `go_to_front_layer` Youpy's function | no |
+| go to back layer | `go_to_back_layer` Youpy's function | no |
+| go forward/backward N layer | `change_layer_by` Youpy's function | no |
 | costume number/name | not implemented yet | no |
 | backdrop number/name | not implemented yet | no |
 | size value | not implemented yet | no |

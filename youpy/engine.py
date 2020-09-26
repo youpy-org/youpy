@@ -375,6 +375,11 @@ class RequestProcessors:
         def _run_once(self):
             self.simu.stop(reason=self.request.reason)
 
+    class SpritesListOpProcessor(OneShotProcessor):
+        def _run_once(self):
+            f = getattr(self.simu.sprites, self.request.op)
+            return f(*self.request.args, **self.request.kwargs)
+
 class EventManager:
 
     def __init__(self, simu):
@@ -447,6 +452,9 @@ class SpritesList(Sequence):
     def __iter__(self):
         return iter(self._sprites)
 
+    def __reversed__(self):
+        return reversed(self._sprites)
+
     def add(self, sprite):
         assert " " not in sprite.name
         self._sprites.append(sprite)
@@ -457,6 +465,26 @@ class SpritesList(Sequence):
 
     def items(self):
         return self._names.items()
+
+    def index_by_name(self, sprite_name):
+        return self._sprites.index(self._names[sprite_name])
+
+    def pop_by_name(self, sprite_name):
+        return self._sprites.pop(self.index_by_name(sprite_name))
+
+    def go_to_front_layer(self, sprite_name):
+        self._sprites.append(self.pop_by_name(sprite_name))
+
+    def go_to_back_layer(self, sprite_name):
+        self._sprites.insert(0, self.pop_by_name(sprite_name))
+
+    def change_layer_by(self, sprite_name, shift):
+        i = self.index_by_name(sprite_name)
+        sprite = self._sprites.pop(i)
+        i += shift
+        if i < 0:
+            i = 0
+        self._sprites.insert(i, sprite)
 
 class AbstractSimulation(ABC):
 

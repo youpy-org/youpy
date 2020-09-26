@@ -72,3 +72,9 @@ class Wait:
 @dataclass
 class StopProgram:
     reason: str
+
+@dataclass
+class SpritesListOp:
+    op: str
+    args: Tuple[Any] = ()
+    kwargs: Mapping[str, Any] = field(default_factory=dict)
