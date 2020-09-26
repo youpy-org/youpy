@@ -28,8 +28,6 @@ del name, modulename
 
 __all__ = sprite_functions + (
     "Stage",
-    "touched_objects",
-    "touching",
 )
 
 del sprite_functions
