@@ -224,13 +224,13 @@ Already implemented as Python function.
 ## Events
 
 Events in Youpy are implemented as callback function following a
-naming convention. It has some drawbacks.
+naming convention. Here some caveats.
 
 - You can only have one function of the same name in the same
   module. This is due to Python name binding. If you define a
   variable or a function with the name twice the second definition
   overwrite the first one. Thus, you can have only one
   `when_program_start` event per sprite. Whereas in Scratch you may
-  provide multiple script triggered on this event. The common
-  workaround is define two functions and call them in the event
-  handler. You will lose parallelism but in most cases it does not matter.
+  provide multiple script triggered on this event. To workaround this
+  issue, users can add an arbitrary trailing tag like this:
+  `when_program_start__moving` and `when_program_start__testing`.

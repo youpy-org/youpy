@@ -48,7 +48,9 @@ class MetaEvent(type):
         if name == "Event":
             return cls
         metacls.types.append(cls)
-        pattern = EVENT_FUNC_PREFIX + getattr(cls, "pattern")
+        # Add a trailing tag allowing user to define multiple event handler
+        # for the same event.
+        pattern = EVENT_FUNC_PREFIX + getattr(cls, "pattern") + "(?:__\w)?"
         cls.regex = re.compile(pattern)
         cls._decl_attrs = cls.regex.groupindex.keys()
         return cls
