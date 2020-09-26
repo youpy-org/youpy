@@ -606,7 +606,7 @@ class Simulation(AbstractSimulation):
 
     def _process_user_input(self):
         for e in pygame.event.get():
-            # print(type(event), event)
+            # print(type(e), e)
             if e.type == pygame.QUIT:
                 self.stop(reason="window was closed")
             elif e.type == pygame.KEYDOWN:
@@ -617,8 +617,6 @@ class Simulation(AbstractSimulation):
                         if e.key in k.code:
                             self.event_manager.schedule(
                                 event.KeyPressed(key=k.name))
-            # elif event.type == pygame.MOUSEMOTION:
-            #     MOUSE._set_pos(*event.pos)
 
 class Engine:
     """Run a simulation.
