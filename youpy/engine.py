@@ -5,6 +5,7 @@
 
 from collections import OrderedDict
 from collections import Counter
+from collections.abc import Sequence
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
@@ -165,7 +166,7 @@ class Renderer:
             scene.surface.blit(scene.backdrop.surface, (0, 0))
 
     def _render_sprites(self, scene, sprites):
-        for sprite in sprites.values():
+        for sprite in sprites:
             self._render_sprite(scene, sprite)
 
     def _render_sprite(self, scene, sprite):
@@ -292,13 +293,13 @@ class RequestProcessors:
 
     class SpriteOpProcessor(OneShotProcessor):
         def _run_once(self):
-            sprite = self.simu.sprites[self.request.name]
+            sprite = self.simu.sprites.by_name(self.request.name)
             f = getattr(sprite, self.request.op)
             return f(*self.request.args, **self.request.kwargs)
 
     class SpriteBatchOpProcessor(OneShotProcessor):
         def _run_once(self):
-            sprite = self.simu.sprites[self.request.name]
+            sprite = self.simu.sprites.by_name(self.request.name)
             rets = []
             for op in self.request.ops:
                 f = getattr(sprite, op["op"])
@@ -309,7 +310,7 @@ class RequestProcessors:
     class SpriteGetCollisionProcessor(OneShotProcessor):
         # TODO(Nicolas Despres): Handle mask
         def _run_once(self):
-            sprite = self.simu.sprites[self.request.name]
+            sprite = self.simu.sprites.by_name(self.request.name)
             collisions = []
             if not self.simu.scene.rect.contains(sprite.rect):
                 collisions.append(EngineScene.EDGE)
@@ -322,7 +323,7 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            sprite = self.simu.sprites[self.request.name]
+            sprite = self.simu.sprites.by_name(self.request.name)
             self.system = self.simu._physical_engine.move_sprite(sprite, self.request.step)
 
         def _run(self):
@@ -332,7 +333,7 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            sprite = self.simu.sprites[self.request.name]
+            sprite = self.simu.sprites.by_name(self.request.name)
             self.system = self.simu._physical_engine.move_sprite_by(sprite, self.request.step_by)
 
         def _run(self):
@@ -342,7 +343,7 @@ class RequestProcessors:
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            sprite = self.simu.sprites[self.request.name]
+            sprite = self.simu.sprites.by_name(self.request.name)
             if isinstance(self.request.position, str):
                 pos = self._get_sprite_position(self.request.position)
             else:
@@ -354,7 +355,7 @@ class RequestProcessors:
 
         def _get_sprite_position(self, name):
             try:
-                sprite = self.simu.sprites[name]
+                sprite = self.simu.sprites.by_name(name)
             except KeyError:
                 raise ValueError(f"unknown unknown sprite '{name}'")
             else:
@@ -426,6 +427,36 @@ class FPS:
     @property
     def fps(self):
         return self._fps
+
+class SpritesList(Sequence):
+    """Holds the list of all sprites.
+
+    Allow sequential access by z-order and access by sprite name
+    """
+
+    def __init__(self):
+        self._sprites = []
+        self._names = {}
+
+    def __getitem__(self, i):
+        return self._sprites[i]
+
+    def __len__(self):
+        return len(self._sprites)
+
+    def __iter__(self):
+        return iter(self._sprites)
+
+    def add(self, sprite):
+        assert " " not in sprite.name
+        self._sprites.append(sprite)
+        self._names[sprite.name] = sprite
+
+    def by_name(self, name):
+        return self._names[name]
+
+    def items(self):
+        return self._names.items()
 
 class AbstractSimulation(ABC):
 
@@ -533,7 +564,7 @@ class Simulation(AbstractSimulation):
         self.project = project
         self.scene = EngineScene()
         self.mouse = EngineMouse()
-        self.sprites = {}
+        self.sprites = SpritesList()
         self.event_manager = EventManager(self)
         self.scripts = ScriptSet()
         self.shared_variables = SharedVariableSet()

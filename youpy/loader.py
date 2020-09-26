@@ -51,7 +51,7 @@ class Loader:
                 simu.event_manager.event_handlers,
                 import_module(simu.project.sprite_module_path(sprite.name)),
                 sprite=sprite)
-            _add_item_to_dict(simu.sprites, sprite)
+            simu.sprites.add(sprite)
             self.progress.in_section("sprite", i, path)
         self.progress.end_section()
 

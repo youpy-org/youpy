@@ -72,7 +72,7 @@ class Configurer:
             return
         for sprite_name, sprite_cfg in cfg.items():
             try:
-                sprite = sprites[sprite_name]
+                sprite = sprites.by_name(sprite_name)
             except KeyError:
                 raise ConfigError(f"unknown sprite: '{sprite_name}'")
             else:
