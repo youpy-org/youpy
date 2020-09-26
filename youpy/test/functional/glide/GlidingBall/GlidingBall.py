@@ -7,7 +7,7 @@ def when_program_start():
     D = 2.5
     while True:
         t0 = time()
-        p = Stage.random_position
+        p = Stage.pick_random_position()
         glide(D, to=p)
         t1 = time()
         assert math.isclose(round(t1 - t0, 1), D)

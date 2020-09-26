@@ -193,8 +193,7 @@ class Scene:
     def center(self):
         return self.rect.center
 
-    @property
-    def random_position(self):
+    def pick_random_position(self):
         r = self.rect
         return (randint(r.left, r.right), randint(r.top, r.bottom))
 

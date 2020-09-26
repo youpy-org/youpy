@@ -13,11 +13,11 @@ Motion features may be found in `youpy.code.<language>.motion`
 | move | `move` Youpy's function | no |
 | turn clockwise | `turn_clockwise` Youpy's function | no |
 | turn counter_clockwise | `turn_counter_clockwise` Youpy's function | no |
-| go to random position | `go_to` with `point=Stage.random_position` | no |
+| go to random position | `go_to` with `point=Stage.pick_random_position()` | no |
 | go to mouse-pointer | `go_to` with `point=Mouse.position` | no |
 | go to sprite position | `go_to_sprite` Youpy's function | no |
 | go to (x, y) | `go_to(x, y)` Youpy's function | no |
-| glide N secs to random position | `glide` with `to=Stage.random_position` | no |
+| glide N secs to random position | `glide` with `to=Stage.pick_random_position()` | no |
 | glide N secs to mouse-pointer | `glide` with `to=Mouse.position` | no |
 | glide N secs to sprite position | `glide` with `to="sprite name"` | no |
 | glide N secs to (x, y) | `glide` Youpy's function | no |
