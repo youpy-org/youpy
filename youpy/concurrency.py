@@ -69,3 +69,33 @@ class ReadWriteLock:
     def release_write(self):
         """Release a write lock."""
         self._read_ready.release()
+
+class ReadLock:
+    """Context-manager interface for read access to read-write lock.
+    """
+
+    def __init__(self, rwlock):
+        self._rwlock = rwlock
+
+    def __enter__(self):
+        self._rwlock.acquire_read()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._rwlock.release_read()
+        return False # Tell to re-raise the exception if there was one.
+
+class WriteLock:
+    """Context-manager interface for write access to read-write lock.
+    """
+
+    def __init__(self, rwlock):
+        self._rwlock = rwlock
+
+    def __enter__(self):
+        self._rwlock.acquire_write()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._rwlock.release_write()
+        return False # Tell to re-raise the exception if there was one.
