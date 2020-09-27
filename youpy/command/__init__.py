@@ -27,9 +27,10 @@ class CommandNotFoundError(Exception):
         return "command not found: {}".format(self.name)
 
 def import_command(name):
+    fullname = "{}.{}".format(__name__, name)
     try:
-        return import_module("{}.{}".format(__name__, name))
+        return import_module(fullname)
     except ModuleNotFoundError as e:
-        if e.name == name:
+        if e.name == fullname:
             raise CommandNotFoundError(name)
         raise e
