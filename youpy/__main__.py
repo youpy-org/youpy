@@ -107,7 +107,7 @@ def main(argv):
     try:
         subcmd_mod = import_command(options.subcommand)
     except CommandNotFoundError as e:
-        print(e)
+        print("youpy: "+e)
         return 1
     return subcmd_mod.main(rest, options)
 
