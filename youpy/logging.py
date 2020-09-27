@@ -6,6 +6,9 @@
 import logging
 import sys
 
+from colorama import Fore
+from colorama import Back
+
 from youpy.tools import rev_dict
 
 from logging import DEBUG
@@ -24,6 +27,13 @@ LEVEL2STR = {
     FATAL: "fatal",
 }
 STR2LEVEL = rev_dict(LEVEL2STR)
+LEVEL2COLOR = {
+    DEBUG: Fore.CYAN,
+    INFO: Fore.GREEN,
+    WARNING: Fore.YELLOW,
+    ERROR: Fore.RED,
+    FATAL: Fore.YELLOW+Back.RED,
+}
 
 ROOT_LOGGER_NAME = "youpy"
 
@@ -53,17 +63,17 @@ def init_logger(project, log_level=None, syslog_level=None,
         "%(asctime)s: %(name)s: %(lowerlevelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S")
     context_brief_format = "%(name)s: %(lowerlevelname)s: %(message)s"
-    brief_format = context_brief_format if log_context else "%(message)s"
+    brief_format = context_brief_format if log_context else "%(significant_lowerlevelname)s%(message)s"
     brief_formatter = logging.Formatter(brief_format)
 
-    stream_handler = logging.StreamHandler(sys.stdout)
+    console_handler = logging.StreamHandler(sys.stdout)
     system_file_handler = logging.FileHandler(project.syslog_file,
                                               mode="w", encoding="utf-8")
     user_file_handler = logging.FileHandler(project.user_log_file,
                                             mode="w", encoding="utf-8")
 
-    stream_handler.setFormatter(brief_formatter)
-    stream_handler.setLevel(log_level)
+    console_handler.setFormatter(brief_formatter)
+    console_handler.setLevel(log_level)
 
     system_file_handler.setFormatter(precise_formatter)
     system_file_handler.setLevel(syslog_level)
@@ -72,7 +82,7 @@ def init_logger(project, log_level=None, syslog_level=None,
     user_file_handler.setLevel(log_level)
     user_file_handler.addFilter(UserLogFilter())
 
-    youpy_logger.addHandler(stream_handler)
+    youpy_logger.addHandler(console_handler)
     youpy_logger.addHandler(system_file_handler)
     youpy_logger.addHandler(user_file_handler)
 
@@ -83,6 +93,10 @@ _old_record_factory = logging.getLogRecordFactory()
 def record_factory(*args, **kwargs):
     record = _old_record_factory(*args, **kwargs)
     record.lowerlevelname = record.levelname.lower()
+    if record.levelno < PRINT:
+        record.significant_lowerlevelname = LEVEL2COLOR[record.levelno]+record.lowerlevelname+Fore.RESET+Back.RESET+": "
+    else:
+        record.significant_lowerlevelname = ""
     return record
 
 logging.setLogRecordFactory(record_factory)
