@@ -53,7 +53,7 @@ def init_logger(project, log_level=None, syslog_level=None,
         "%(asctime)s: %(name)s: %(lowerlevelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S")
     context_brief_format = "%(name)s: %(lowerlevelname)s: %(message)s"
-    brief_format = context_brief_format if log_context else "%(message)s"
+    brief_format = context_brief_format if log_context else "%(significant_lowerlevelname)s%(message)s"
     brief_formatter = logging.Formatter(brief_format)
 
     console_handler = logging.StreamHandler(sys.stdout)
@@ -83,6 +83,10 @@ _old_record_factory = logging.getLogRecordFactory()
 def record_factory(*args, **kwargs):
     record = _old_record_factory(*args, **kwargs)
     record.lowerlevelname = record.levelname.lower()
+    if record.levelno < PRINT:
+        record.significant_lowerlevelname = record.lowerlevelname+": "
+    else:
+        record.significant_lowerlevelname = ""
     return record
 
 logging.setLogRecordFactory(record_factory)
