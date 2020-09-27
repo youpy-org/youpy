@@ -56,14 +56,14 @@ def init_logger(project, log_level=None, syslog_level=None,
     brief_format = context_brief_format if log_context else "%(message)s"
     brief_formatter = logging.Formatter(brief_format)
 
-    stream_handler = logging.StreamHandler(sys.stdout)
+    console_handler = logging.StreamHandler(sys.stdout)
     system_file_handler = logging.FileHandler(project.syslog_file,
                                               mode="w", encoding="utf-8")
     user_file_handler = logging.FileHandler(project.user_log_file,
                                             mode="w", encoding="utf-8")
 
-    stream_handler.setFormatter(brief_formatter)
-    stream_handler.setLevel(log_level)
+    console_handler.setFormatter(brief_formatter)
+    console_handler.setLevel(log_level)
 
     system_file_handler.setFormatter(precise_formatter)
     system_file_handler.setLevel(syslog_level)
@@ -72,7 +72,7 @@ def init_logger(project, log_level=None, syslog_level=None,
     user_file_handler.setLevel(log_level)
     user_file_handler.addFilter(UserLogFilter())
 
-    youpy_logger.addHandler(stream_handler)
+    youpy_logger.addHandler(console_handler)
     youpy_logger.addHandler(system_file_handler)
     youpy_logger.addHandler(user_file_handler)
 
