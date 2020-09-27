@@ -6,6 +6,9 @@
 import logging
 import sys
 
+from colorama import Fore
+from colorama import Back
+
 from youpy.tools import rev_dict
 
 from logging import DEBUG
@@ -24,6 +27,13 @@ LEVEL2STR = {
     FATAL: "fatal",
 }
 STR2LEVEL = rev_dict(LEVEL2STR)
+LEVEL2COLOR = {
+    DEBUG: Fore.CYAN,
+    INFO: Fore.GREEN,
+    WARNING: Fore.YELLOW,
+    ERROR: Fore.RED,
+    FATAL: Fore.YELLOW+Back.RED,
+}
 
 ROOT_LOGGER_NAME = "youpy"
 
@@ -84,7 +94,7 @@ def record_factory(*args, **kwargs):
     record = _old_record_factory(*args, **kwargs)
     record.lowerlevelname = record.levelname.lower()
     if record.levelno < PRINT:
-        record.significant_lowerlevelname = record.lowerlevelname+": "
+        record.significant_lowerlevelname = LEVEL2COLOR[record.levelno]+record.lowerlevelname+Fore.RESET+Back.RESET+": "
     else:
         record.significant_lowerlevelname = ""
     return record

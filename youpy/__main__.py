@@ -7,6 +7,8 @@ import sys
 import argparse
 import os
 
+import colorama
+
 from youpy.command import import_command
 from youpy.command import iter_command_names
 from youpy.command import CommandNotFoundError
@@ -84,6 +86,10 @@ def mkcli():
     return parser
 
 def main(argv):
+    # Do it first so that tty test works.
+    # It seems that running 'from colorama import Fore' before calling init()
+    # trouble the tty handling.
+    colorama.init()
     cli = mkcli()
     options, rest = cli.parse_known_args(argv[1:])
     if options.show_version:
