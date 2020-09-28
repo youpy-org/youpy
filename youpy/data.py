@@ -259,8 +259,11 @@ class EngineMouse:
     @position.setter
     def position(self, position):
         with self._write_lock:
-            # Enforce copy of each items.
-            self._position[0], self._position[1] = position
+            self._set_position(position)
+
+    def _set_position(self, position):
+        # Enforce copy of each items.
+        self._position[0], self._position[1] = position
 
     @property
     def buttons(self):
@@ -278,4 +281,24 @@ class EngineMouse:
 
     def set_button(self, index, pressed):
         with self._write_lock:
-            self._buttons[index - 1] = pressed
+            self._set_button(index, pressed)
+
+    def _set_button(self, index, pressed):
+        self._buttons[index - 1] = pressed
+
+    def process_events(self, events):
+        """Update state from the given events.
+
+        The advantage of this function is that it takes only once the
+        write lock.
+        """
+        if not events:
+            return
+        with self._write_lock:
+            for e in events:
+                if e.type == pygame.MOUSEMOTION:
+                    self._set_position(e.pos)
+                elif e.type == pygame.MOUSEBUTTONDOWN:
+                    self._set_button(e.button, True)
+                elif e.type == pygame.MOUSEBUTTONUP:
+                    self._set_button(e.button, False)

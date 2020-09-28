@@ -671,7 +671,10 @@ class Simulation(AbstractSimulation):
 
     def _process_user_input(self):
         # print("start input processing")
-        for e in pygame.event.get():
+        events = pygame.event.get()
+        if not events:
+            return
+        for e in events:
             # print(type(e), e)
             if e.type == pygame.QUIT:
                 self.stop(reason="window was closed")
@@ -683,8 +686,6 @@ class Simulation(AbstractSimulation):
                         if e.key in k.code:
                             self.event_manager.schedule(
                                 event.KeyPressed(key=k.name))
-            elif e.type == pygame.MOUSEMOTION:
-                self.mouse.position = e.pos
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 # Scratch actually trigger the event when the button is pressed
                 # and not if released after a short period as it is often the
@@ -695,9 +696,7 @@ class Simulation(AbstractSimulation):
                         event.SpriteClicked(module_name=sprite.name))
                 else:
                     self.event_manager.schedule(event.StageClicked())
-                self.mouse.set_button(e.button, True)
-            elif e.type == pygame.MOUSEBUTTONUP:
-                self.mouse.set_button(e.button, False)
+        self.mouse.process_events(events)
 
     def _get_clicked_sprite(self, position):
         for sprite in reversed(self.sprites):
